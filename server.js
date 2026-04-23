@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const rootDir = __dirname;
-const port = Number(process.env.PORT || 3000);
+const port = 8080;
 
 function loadEnv() {
   const envPath = path.join(rootDir, ".env");
@@ -33,6 +33,12 @@ loadEnv();
 
 const DEFAULT_IMAGE_MODEL = "google/gemini-2.5-flash-image-preview";
 const DEFAULT_TEXT_MODEL = "google/gemini-2.5-flash";
+
+const ALLOWED_IMAGE_MODELS = new Set([
+  "bytedance-seed/seedream-4.5",
+  "google/gemini-3-pro-image-preview",
+  "openai/gpt-5.4-image-2",
+]);
 
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
@@ -196,7 +202,10 @@ async function generateComicPage(request, response) {
       return;
     }
 
-    const model = process.env.OPENROUTER_IMAGE_MODEL || DEFAULT_IMAGE_MODEL;
+    const requestedModel = typeof payload.model === "string" ? payload.model.trim() : "";
+    const model = ALLOWED_IMAGE_MODELS.has(requestedModel)
+      ? requestedModel
+      : process.env.OPENROUTER_IMAGE_MODEL || DEFAULT_IMAGE_MODEL;
     const prompt = buildImagePrompt(payload);
 
     const supportsText = /^google\//i.test(model);

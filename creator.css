@@ -77,7 +77,7 @@ svg {
 }
 
 .creator-shell {
-  width: min(100% - 42px, 1680px);
+  width: min(100% - 42px, 1600px);
   margin: 18px auto 28px;
 }
 
@@ -135,8 +135,8 @@ svg {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 24px;
-  min-height: 64px;
-  padding: 0 18px;
+  min-height: 76px;
+  padding: 8px 18px;
   border: 1px solid var(--line);
   border-radius: 10px;
   background:
@@ -148,19 +148,12 @@ svg {
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-size: 22px;
-  font-weight: 800;
-  line-height: 1;
 }
 
-.brand-mark {
-  display: grid;
-  width: 28px;
-  height: 28px;
-  place-items: center;
-  color: #bb78ff;
-  filter: drop-shadow(0 0 12px rgba(176, 106, 255, 0.7));
+.brand-logo {
+  display: block;
+  width: auto;
+  height: 61px;
 }
 
 .project-title {
@@ -391,7 +384,7 @@ svg {
 /* ───────── Рабочая область ───────── */
 .workspace {
   display: grid;
-  grid-template-columns: 320px minmax(520px, 1fr) 380px;
+  grid-template-columns: 440px minmax(640px, 1fr) 480px;
   gap: 16px;
   margin-top: 14px;
 }
@@ -424,9 +417,11 @@ svg {
 .tabs button {
   display: inline-flex;
   min-height: 42px;
+  min-width: 0;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  padding: 0 6px;
   border: 1px solid transparent;
   border-radius: 8px;
   color: #cdd1df;
@@ -434,7 +429,12 @@ svg {
   cursor: pointer;
   font-weight: 700;
   font-size: 13px;
+  white-space: nowrap;
   transition: background 160ms, border-color 160ms, color 160ms;
+}
+
+.tone-label {
+  margin-top: 22px;
 }
 
 .side-tabs button:hover,
@@ -520,8 +520,8 @@ select:focus {
 
 .style-swatches {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
   margin-top: 14px;
 }
 
@@ -606,6 +606,105 @@ select:focus {
   background: rgba(91, 59, 182, 0.34);
 }
 
+.model-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.model-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px 14px 12px;
+  border: 1px solid rgba(151, 119, 255, 0.22);
+  border-radius: 10px;
+  color: #cdd1df;
+  background: rgba(17, 20, 45, 0.86);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.model-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(181, 112, 255, 0.54);
+  background: rgba(22, 17, 54, 0.72);
+}
+
+.model-card.is-selected {
+  border-color: rgba(198, 80, 255, 0.88);
+  background: rgba(50, 34, 120, 0.42);
+  box-shadow: 0 0 26px rgba(198, 80, 255, 0.18);
+}
+
+.model-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.model-head strong {
+  color: #f5f6ff;
+  font-size: 14px;
+}
+
+.model-head em {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.model-specs {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.model-specs li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.spec-value {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.spec-value.good {
+  color: #a7f1c2;
+  background: rgba(66, 214, 134, 0.16);
+}
+
+.spec-value.mid {
+  color: #ffd89a;
+  background: rgba(255, 194, 78, 0.16);
+}
+
+.spec-value.bad {
+  color: #ffb5b5;
+  background: rgba(255, 107, 107, 0.15);
+}
+
+.model-summary {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 /* ───────── Закреплённая CTA ───────── */
 .cta-footer {
   margin-top: auto;
@@ -654,7 +753,7 @@ select:focus {
   position: relative;
   display: grid;
   overflow: hidden;
-  width: min(100%, 820px);
+  width: min(100%, 640px);
   aspect-ratio: 3 / 4;
   margin: 0 auto;
   border: 1px solid var(--line);
@@ -724,9 +823,8 @@ select:focus {
 
 .page-strip {
   display: flex;
-  width: min(100%, 820px);
   gap: 8px;
-  margin: 12px auto 0;
+  margin: 0 12px 12px;
   padding: 10px;
   overflow-x: auto;
   border: 1px solid var(--line);
@@ -963,12 +1061,11 @@ select:focus {
 /* ───────── Адаптив ───────── */
 @media (max-width: 1380px) {
   .workspace {
-    grid-template-columns: 290px minmax(460px, 1fr) 340px;
+    grid-template-columns: 380px minmax(560px, 1fr) 420px;
   }
 
-  .comic-canvas,
-  .page-strip {
-    width: min(100%, 720px);
+  .comic-canvas {
+    width: min(100%, 560px);
   }
 }
 

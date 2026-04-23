@@ -9,6 +9,7 @@ const suggestScenesButton = document.querySelector("[data-suggest-scenes]");
 const styleSelect = document.querySelector("#styleSelect");
 const styleSwatches = Array.from(document.querySelectorAll("[data-style]"));
 const toneButtons = Array.from(document.querySelectorAll("[data-tone]"));
+const modelCards = Array.from(document.querySelectorAll("[data-model-id]"));
 const sceneList = document.querySelector("[data-scene-list]");
 const sceneCounter = document.querySelector("[data-scene-counter]");
 const pageStrip = document.querySelector(".page-strip");
@@ -64,8 +65,11 @@ const DEFAULT_SCENES = [
 let pages = [createPlaceholderDataUrl(1), createPlaceholderDataUrl(2)];
 let pageImages = ["assets/comic-preview-fantasy.png", "assets/comic-preview-japan.png"];
 let scenes = DEFAULT_SCENES.map((scene) => ({ ...scene }));
+const DEFAULT_MODEL_ID = "bytedance-seed/seedream-4.5";
+
 let activePage = 0;
 let activeTone = "emotional";
+let activeModel = DEFAULT_MODEL_ID;
 let activeScene = 0;
 let credits = 240;
 let apiKeyReady = false;
@@ -90,6 +94,7 @@ function getSnapshot() {
     story: storyInput?.value || "",
     style: styleSelect?.value || "Аниме",
     tone: activeTone,
+    model: activeModel,
     activePage,
     activeScene,
     pages: [...pages],
@@ -132,6 +137,7 @@ function restoreSnapshot(snapshot) {
   updateCreditBalance();
   setStyle(snapshot.style, false);
   setTone(snapshot.tone, false);
+  setModel(snapshot.model || DEFAULT_MODEL_ID, false);
   setScene(Math.min(snapshot.activeScene, scenes.length - 1), false);
   setPage(Math.min(snapshot.activePage, pages.length - 1), false);
 
@@ -233,6 +239,19 @@ function setTone(tone, save = true) {
 
   toneButtons.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.tone === tone);
+  });
+
+  if (save) pushHistory();
+}
+
+function setModel(modelId, save = true) {
+  const exists = modelCards.some((card) => card.dataset.modelId === modelId);
+  activeModel = exists ? modelId : DEFAULT_MODEL_ID;
+
+  modelCards.forEach((card) => {
+    const isSelected = card.dataset.modelId === activeModel;
+    card.classList.toggle("is-selected", isSelected);
+    card.setAttribute("aria-checked", String(isSelected));
   });
 
   if (save) pushHistory();
@@ -436,6 +455,7 @@ function buildScenePayload() {
     story: storyInput?.value.trim() || "",
     style: styleSelect?.value || "Аниме",
     tone: activeTone,
+    model: activeModel,
     page: activePage + 1,
     selectedScene: activeScene + 1,
     scenes: scenes.map((scene) => `${scene.title}: ${scene.description}`),
@@ -546,7 +566,7 @@ function setZoom(value) {
   if (!comicCanvas || !zoomLabel) return;
   const numeric = Number.parseInt(value, 10) || 100;
   zoomLabel.textContent = `${numeric}%`;
-  comicCanvas.style.width = `min(100%, ${Math.round(790 * (numeric / 100))}px)`;
+  comicCanvas.style.width = `min(100%, ${Math.round(620 * (numeric / 100))}px)`;
 }
 
 function toggleProfileMenu(force) {
@@ -714,6 +734,10 @@ toneButtons.forEach((button) => {
   button.addEventListener("click", () => setTone(button.dataset.tone));
 });
 
+modelCards.forEach((card) => {
+  card.addEventListener("click", () => setModel(card.dataset.modelId));
+});
+
 document.addEventListener("click", (event) => {
   if (profileMenu && !profileMenu.hidden) {
     if (!profileMenu.contains(event.target) && !profileToggle?.contains(event.target)) {
@@ -734,6 +758,7 @@ updateCreditBalance();
 setPage(activePage, false);
 setStyle(styleSelect?.value || "Аниме", false);
 setTone(activeTone, false);
+setModel(activeModel, false);
 setScene(activeScene, false);
 setZoom(zoomSelect?.value || "100%");
 setTab("scenes");
