@@ -199,9 +199,12 @@ async function generateComicPage(request, response) {
     const model = process.env.OPENROUTER_IMAGE_MODEL || DEFAULT_IMAGE_MODEL;
     const prompt = buildImagePrompt(payload);
 
+    const supportsText = /^google\//i.test(model);
+    const modalities = supportsText ? ["image", "text"] : ["image"];
+
     const data = await callOpenRouter({
       model,
-      modalities: ["image", "text"],
+      modalities,
       imageConfig: {
         aspect_ratio: process.env.OPENROUTER_IMAGE_ASPECT_RATIO || "1:1",
       },
