@@ -18,16 +18,14 @@
         </a>
 
         <nav class="nav-links" aria-label="Разделы">
-          <a href="#features">Возможности</a>
           <a href="#examples">Примеры</a>
           <a href="#workflow">Как работает</a>
+          <a href="#features">Возможности</a>
           <a href="#pricing">Тарифы</a>
-          <a href="#blog">Блог</a>
         </nav>
 
         <div class="header-actions">
-          <a class="button ghost" href="create.html">Войти</a>
-          <a class="button compact" href="create.html">Регистрация</a>
+          <a class="button compact" href="create.html">Создать комикс</a>
         </div>
       </header>
 
@@ -49,31 +47,44 @@
                 <path d="M12 2.5l1.9 5.2 5.4 1.9-5.4 1.9L12 16.7l-1.9-5.2-5.4-1.9 5.4-1.9L12 2.5zm6.4 11.8l.9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9.9-2.4z" />
               </svg>
             </a>
+            <p class="cta-note">Без регистрации • Попробуйте прямо сейчас</p>
 
             <ul class="hero-points" aria-label="Ключевые преимущества">
               <li>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z" />
                 </svg>
-                Кинематографичные раскладки
+                <div>
+                  <strong>Кинематографичные кадры</strong>
+                  <span>AI создаёт динамичные панели как в профессиональных комиксах.</span>
+                </div>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-7 8a7 7 0 0 1 14 0H5z" />
                 </svg>
-                Единые персонажи
+                <div>
+                  <strong>Последовательные персонажи</strong>
+                  <span>AI сохраняет внешний вид и характер героев между сценами.</span>
+                </div>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 2.5l2.4 6.2 6.1 2.3-6.1 2.3L12 19.5l-2.4-6.2L3.5 11l6.1-2.3L12 2.5z" />
                 </svg>
-                Эффектные стили
+                <div>
+                  <strong>Разнообразные стили</strong>
+                  <span>Выбирайте стили или создавайте уникальный визуальный язык комикса.</span>
+                </div>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M13 2L4 14h7l-1 8 10-13h-7l1-7z" />
                 </svg>
-                Быстрый результат
+                <div>
+                  <strong>Быстро и просто</strong>
+                  <span>От идеи до готового комикса за несколько минут.</span>
+                </div>
               </li>
             </ul>
           </div>
@@ -163,38 +174,6 @@
           </div>
         </section>
 
-        <section class="creator-band" id="creator" aria-labelledby="creator-title">
-          <div class="creator-copy">
-            <p class="eyebrow compact-eyebrow">Сюжетный промпт</p>
-            <h2 id="creator-title">Начните с одной сцены. AI соберет страницу.</h2>
-            <p>
-              Напишите короткую завязку и выберите настроение. Система предложит направление
-              страницы, ритм панелей и визуальный стиль.
-            </p>
-          </div>
-
-          <form class="prompt-console" aria-label="Генератор промпта для комикса">
-            <label for="storyPrompt">Идея истории</label>
-            <textarea id="storyPrompt" name="storyPrompt" rows="5">Одинокий курьер проходит через неоновый город во время шторма, чтобы доставить сообщение, способное разбудить древнюю машину.</textarea>
-
-            <div class="control-row" aria-label="Настройки стиля">
-              <label class="select-label" for="toneSelect">Тон</label>
-              <select id="toneSelect" name="toneSelect">
-                <option>Эпичный sci-fi</option>
-                <option>Темное фэнтези</option>
-                <option>Детективный нуар</option>
-                <option>Теплое приключение</option>
-              </select>
-              <button class="button compact" type="button" data-generate>Сгенерировать</button>
-            </div>
-
-            <output class="page-direction" for="storyPrompt toneSelect" data-output>
-              Кинематографичная страница на 5 панелей: широкий общий план, два кадра с
-              персонажем, одна динамичная сцена и финальный крупный план.
-            </output>
-          </form>
-        </section>
-
         <section class="feature-grid" id="features" aria-labelledby="features-title">
           <div class="section-heading">
             <p class="eyebrow compact-eyebrow">Возможности</p>
@@ -202,45 +181,29 @@
           </div>
 
           <article>
-            <h3>Генерация с учетом панелей</h3>
-            <p>Превращайте завязку в сцены, композицию, подписи и диалоги.</p>
+            <h3>AI-раскадровка</h3>
+            <p>Превращайте завязку в сцены с описанием, диалогами и подписями.</p>
           </article>
           <article>
-            <h3>Память персонажей</h3>
-            <p>Сохраняйте лица, костюмы, предметы и настроение на разных страницах.</p>
+            <h3>Персонажи в сюжете</h3>
+            <p>Опишите внешность и роли — они будут учитываться при генерации страницы.</p>
           </article>
           <article>
-            <h3>Контроль стиля</h3>
-            <p>Выбирайте мангу, западный комикс, нуар, фэнтези, sci-fi и другие стили.</p>
+            <h3>Выбор стиля и тона</h3>
+            <p>Аниме, манга, реализм или кинематографичный — с нужной эмоцией.</p>
           </article>
           <article>
-            <h3>Готовый экспорт</h3>
-            <p>Подготовьте страницы для соцсетей, питча, вебтуна или печати.</p>
+            <h3>Выбор модели</h3>
+            <p>Seedream, Nano Banana Pro или GPT Image — баланс скорости, качества и цены.</p>
           </article>
         </section>
 
         <section class="pricing-band" id="pricing" aria-labelledby="pricing-title">
-          <div>
+          <div class="pricing-copy">
             <p class="eyebrow compact-eyebrow">Тарифы</p>
-            <h2 id="pricing-title">Создайте первый выпуск без полноценной студийной команды</h2>
+            <h2 id="pricing-title">Начните бесплатно и переходите к длинным историям по мере роста проекта</h2>
           </div>
-          <a class="primary-cta secondary-cta" href="create.html">
-            <span>Встать в лист ожидания</span>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M5 11h10.2l-4.1-4.1L12.5 5l7.5 7-7.5 7-1.4-1.9 4.1-4.1H5v-2z" />
-            </svg>
-          </a>
-        </section>
-
-        <section class="blog-band" id="blog" aria-label="Превью блога">
-          <article>
-            <span>Заметки студии</span>
-            <h2>Как проектировать страницу комикса с AI: сначала панели, потом пиксели</h2>
-          </article>
-          <article>
-            <span>Процесс автора</span>
-            <h2>Как сохранять персонажей узнаваемыми на протяжении главы</h2>
-          </article>
+          <a class="button compact pricing-button" href="create.html">Создать комикс</a>
         </section>
       </main>
 

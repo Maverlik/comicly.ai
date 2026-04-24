@@ -1,19 +1,18 @@
 :root {
   color-scheme: dark;
-  --bg: #03050d;
-  --bg-soft: #070a17;
-  --panel: rgba(9, 13, 30, 0.88);
-  --panel-strong: rgba(13, 17, 39, 0.96);
-  --line: rgba(141, 116, 255, 0.2);
-  --line-strong: rgba(149, 88, 255, 0.58);
-  --ink: #f5f6ff;
-  --muted: #aeb3c7;
-  --soft: #6f758d;
-  --purple: #c650ff;
-  --violet: #873dff;
-  --blue: #2f67ff;
-  --cyan: #66caff;
-  --shadow: rgba(41, 63, 196, 0.32);
+  --bg: #020711;
+  --bg-soft: #07101d;
+  --panel: rgba(8, 15, 28, 0.84);
+  --panel-strong: rgba(12, 19, 35, 0.94);
+  --line: rgba(93, 135, 210, 0.24);
+  --line-strong: rgba(78, 141, 255, 0.44);
+  --ink: #f7fbff;
+  --muted: #a8b5cb;
+  --soft: #7a879b;
+  --blue: #1874d9;
+  --blue-strong: #0d5fc7;
+  --cyan: #56a7ff;
+  --shadow: rgba(12, 52, 120, 0.26);
   --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -32,9 +31,7 @@ body {
   font-family: var(--font);
   color: var(--ink);
   background:
-    linear-gradient(105deg, rgba(91, 63, 214, 0.14), transparent 34%),
-    linear-gradient(255deg, rgba(47, 103, 255, 0.12), transparent 38%),
-    linear-gradient(180deg, #02040c 0%, #060918 52%, #03050d 100%);
+    linear-gradient(180deg, #01060f 0%, #020914 54%, #020813 100%);
 }
 
 body::before {
@@ -44,10 +41,10 @@ body::before {
   pointer-events: none;
   content: "";
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.58), transparent 72%);
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 88px 88px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.48), transparent 70%);
 }
 
 button,
@@ -85,12 +82,12 @@ svg {
   display: flex;
   gap: 14px;
   align-items: center;
-  border: 1px solid rgba(255, 176, 78, 0.48);
-  border-radius: 10px;
+  border: 1px solid rgba(75, 104, 165, 0.28);
+  border-radius: 16px;
   padding: 12px 16px;
   margin-bottom: 12px;
-  color: #ffe3bf;
-  background: linear-gradient(135deg, rgba(198, 80, 255, 0.12), rgba(255, 138, 28, 0.18));
+  color: #d9e7fb;
+  background: rgba(8, 15, 28, 0.82);
 }
 
 .config-banner[hidden] {
@@ -101,18 +98,18 @@ svg {
   flex-shrink: 0;
   width: 24px;
   height: 24px;
-  color: #ffb04e;
+  color: #63a6ff;
 }
 
 .config-banner strong {
   display: block;
-  color: #fff5e1;
+  color: #f4f8ff;
   font-size: 14px;
 }
 
 .config-banner p {
   margin: 3px 0 0;
-  color: #f6d8b2;
+  color: #bfd0e6;
   font-size: 13px;
   line-height: 1.4;
 }
@@ -125,7 +122,7 @@ svg {
 }
 
 .config-banner a {
-  color: #ffd59a;
+  color: #8bc2ff;
   text-decoration: underline;
 }
 
@@ -138,11 +135,9 @@ svg {
   min-height: 76px;
   padding: 8px 18px;
   border: 1px solid var(--line);
-  border-radius: 10px;
-  background:
-    linear-gradient(180deg, rgba(17, 22, 48, 0.82), rgba(7, 10, 24, 0.92)),
-    rgba(8, 10, 24, 0.9);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+  border-radius: 18px;
+  background: rgba(8, 15, 28, 0.84);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
 }
 
 .brand {
@@ -187,10 +182,10 @@ svg {
   display: inline-flex;
   min-height: 30px;
   align-items: center;
-  border-radius: 8px;
+  border-radius: 999px;
   padding: 0 12px;
   color: #b9bed0;
-  background: rgba(30, 27, 58, 0.72);
+  background: rgba(13, 25, 46, 0.9);
   font-size: 13px;
   white-space: nowrap;
 }
@@ -211,9 +206,9 @@ svg {
   justify-content: center;
   gap: 8px;
   min-height: 38px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  background: rgba(12, 15, 34, 0.78);
+  border: 1px solid rgba(83, 144, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(12, 22, 42, 0.82);
   cursor: pointer;
   transition:
     transform 160ms ease,
@@ -232,7 +227,7 @@ svg {
 .credit-pill svg {
   width: 16px;
   height: 16px;
-  color: #bf6dff;
+  color: #63a6ff;
 }
 
 .icon-action {
@@ -258,9 +253,9 @@ svg {
   width: 38px;
   height: 38px;
   padding: 0;
-  border-color: rgba(102, 202, 255, 0.44);
+  border-color: rgba(83, 144, 255, 0.34);
   background:
-    linear-gradient(180deg, rgba(47, 103, 255, 0.4), rgba(198, 80, 255, 0.22)),
+    linear-gradient(180deg, rgba(24, 116, 217, 0.3), rgba(11, 26, 50, 0.92)),
     #121833;
 }
 
@@ -280,7 +275,7 @@ svg {
 .tool-button:hover,
 .button-gradient:hover {
   transform: translateY(-1px);
-  border-color: rgba(181, 112, 255, 0.54);
+  border-color: rgba(87, 155, 255, 0.5);
 }
 
 /* ───────── Поповеры (профиль/бургер) ───────── */
@@ -296,10 +291,10 @@ svg {
   z-index: 20;
   display: grid;
   min-width: 240px;
-  border: 1px solid rgba(151, 119, 255, 0.22);
-  border-radius: 10px;
+  border: 1px solid rgba(75, 104, 165, 0.26);
+  border-radius: 16px;
   padding: 6px;
-  background: rgba(8, 11, 27, 0.98);
+  background: rgba(8, 15, 28, 0.98);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
 }
 
@@ -311,7 +306,7 @@ svg {
   display: grid;
   gap: 2px;
   padding: 10px 12px 12px;
-  border-bottom: 1px solid rgba(151, 119, 255, 0.14);
+  border-bottom: 1px solid rgba(75, 104, 165, 0.16);
   margin-bottom: 4px;
 }
 
@@ -346,12 +341,12 @@ svg {
   flex-shrink: 0;
   width: 18px;
   height: 18px;
-  color: #aa82ff;
+  color: #63a6ff;
 }
 
 .popover button:hover,
 .popover-row:hover {
-  background: rgba(151, 119, 255, 0.14);
+  background: rgba(20, 41, 74, 0.72);
 }
 
 .popover button[disabled] {
@@ -367,7 +362,7 @@ svg {
 .popover-divider {
   height: 1px;
   margin: 4px 6px;
-  background: rgba(151, 119, 255, 0.14);
+  background: rgba(75, 104, 165, 0.16);
 }
 
 .popover-row span {
@@ -408,11 +403,9 @@ svg {
   align-self: start;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 10px;
-  background:
-    linear-gradient(180deg, rgba(17, 22, 48, 0.82), rgba(7, 10, 24, 0.92)),
-    rgba(8, 10, 24, 0.9);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+  border-radius: 18px;
+  background: rgba(8, 15, 28, 0.82);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
 }
 
 /* ───────── Табы (общие стили) ───────── */
@@ -421,8 +414,8 @@ svg {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
-  gap: 4px;
-  padding: 8px;
+  gap: 6px;
+  padding: 10px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -456,14 +449,14 @@ svg {
 
 .side-tabs button:hover,
 .tabs button:hover {
-  background: rgba(151, 119, 255, 0.08);
+  background: rgba(20, 41, 74, 0.5);
 }
 
 .side-tabs button.is-active,
 .tabs button.is-active {
-  border-color: rgba(151, 119, 255, 0.32);
+  border-color: rgba(75, 104, 165, 0.26);
   color: #ffffff;
-  background: rgba(69, 47, 148, 0.42);
+  background: rgba(13, 29, 53, 0.96);
 }
 
 .side-tabs svg,
@@ -499,10 +492,10 @@ textarea,
 input,
 select {
   width: 100%;
-  border: 1px solid rgba(120, 127, 169, 0.18);
-  border-radius: 8px;
+  border: 1px solid rgba(75, 104, 165, 0.2);
+  border-radius: 12px;
   color: #f5f6ff;
-  background: rgba(4, 8, 21, 0.82);
+  background: rgba(5, 11, 22, 0.88);
   outline: none;
 }
 
@@ -521,8 +514,8 @@ input {
 textarea:focus,
 input:focus,
 select:focus {
-  border-color: rgba(102, 202, 255, 0.68);
-  box-shadow: 0 0 0 3px rgba(102, 202, 255, 0.11);
+  border-color: rgba(87, 155, 255, 0.72);
+  box-shadow: 0 0 0 3px rgba(24, 116, 217, 0.12);
 }
 
 .counter-row {
@@ -537,10 +530,10 @@ select:focus {
 
 .advanced-block {
   margin-top: 14px;
-  border: 1px solid rgba(151, 119, 255, 0.18);
-  border-radius: 8px;
+  border: 1px solid rgba(75, 104, 165, 0.2);
+  border-radius: 14px;
   padding: 12px;
-  background: rgba(9, 12, 27, 0.48);
+  background: rgba(8, 15, 28, 0.56);
 }
 
 .advanced-block summary {
@@ -574,7 +567,7 @@ select:focus {
 
 .style-swatch:hover {
   transform: translateY(-1px);
-  border-color: rgba(181, 112, 255, 0.54);
+  border-color: rgba(87, 155, 255, 0.5);
 }
 
 .style-swatch img {
@@ -595,8 +588,8 @@ select:focus {
 }
 
 .style-swatch.is-selected {
-  border-color: rgba(198, 80, 255, 0.88);
-  box-shadow: 0 0 26px rgba(198, 80, 255, 0.22);
+  border-color: rgba(87, 155, 255, 0.78);
+  box-shadow: 0 0 24px rgba(24, 116, 217, 0.18);
 }
 
 .segmented-control {
@@ -607,10 +600,10 @@ select:focus {
 .segmented-control button {
   flex: 1;
   min-height: 42px;
-  border: 1px solid rgba(151, 119, 255, 0.18);
-  border-radius: 8px;
+  border: 1px solid rgba(75, 104, 165, 0.18);
+  border-radius: 12px;
   color: #cdd1df;
-  background: rgba(17, 20, 45, 0.86);
+  background: rgba(12, 22, 42, 0.82);
   cursor: pointer;
 }
 
@@ -637,9 +630,9 @@ select:focus {
 }
 
 .segmented-control button.is-active {
-  border-color: rgba(180, 111, 255, 0.9);
+  border-color: rgba(87, 155, 255, 0.84);
   color: #ffffff;
-  background: rgba(91, 59, 182, 0.34);
+  background: rgba(17, 57, 113, 0.48);
 }
 
 .model-list {
@@ -652,10 +645,10 @@ select:focus {
   display: grid;
   gap: 10px;
   padding: 14px 14px 12px;
-  border: 1px solid rgba(151, 119, 255, 0.22);
-  border-radius: 10px;
+  border: 1px solid rgba(75, 104, 165, 0.22);
+  border-radius: 14px;
   color: #cdd1df;
-  background: rgba(17, 20, 45, 0.86);
+  background: rgba(12, 22, 42, 0.82);
   cursor: pointer;
   text-align: left;
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
@@ -663,14 +656,14 @@ select:focus {
 
 .model-card:hover {
   transform: translateY(-1px);
-  border-color: rgba(181, 112, 255, 0.54);
-  background: rgba(22, 17, 54, 0.72);
+  border-color: rgba(87, 155, 255, 0.5);
+  background: rgba(15, 28, 50, 0.92);
 }
 
 .model-card.is-selected {
-  border-color: rgba(198, 80, 255, 0.88);
-  background: rgba(50, 34, 120, 0.42);
-  box-shadow: 0 0 26px rgba(198, 80, 255, 0.18);
+  border-color: rgba(87, 155, 255, 0.78);
+  background: rgba(16, 44, 82, 0.54);
+  box-shadow: 0 0 24px rgba(24, 116, 217, 0.16);
 }
 
 .model-head {
@@ -746,16 +739,16 @@ select:focus {
   margin-top: auto;
   padding: var(--side-pad);
   border-top: 1px solid var(--line);
-  background: rgba(4, 6, 16, 0.48);
+  background: rgba(6, 12, 24, 0.58);
 }
 
 .button-gradient {
   border-color: transparent;
   color: #ffffff;
   background:
-    linear-gradient(135deg, rgba(203, 78, 255, 0.98), rgba(46, 102, 255, 1)),
+    linear-gradient(135deg, #1c7ae6, #0f5fc7),
     rgba(20, 24, 48, 0.9);
-  box-shadow: 0 18px 40px rgba(62, 84, 255, 0.26);
+  box-shadow: 0 18px 40px rgba(14, 78, 171, 0.28);
   font-weight: 800;
   font-size: 14px;
 }
@@ -767,10 +760,10 @@ select:focus {
 
 .button-gradient.ghost-gradient {
   background:
-    linear-gradient(135deg, rgba(203, 78, 255, 0.32), rgba(46, 102, 255, 0.35)),
+    linear-gradient(135deg, rgba(28, 122, 230, 0.22), rgba(15, 95, 199, 0.2)),
     rgba(20, 24, 48, 0.9);
   box-shadow: none;
-  border-color: rgba(151, 119, 255, 0.38);
+  border-color: rgba(83, 144, 255, 0.26);
 }
 
 .cost-note {
@@ -793,12 +786,12 @@ select:focus {
   aspect-ratio: 3 / 4;
   margin: 0 auto;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 14px;
   place-items: center;
   background:
-    linear-gradient(180deg, rgba(71, 52, 163, 0.14), transparent 38%),
-    #060917;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+    linear-gradient(180deg, rgba(24, 116, 217, 0.12), transparent 40%),
+    #040a14;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.34);
   transition: width 180ms ease;
 }
 
@@ -830,7 +823,7 @@ select:focus {
   width: 54px;
   height: 54px;
   border: 3px solid rgba(255, 255, 255, 0.16);
-  border-top-color: #c650ff;
+  border-top-color: #2f8cff;
   border-radius: 50%;
   animation: spin 900ms linear infinite;
 }
@@ -848,7 +841,7 @@ select:focus {
 .comic-empty svg {
   width: 48px;
   height: 48px;
-  color: #aa82ff;
+  color: #63a6ff;
 }
 
 @keyframes spin {
@@ -864,9 +857,9 @@ select:focus {
   padding: 10px;
   overflow-x: auto;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 14px;
   background:
-    linear-gradient(180deg, rgba(17, 22, 48, 0.72), rgba(7, 10, 24, 0.9)),
+    linear-gradient(180deg, rgba(13, 25, 46, 0.86), rgba(6, 12, 24, 0.96)),
     rgba(8, 10, 24, 0.9);
   box-shadow: 0 16px 42px rgba(0, 0, 0, 0.22);
 }
@@ -879,9 +872,9 @@ select:focus {
   min-width: 66px;
   aspect-ratio: 0.82;
   place-items: center;
-  border: 1px solid rgba(151, 119, 255, 0.22);
-  border-radius: 8px;
-  background: rgba(9, 12, 27, 0.76);
+  border: 1px solid rgba(83, 144, 255, 0.22);
+  border-radius: 12px;
+  background: rgba(8, 15, 28, 0.88);
   cursor: pointer;
   overflow: hidden;
   transition: transform 160ms, border-color 160ms, box-shadow 160ms;
@@ -890,7 +883,7 @@ select:focus {
 .page-thumb:hover,
 .add-page:hover {
   transform: translateY(-1px);
-  border-color: rgba(181, 112, 255, 0.54);
+  border-color: rgba(87, 155, 255, 0.54);
 }
 
 .page-thumb img {
@@ -915,8 +908,8 @@ select:focus {
 }
 
 .page-thumb.is-active {
-  border-color: rgba(198, 80, 255, 0.92);
-  box-shadow: 0 0 26px rgba(137, 66, 255, 0.36);
+  border-color: rgba(87, 155, 255, 0.92);
+  box-shadow: 0 0 26px rgba(18, 116, 217, 0.26);
 }
 
 .add-page svg {
@@ -957,8 +950,8 @@ select:focus {
 }
 
 .tool-button.ghost {
-  border-color: rgba(151, 119, 255, 0.38);
-  background: rgba(22, 17, 54, 0.6);
+  border-color: rgba(83, 144, 255, 0.24);
+  background: rgba(12, 22, 42, 0.82);
 }
 
 .scene-list {
@@ -968,11 +961,11 @@ select:focus {
 }
 
 .scene-empty {
-  border: 1px dashed rgba(151, 119, 255, 0.28);
-  border-radius: 8px;
+  border: 1px dashed rgba(83, 144, 255, 0.28);
+  border-radius: 12px;
   padding: 16px;
   color: var(--muted);
-  background: rgba(5, 8, 20, 0.38);
+  background: rgba(6, 12, 24, 0.52);
   font-size: 13px;
   line-height: 1.45;
 }
@@ -982,21 +975,22 @@ select:focus {
   grid-template-columns: 22px 64px 1fr 32px;
   gap: 10px;
   align-items: center;
-  border: 1px solid transparent;
-  border-radius: 8px;
+  border: 1px solid rgba(83, 144, 255, 0.1);
+  border-radius: 12px;
   padding: 8px;
-  background: rgba(5, 8, 20, 0.48);
+  background: rgba(8, 15, 28, 0.62);
   cursor: pointer;
   transition: background 160ms, border-color 160ms;
 }
 
 .scene-item:hover {
-  background: rgba(22, 17, 54, 0.5);
+  background: rgba(14, 27, 49, 0.78);
+  border-color: rgba(83, 144, 255, 0.24);
 }
 
 .scene-item.is-selected {
-  border-color: rgba(140, 72, 255, 0.9);
-  background: rgba(50, 34, 120, 0.34);
+  border-color: rgba(87, 155, 255, 0.84);
+  background: rgba(17, 57, 113, 0.26);
 }
 
 .drag-handle {
@@ -1104,11 +1098,11 @@ select:focus {
   bottom: 28px;
   z-index: 40;
   max-width: 420px;
-  border: 1px solid rgba(102, 202, 255, 0.38);
-  border-radius: 10px;
+  border: 1px solid rgba(83, 144, 255, 0.32);
+  border-radius: 14px;
   padding: 12px 16px;
   color: #f5f6ff;
-  background: rgba(8, 11, 27, 0.96);
+  background: rgba(8, 15, 28, 0.96);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
   font-size: 13px;
 }
