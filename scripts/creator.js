@@ -6,9 +6,11 @@ const enhanceStoryButton = document.querySelector("[data-enhance-story]");
 const generatePageButton = document.querySelector("[data-generate-page]");
 const regenerateSceneButton = document.querySelector("[data-regenerate-scene]");
 const suggestScenesButton = document.querySelector("[data-suggest-scenes]");
+const addSceneButton = document.querySelector("[data-add-scene]");
 const styleSelect = document.querySelector("#styleSelect");
 const styleSwatches = Array.from(document.querySelectorAll("[data-style]"));
 const toneButtons = Array.from(document.querySelectorAll("[data-tone]"));
+const customToneInput = document.querySelector("#customToneInput");
 const modelCards = Array.from(document.querySelectorAll("[data-model-id]"));
 const sceneList = document.querySelector("[data-scene-list]");
 const sceneCounter = document.querySelector("[data-scene-counter]");
@@ -24,6 +26,9 @@ const toast = document.querySelector("[data-toast]");
 const downloadButton = document.querySelector("[data-download-page]");
 const shareButton = document.querySelector("[data-share-project]");
 const addPageButton = document.querySelector("[data-add-page]");
+const charactersInput = document.querySelector("#charactersInput");
+const sceneTitleInput = document.querySelector("#sceneTitleInput");
+const sceneDescriptionInput = document.querySelector("#sceneDescriptionInput");
 const dialogueInput = document.querySelector("#dialogueInput");
 const captionInput = document.querySelector("#captionInput");
 const regenerateDialogueButton = document.querySelector("[data-regenerate-dialogue]");
@@ -56,15 +61,9 @@ const PLACEHOLDER_IMAGES = [
   "assets/comicly-reference.png",
 ];
 
-const DEFAULT_SCENES = [
-  { title: "Сцена 1", description: "Широкий план разрушенного города под мертвым небом.", dialogue: "В МИРЕ, ГДЕ ЗВЕЗДЫ ПОГАСЛИ...", caption: "" },
-  { title: "Сцена 2", description: "Странник находит древнюю силу в руинах.", dialogue: "ОДИНОКИЙ СТРАННИК НАХОДИТ ДРЕВНЮЮ СИЛУ...", caption: "" },
-  { title: "Сцена 3", description: "Тени выходят из города и преследуют героя.", dialogue: "ТЕНИ ПРОСЫПАЮТСЯ В ГЛУБИНЕ ГОРОДА...", caption: "" },
-];
-
 let pages = [createPlaceholderDataUrl(1), createPlaceholderDataUrl(2)];
 let pageImages = ["assets/comic-preview-fantasy.png", "assets/comic-preview-japan.png"];
-let scenes = DEFAULT_SCENES.map((scene) => ({ ...scene }));
+let scenes = [];
 const DEFAULT_MODEL_ID = "bytedance-seed/seedream-4.5";
 
 let activePage = 0;
@@ -88,12 +87,28 @@ function showToast(message) {
   }, 3800);
 }
 
+function escapeHtml(value = "") {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  })[char]);
+}
+
+function getToneValue() {
+  return customToneInput?.value.trim() || activeTone;
+}
+
 function getSnapshot() {
   return {
     title: projectTitleInput?.value || "",
     story: storyInput?.value || "",
+    characters: charactersInput?.value || "",
     style: styleSelect?.value || "Аниме",
     tone: activeTone,
+    customTone: customToneInput?.value || "",
     model: activeModel,
     activePage,
     activeScene,
@@ -127,6 +142,8 @@ function restoreSnapshot(snapshot) {
 
   if (projectTitleInput) projectTitleInput.value = snapshot.title;
   if (storyInput) storyInput.value = snapshot.story;
+  if (charactersInput) charactersInput.value = snapshot.characters || "";
+  if (customToneInput) customToneInput.value = snapshot.customTone || "";
   pages = [...snapshot.pages];
   scenes = snapshot.scenes.map((scene) => ({ ...scene }));
   credits = snapshot.credits;
@@ -136,9 +153,10 @@ function restoreSnapshot(snapshot) {
   updateStoryCounter();
   updateCreditBalance();
   setStyle(snapshot.style, false);
-  setTone(snapshot.tone, false);
+  setTone(snapshot.tone, false, false);
   setModel(snapshot.model || DEFAULT_MODEL_ID, false);
-  setScene(Math.min(snapshot.activeScene, scenes.length - 1), false);
+  if (scenes.length) setScene(Math.min(snapshot.activeScene, scenes.length - 1), false);
+  else refreshSceneSelection();
   setPage(Math.min(snapshot.activePage, pages.length - 1), false);
 
   isRestoring = false;
@@ -234,12 +252,18 @@ function setStyle(style, save = true) {
   if (save) pushHistory();
 }
 
-function setTone(tone, save = true) {
-  activeTone = tone;
-
+function updateToneButtons() {
+  const hasCustomTone = Boolean(customToneInput?.value.trim());
   toneButtons.forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.tone === tone);
+    button.classList.toggle("is-active", !hasCustomTone && button.dataset.tone === activeTone);
   });
+}
+
+function setTone(tone, save = true, clearCustom = true) {
+  activeTone = tone || "emotional";
+  if (clearCustom && customToneInput) customToneInput.value = "";
+
+  updateToneButtons();
 
   if (save) pushHistory();
 }
@@ -261,6 +285,13 @@ function renderScenes() {
   if (!sceneList) return;
   sceneList.innerHTML = "";
 
+  if (!scenes.length) {
+    sceneList.innerHTML = '<div class="scene-empty">Сцены не заданы. При генерации страница будет раскадрована автоматически.</div>';
+    activeScene = 0;
+    refreshSceneSelection();
+    return;
+  }
+
   scenes.forEach((scene, index) => {
     const thumbSrc = pageImages[index % pageImages.length];
     const article = document.createElement("article");
@@ -272,8 +303,8 @@ function renderScenes() {
       </button>
       <img src="${thumbSrc}" alt="" />
       <div>
-        <h2>${scene.title}</h2>
-        <p>${scene.description}</p>
+        <h2>${escapeHtml(scene.title || `Сцена ${index + 1}`)}</h2>
+        <p>${escapeHtml(scene.description || "Описание появится при генерации.")}</p>
       </div>
       <button class="icon-action small" type="button" aria-label="Меню сцены" data-scene-menu>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm7 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm7 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" /></svg>
@@ -294,15 +325,47 @@ function renderScenes() {
   refreshSceneSelection();
 }
 
+function updateSelectedSceneForm() {
+  const scene = scenes[activeScene];
+  const hasScene = Boolean(scene);
+  const fields = [
+    sceneTitleInput,
+    sceneDescriptionInput,
+    dialogueInput,
+    captionInput,
+    regenerateDialogueButton,
+    generateCaptionButton,
+    regenerateSceneButton,
+  ];
+
+  fields.forEach((field) => {
+    if (field) field.disabled = !hasScene;
+  });
+
+  if (!hasScene) {
+    if (sceneTitleInput) sceneTitleInput.value = "";
+    if (sceneDescriptionInput) sceneDescriptionInput.value = "";
+    if (dialogueInput) dialogueInput.value = "";
+    if (captionInput) captionInput.value = "";
+  }
+}
+
 function refreshSceneSelection() {
   const items = sceneList ? Array.from(sceneList.querySelectorAll("[data-scene]")) : [];
   items.forEach((item) => {
-    item.classList.toggle("is-selected", Number(item.dataset.scene) === activeScene);
+    const sceneIndex = Number(item.dataset.scene);
+    const scene = scenes[sceneIndex];
+    item.classList.toggle("is-selected", sceneIndex === activeScene);
+    const title = item.querySelector("h2");
+    const description = item.querySelector("p");
+    if (title) title.textContent = scene?.title || `Сцена ${sceneIndex + 1}`;
+    if (description) description.textContent = scene?.description || "Описание появится при генерации.";
   });
-  if (sceneCounter) sceneCounter.textContent = `${activeScene + 1} из ${scenes.length}`;
+  if (sceneCounter) sceneCounter.textContent = scenes.length ? `${activeScene + 1} из ${scenes.length}` : "0 из 0";
   if (selectedSceneTitle) {
-    selectedSceneTitle.textContent = scenes[activeScene]?.title || "Выбранная сцена";
+    selectedSceneTitle.textContent = scenes[activeScene]?.title || "Сцена не выбрана";
   }
+  updateSelectedSceneForm();
 }
 
 function setScene(sceneIndex, save = true) {
@@ -311,6 +374,8 @@ function setScene(sceneIndex, save = true) {
   const scene = scenes[sceneIndex];
 
   refreshSceneSelection();
+  if (sceneTitleInput) sceneTitleInput.value = scene.title || "";
+  if (sceneDescriptionInput) sceneDescriptionInput.value = scene.description || "";
   if (dialogueInput) dialogueInput.value = scene.dialogue || "";
   if (captionInput) captionInput.value = scene.caption || "";
 
@@ -320,8 +385,11 @@ function setScene(sceneIndex, save = true) {
 function syncSceneFromInputs() {
   const scene = scenes[activeScene];
   if (!scene) return;
+  if (sceneTitleInput) scene.title = sceneTitleInput.value;
+  if (sceneDescriptionInput) scene.description = sceneDescriptionInput.value;
   if (dialogueInput) scene.dialogue = dialogueInput.value;
   if (captionInput) scene.caption = captionInput.value;
+  refreshSceneSelection();
 }
 
 async function callAiText(task) {
@@ -332,10 +400,13 @@ async function callAiText(task) {
     body: JSON.stringify({
       task,
       story: storyInput?.value.trim() || "",
+      characters: charactersInput?.value.trim() || "",
       style: styleSelect?.value || "Аниме",
-      tone: activeTone,
+      tone: getToneValue(),
       sceneTitle: scene.title,
       sceneDescription: scene.description,
+      dialogue: scene.dialogue,
+      caption: scene.caption,
     }),
   });
 
@@ -373,6 +444,10 @@ async function enhanceStory() {
 
 async function regenerateDialogue() {
   if (!dialogueInput) return;
+  if (!scenes.length) {
+    showToast("Добавьте или сгенерируйте сцену для диалога.");
+    return;
+  }
   if (!storyInput?.value.trim()) {
     showToast("Добавьте описание истории для генерации диалога.");
     return;
@@ -395,6 +470,10 @@ async function regenerateDialogue() {
 
 async function generateCaption() {
   if (!captionInput) return;
+  if (!scenes.length) {
+    showToast("Добавьте или сгенерируйте сцену для подписи.");
+    return;
+  }
   if (!storyInput?.value.trim()) {
     showToast("Добавьте описание истории для генерации подписи.");
     return;
@@ -429,8 +508,8 @@ async function suggestScenes() {
     scenes = aiScenes.map((scene, index) => ({
       title: scene.title || `Сцена ${index + 1}`,
       description: scene.description || "",
-      dialogue: scenes[index]?.dialogue || "",
-      caption: scenes[index]?.caption || "",
+      dialogue: scene.dialogue || scenes[index]?.dialogue || "",
+      caption: scene.caption || scenes[index]?.caption || "",
     }));
     activeScene = 0;
     renderScenes();
@@ -444,6 +523,22 @@ async function suggestScenes() {
   }
 }
 
+function addScene(save = true) {
+  const sceneNumber = scenes.length + 1;
+  scenes.push({
+    title: `Сцена ${sceneNumber}`,
+    description: "",
+    dialogue: "",
+    caption: "",
+  });
+  activeScene = scenes.length - 1;
+  renderScenes();
+  setScene(activeScene, false);
+  setTab("dialogue");
+  if (save) pushHistory();
+  showToast("Сцена добавлена.");
+}
+
 function toggleBusy(button, isBusy) {
   if (!button) return;
   button.disabled = isBusy;
@@ -451,14 +546,29 @@ function toggleBusy(button, isBusy) {
 }
 
 function buildScenePayload() {
+  const scenePrompts = scenes
+    .map((scene, index) => {
+      const parts = [
+        scene.title || `Сцена ${index + 1}`,
+        scene.description ? `описание: ${scene.description}` : "",
+        scene.dialogue ? `диалог: ${scene.dialogue}` : "",
+        scene.caption ? `подпись: ${scene.caption}` : "",
+      ].filter(Boolean);
+      return parts.length > 1 || scene.description || scene.dialogue || scene.caption
+        ? parts.join("; ")
+        : "";
+    })
+    .filter(Boolean);
+
   return {
     story: storyInput?.value.trim() || "",
+    characters: charactersInput?.value.trim() || "",
     style: styleSelect?.value || "Аниме",
-    tone: activeTone,
+    tone: getToneValue(),
     model: activeModel,
     page: activePage + 1,
-    selectedScene: activeScene + 1,
-    scenes: scenes.map((scene) => `${scene.title}: ${scene.description}`),
+    selectedScene: scenes.length ? activeScene + 1 : null,
+    scenes: scenePrompts,
     dialogue: dialogueInput?.value.trim() || "",
     caption: captionInput?.value.trim() || "",
     layout: "single full comic page, cinematic panel layout, readable speech bubbles, high contrast",
@@ -615,6 +725,7 @@ function toggleBurgerMenu(force) {
 }
 
 function moveScene(index) {
+  if (!scenes.length) return;
   if (index <= 0 || index >= scenes.length) {
     const moved = scenes.shift();
     if (moved) scenes.push(moved);
@@ -633,7 +744,7 @@ function moveScene(index) {
 
 function openSceneMenu(index) {
   setScene(index);
-  captionInput?.focus();
+  sceneDescriptionInput?.focus();
   showToast(`${scenes[index]?.title || "Сцена"}: описание готово к редактированию.`);
 }
 
@@ -654,6 +765,8 @@ async function checkHealth() {
 }
 
 let storyInputTimer;
+let characterInputTimer;
+let customToneTimer;
 
 storyInput?.addEventListener("input", () => {
   updateStoryCounter();
@@ -661,7 +774,26 @@ storyInput?.addEventListener("input", () => {
   storyInputTimer = window.setTimeout(pushHistory, 700);
 });
 
+charactersInput?.addEventListener("input", () => {
+  window.clearTimeout(characterInputTimer);
+  characterInputTimer = window.setTimeout(pushHistory, 700);
+});
+
+customToneInput?.addEventListener("input", () => {
+  updateToneButtons();
+  window.clearTimeout(customToneTimer);
+  customToneTimer = window.setTimeout(pushHistory, 500);
+});
+
 projectTitleInput?.addEventListener("change", pushHistory);
+sceneTitleInput?.addEventListener("input", () => {
+  syncSceneFromInputs();
+});
+sceneTitleInput?.addEventListener("change", pushHistory);
+sceneDescriptionInput?.addEventListener("input", () => {
+  syncSceneFromInputs();
+});
+sceneDescriptionInput?.addEventListener("change", pushHistory);
 dialogueInput?.addEventListener("input", () => {
   syncSceneFromInputs();
 });
@@ -683,6 +815,7 @@ enhanceStoryButton?.addEventListener("click", enhanceStory);
 generatePageButton?.addEventListener("click", generateComicPage);
 regenerateSceneButton?.addEventListener("click", generateComicPage);
 suggestScenesButton?.addEventListener("click", suggestScenes);
+addSceneButton?.addEventListener("click", () => addScene());
 downloadButton?.addEventListener("click", () => { downloadCurrentPage(); toggleBurgerMenu(false); });
 shareButton?.addEventListener("click", () => { shareProject(); toggleBurgerMenu(false); });
 addPageButton?.addEventListener("click", addPage);

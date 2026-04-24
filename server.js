@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const rootDir = __dirname;
-const port = 8080;
+const port = Number(process.env.PORT) || 3000;
 
 function loadEnv() {
   const envPath = path.join(rootDir, ".env");
@@ -93,17 +93,18 @@ function buildImagePrompt(payload) {
 
   const scenesBlock = Array.isArray(payload.scenes) && payload.scenes.length
     ? `Panel breakdown:\n${payload.scenes.map((scene, index) => `${index + 1}. ${scene}`).join("\n")}`
-    : "";
+    : "No panel breakdown was provided. Create a clear 4-6 panel sequence from the story.";
 
   return [
     "Create a complete, publication-ready comic book page.",
     "The page must contain 4-6 clearly bordered panels with polished composition, cinematic lighting, varied shot sizes, and readable speech bubbles placed inside panels.",
     `Story: ${payload.story}`,
+    payload.characters ? `Character reference: ${payload.characters}` : "If character references are not provided, design distinct characters and keep them visually consistent across panels.",
     `Visual style: ${payload.style || "Anime"}.`,
     `Tone: ${toneMap[payload.tone] || payload.tone || "emotional"}.`,
-    `Current page: ${payload.page || 1}. Focus scene: ${payload.selectedScene || 1}.`,
+    `Current page: ${payload.page || 1}.${payload.selectedScene ? ` Focus scene: ${payload.selectedScene}.` : ""}`,
     scenesBlock,
-    payload.dialogue ? `Key dialogue to include (Russian if non-Latin): ${payload.dialogue}` : "",
+    payload.dialogue ? `Key dialogue to include as speech bubbles, preserving speakers when named: ${payload.dialogue}` : "If dialogue is not provided, write natural Russian speech bubbles for the characters.",
     payload.caption ? `Scene caption: ${payload.caption}` : "",
     payload.layout ? `Layout direction: ${payload.layout}` : "",
     "Keep character design consistent across panels. Avoid watermarks, UI chrome, page numbers, or any explanatory text outside the comic art.",
@@ -155,6 +156,14 @@ function extractText(data) {
       .trim();
   }
   return "";
+}
+
+function normalizeTextTone(tone) {
+  return {
+    funny: "веселый",
+    emotional: "эмоциональный",
+    epic: "эпичный",
+  }[tone] || tone || "эмоциональный";
 }
 
 async function callOpenRouter({ model, messages, modalities, imageConfig }) {
@@ -242,29 +251,29 @@ const TEXT_TASKS = {
     system:
       "Ты помощник сценариста комиксов. Дорабатывай историю пользователя: добавляй кинематографичный ритм, визуальные детали и эмоциональный конфликт. Отвечай одним связным абзацем на русском. Без префиксов, без кавычек, без списков.",
     instruction: (payload) =>
-      `Доработай эту историю для комикса в жанре "${payload.tone || "эмоциональный"}" и стиле "${payload.style || "Аниме"}":\n\n${payload.story}`,
+      `Доработай эту историю для комикса в тоне "${normalizeTextTone(payload.tone)}" и стиле "${payload.style || "Аниме"}".${payload.characters ? ` Учитывай персонажей: ${payload.characters}` : ""}\n\n${payload.story}`,
     max: 600,
   },
   dialogue: {
     system:
-      "Ты мастер коротких реплик для комиксов. Возвращай одну мощную реплику на русском, в верхнем регистре, без кавычек, 3-14 слов. Без комментариев.",
+      "Ты мастер диалогов для комиксов. Возвращай 1-4 короткие реплики на русском для речевых пузырей. Если участвуют несколько персонажей, пиши строки в формате Имя: реплика. Без кавычек, без пояснений, без markdown.",
     instruction: (payload) =>
-      `История: ${payload.story}\n${payload.sceneTitle ? `Сцена: ${payload.sceneTitle}\n` : ""}${payload.sceneDescription ? `Описание: ${payload.sceneDescription}\n` : ""}Тон: ${payload.tone || "эмоциональный"}. Дай новую реплику главного героя.`,
-    max: 80,
+      `История: ${payload.story}\n${payload.characters ? `Персонажи: ${payload.characters}\n` : ""}${payload.sceneTitle ? `Сцена: ${payload.sceneTitle}\n` : ""}${payload.sceneDescription ? `Описание: ${payload.sceneDescription}\n` : ""}Тон: ${normalizeTextTone(payload.tone)}. Дай диалог для этой сцены.`,
+    max: 180,
   },
   caption: {
     system:
       "Ты пишешь авторские подписи к кадрам комикса. Одно предложение на русском, 10-20 слов, образно и визуально. Без кавычек и без префиксов.",
     instruction: (payload) =>
-      `История: ${payload.story}\n${payload.sceneTitle ? `Сцена: ${payload.sceneTitle}\n` : ""}${payload.sceneDescription ? `Описание: ${payload.sceneDescription}\n` : ""}Стиль: ${payload.style || "Аниме"}. Дай подпись, задающую атмосферу.`,
+      `История: ${payload.story}\n${payload.characters ? `Персонажи: ${payload.characters}\n` : ""}${payload.sceneTitle ? `Сцена: ${payload.sceneTitle}\n` : ""}${payload.sceneDescription ? `Описание: ${payload.sceneDescription}\n` : ""}Стиль: ${payload.style || "Аниме"}. Дай подпись, задающую атмосферу.`,
     max: 120,
   },
   scenes: {
     system:
-      'Ты раскадровщик комиксов. Возвращай строго JSON-массив из 4-5 сцен без пояснений. Формат каждого элемента: {"title": "Сцена N", "description": "одно предложение на русском, 8-16 слов, без кавычек"}. Никакого текста до или после массива.',
+      'Ты раскадровщик комиксов. Возвращай строго JSON-массив из 4-6 сцен без пояснений. Формат каждого элемента: {"title": "Сцена N", "description": "одно предложение на русском, 8-16 слов", "dialogue": "необязательные 1-2 короткие реплики с именами персонажей или пустая строка", "caption": "необязательная короткая подпись или пустая строка"}. Никакого текста до или после массива.',
     instruction: (payload) =>
-      `История: ${payload.story}\nТон: ${payload.tone || "эмоциональный"}. Стиль: ${payload.style || "Аниме"}. Разбей страницу на сцены.`,
-    max: 700,
+      `История: ${payload.story}\n${payload.characters ? `Персонажи: ${payload.characters}\n` : ""}Тон: ${normalizeTextTone(payload.tone)}. Стиль: ${payload.style || "Аниме"}. Разбей страницу на сцены.`,
+    max: 900,
   },
 };
 

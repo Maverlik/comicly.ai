@@ -146,6 +146,11 @@
                   <path d="M12 2.5l2 5.4 5.5 2-5.5 2-2 5.6-2-5.6-5.5-2 5.5-2 2-5.4zm6 12l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5z" />
                 </svg>
               </button>
+              <details class="advanced-block">
+                <summary>Персонажи</summary>
+                <label class="field-label" for="charactersInput">Внешность и роли</label>
+                <textarea id="charactersInput" rows="5" placeholder="Арина: рыжие волосы, синий плащ, упрямая изобретательница&#10;Кай: высокий проводник с серебряной маской"></textarea>
+              </details>
             </section>
 
             <section class="side-pane" data-side-pane="style" hidden>
@@ -190,6 +195,8 @@
                   <span>Герой, ставки, большие планы</span>
                 </button>
               </div>
+              <label class="field-label custom-tone-label" for="customToneInput">Свой тон</label>
+              <input id="customToneInput" type="text" placeholder="Например: нуар, тревожный, сатирический" />
             </section>
 
             <section class="side-pane" data-side-pane="model" hidden>
@@ -264,7 +271,8 @@
 
         </section>
 
-        <aside class="side-panel right-panel" aria-label="Сцены и диалоги">
+        <div class="right-stack">
+          <aside class="side-panel right-panel" aria-label="Сцены и диалоги">
           <div class="tabs" role="tablist" aria-label="Редактор сцен">
             <button class="is-active" type="button" role="tab" aria-selected="true" data-tab="scenes">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -288,6 +296,12 @@
                 </svg>
                 <span>AI раскадровка</span>
               </button>
+              <button class="tool-button ghost full-width" type="button" data-add-scene>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5z" />
+                </svg>
+                <span>Добавить сцену</span>
+              </button>
             </div>
             <div class="scene-list" data-scene-list></div>
           </div>
@@ -298,14 +312,18 @@
                 <h2 data-selected-scene-title>Выбранная сцена</h2>
                 <span data-scene-counter>1 из 1</span>
               </header>
+              <label for="sceneTitleInput">Название сцены</label>
+              <input id="sceneTitleInput" type="text" placeholder="Сцена 1" />
+              <label for="sceneDescriptionInput">Описание сцены</label>
+              <textarea id="sceneDescriptionInput" rows="3" placeholder="Что должно происходить в кадре"></textarea>
               <label for="dialogueInput">Диалог</label>
               <div class="inline-field">
-                <textarea id="dialogueInput" rows="3">ОДИНОКИЙ СТРАННИК НАХОДИТ ДРЕВНЮЮ СИЛУ...</textarea>
+                <textarea id="dialogueInput" rows="5" placeholder="Арина: Мы успеем до рассвета?&#10;Кай: Только если город нас отпустит."></textarea>
                 <button class="tool-button" type="button" data-regenerate-dialogue>Обновить</button>
               </div>
-              <label for="captionInput">Описание <span>необязательно</span></label>
+              <label for="captionInput">Подпись кадра <span>необязательно</span></label>
               <div class="inline-field">
-                <input id="captionInput" type="text" placeholder="Опишите сцену..." />
+                <input id="captionInput" type="text" placeholder="Короткая авторская подпись" />
                 <button class="tool-button" type="button" data-generate-caption>Создать</button>
               </div>
               <button class="button-gradient full" type="button" data-regenerate-scene>
@@ -318,6 +336,8 @@
             </section>
           </div>
 
+          </aside>
+
           <div class="page-strip" id="pages" aria-label="Страницы комикса">
             <button class="add-page" type="button" aria-label="Добавить страницу" data-add-page>
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -325,7 +345,7 @@
               </svg>
             </button>
           </div>
-        </aside>
+        </div>
       </main>
 
       <div class="toast" data-toast hidden></div>

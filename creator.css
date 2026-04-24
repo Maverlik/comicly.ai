@@ -389,7 +389,20 @@ svg {
   margin-top: 14px;
 }
 
+.right-stack {
+  --side-pad: 18px;
+  --side-control-gap: 12px;
+
+  display: grid;
+  gap: 12px;
+  align-self: start;
+  min-width: 0;
+}
+
 .side-panel {
+  --side-pad: 18px;
+  --side-control-gap: 12px;
+
   display: flex;
   flex-direction: column;
   align-self: start;
@@ -437,6 +450,10 @@ svg {
   margin-top: 22px;
 }
 
+.custom-tone-label {
+  margin-top: 18px;
+}
+
 .side-tabs button:hover,
 .tabs button:hover {
   background: rgba(151, 119, 255, 0.08);
@@ -457,7 +474,7 @@ svg {
 
 /* ───────── Левая панель — контент ───────── */
 .side-content {
-  padding: 18px 18px 4px;
+  padding: var(--side-pad);
 }
 
 .side-pane {
@@ -518,10 +535,29 @@ select:focus {
   font-size: 12px;
 }
 
+.advanced-block {
+  margin-top: 14px;
+  border: 1px solid rgba(151, 119, 255, 0.18);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(9, 12, 27, 0.48);
+}
+
+.advanced-block summary {
+  color: #dfe2ef;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.advanced-block .field-label {
+  margin-top: 12px;
+}
+
 .style-swatches {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: var(--side-control-gap);
   margin-top: 14px;
 }
 
@@ -565,7 +601,7 @@ select:focus {
 
 .segmented-control {
   display: flex;
-  gap: 8px;
+  gap: var(--side-control-gap);
 }
 
 .segmented-control button {
@@ -608,7 +644,7 @@ select:focus {
 
 .model-list {
   display: grid;
-  gap: 10px;
+  gap: var(--side-control-gap);
   margin-top: 6px;
 }
 
@@ -708,7 +744,7 @@ select:focus {
 /* ───────── Закреплённая CTA ───────── */
 .cta-footer {
   margin-top: auto;
-  padding: 14px 18px 18px;
+  padding: var(--side-pad);
   border-top: 1px solid var(--line);
   background: rgba(4, 6, 16, 0.48);
 }
@@ -823,13 +859,16 @@ select:focus {
 
 .page-strip {
   display: flex;
-  gap: 8px;
-  margin: 0 12px 12px;
+  gap: var(--side-control-gap);
+  margin: 0;
   padding: 10px;
   overflow-x: auto;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: rgba(8, 10, 24, 0.7);
+  background:
+    linear-gradient(180deg, rgba(17, 22, 48, 0.72), rgba(7, 10, 24, 0.9)),
+    rgba(8, 10, 24, 0.9);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.22);
 }
 
 .page-thumb,
@@ -901,7 +940,9 @@ select:focus {
 }
 
 .scene-toolbar {
-  padding: 14px 16px 8px;
+  display: grid;
+  gap: var(--side-control-gap);
+  padding: var(--side-pad) var(--side-pad) 10px;
 }
 
 .full-width {
@@ -922,8 +963,18 @@ select:focus {
 
 .scene-list {
   display: grid;
-  gap: 6px;
-  padding: 4px 12px 16px;
+  gap: var(--side-control-gap);
+  padding: 0 var(--side-pad) var(--side-pad);
+}
+
+.scene-empty {
+  border: 1px dashed rgba(151, 119, 255, 0.28);
+  border-radius: 8px;
+  padding: 16px;
+  color: var(--muted);
+  background: rgba(5, 8, 20, 0.38);
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .scene-item {
@@ -981,7 +1032,7 @@ select:focus {
 }
 
 .selected-scene {
-  padding: 18px 18px 20px;
+  padding: var(--side-pad);
 }
 
 .selected-scene header {
@@ -1014,7 +1065,11 @@ select:focus {
 .inline-field {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 10px;
+  gap: var(--side-control-gap);
+}
+
+.selected-scene .button-gradient.full {
+  margin-top: var(--side-control-gap);
 }
 
 .inline-field textarea {
