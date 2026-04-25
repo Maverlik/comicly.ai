@@ -84,16 +84,33 @@ function readJson(request) {
   });
 }
 
-function buildImagePrompt(payload) {
-  const toneMap = {
-    funny: "witty, expressive, energetic",
-    emotional: "emotional, dramatic, cinematic",
-    epic: "epic, high stakes, heroic",
-  };
+const LANGUAGE_LABELS = {
+  ru: "Russian",
+  en: "English",
+  es: "Spanish",
+  fr: "French",
+  de: "German",
+  ja: "Japanese",
+  zh: "Chinese",
+  ko: "Korean",
+};
 
+function languageLabel(code) {
+  if (!code) return "Russian";
+  return LANGUAGE_LABELS[code] || code;
+}
+
+function buildImagePrompt(payload) {
   const scenesBlock = Array.isArray(payload.scenes) && payload.scenes.length
     ? `Panel breakdown:\n${payload.scenes.map((scene, index) => `${index + 1}. ${scene}`).join("\n")}`
     : "No panel breakdown was provided. Create a clear 4-6 panel sequence from the story.";
+
+  const language = languageLabel(payload.language);
+  const pagesTotal = Math.max(1, Number(payload.pagesTotal) || 1);
+  const currentPage = Math.max(1, Number(payload.page) || 1);
+  const pageContext = pagesTotal > 1
+    ? `This is page ${currentPage} of a ${pagesTotal}-page comic. Cover only the portion of the story that corresponds to this page so the full arc unfolds smoothly across all pages, and keep visual continuity with the other pages.`
+    : `Current page: ${currentPage}.${payload.selectedScene ? ` Focus scene: ${payload.selectedScene}.` : ""}`;
 
   return [
     "Create a complete, publication-ready comic book page.",
@@ -101,10 +118,10 @@ function buildImagePrompt(payload) {
     `Story: ${payload.story}`,
     payload.characters ? `Character reference: ${payload.characters}` : "If character references are not provided, design distinct characters and keep them visually consistent across panels.",
     `Visual style: ${payload.style || "Anime"}.`,
-    `Tone: ${toneMap[payload.tone] || payload.tone || "emotional"}.`,
-    `Current page: ${payload.page || 1}.${payload.selectedScene ? ` Focus scene: ${payload.selectedScene}.` : ""}`,
+    `Speech bubble language: ${language}. All dialogue and captions must be written in ${language}.`,
+    pageContext,
     scenesBlock,
-    payload.dialogue ? `Key dialogue to include as speech bubbles, preserving speakers when named: ${payload.dialogue}` : "If dialogue is not provided, write natural Russian speech bubbles for the characters.",
+    payload.dialogue ? `Key dialogue to include as speech bubbles, preserving speakers when named: ${payload.dialogue}` : `If dialogue is not provided, write natural ${language} speech bubbles for the characters.`,
     payload.caption ? `Scene caption: ${payload.caption}` : "",
     payload.layout ? `Layout direction: ${payload.layout}` : "",
     "Keep character design consistent across panels. Avoid watermarks, UI chrome, page numbers, or any explanatory text outside the comic art.",
@@ -158,13 +175,6 @@ function extractText(data) {
   return "";
 }
 
-function normalizeTextTone(tone) {
-  return {
-    funny: "веселый",
-    emotional: "эмоциональный",
-    epic: "эпичный",
-  }[tone] || tone || "эмоциональный";
-}
 
 async function callOpenRouter({ model, messages, modalities, imageConfig }) {
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -250,29 +260,39 @@ const TEXT_TASKS = {
   enhance: {
     system:
       "Ты помощник сценариста комиксов. Дорабатывай историю пользователя: добавляй кинематографичный ритм, визуальные детали и эмоциональный конфликт. Отвечай одним связным абзацем на русском. Без префиксов, без кавычек, без списков.",
-    instruction: (payload) =>
-      `Доработай эту историю для комикса в тоне "${normalizeTextTone(payload.tone)}" и стиле "${payload.style || "Аниме"}".${payload.characters ? ` Учитывай персонажей: ${payload.characters}` : ""}\n\n${payload.story}`,
+    instruction: (payload) => {
+      const pages = Math.max(1, Number(payload.pageCount) || 1);
+      const pageHint = pages > 1
+        ? ` История будет растянута на ${pages} страниц комикса — обеспечь достаточный объем и завязку, развитие, кульминацию.`
+        : "";
+      return `Доработай эту историю для комикса в стиле "${payload.style || "Аниме"}".${payload.characters ? ` Учитывай персонажей: ${payload.characters}` : ""}${pageHint}\n\n${payload.story}`;
+    },
     max: 600,
   },
   dialogue: {
     system:
-      "Ты мастер диалогов для комиксов. Возвращай 1-4 короткие реплики на русском для речевых пузырей. Если участвуют несколько персонажей, пиши строки в формате Имя: реплика. Без кавычек, без пояснений, без markdown.",
+      "Ты мастер диалогов для комиксов. Возвращай 1-4 короткие реплики для речевых пузырей. Если участвуют несколько персонажей, пиши строки в формате Имя: реплика. Без кавычек, без пояснений, без markdown.",
     instruction: (payload) =>
-      `История: ${payload.story}\n${payload.characters ? `Персонажи: ${payload.characters}\n` : ""}${payload.sceneTitle ? `Сцена: ${payload.sceneTitle}\n` : ""}${payload.sceneDescription ? `Описание: ${payload.sceneDescription}\n` : ""}Тон: ${normalizeTextTone(payload.tone)}. Дай диалог для этой сцены.`,
+      `История: ${payload.story}\n${payload.characters ? `Персонажи: ${payload.characters}\n` : ""}${payload.sceneTitle ? `Сцена: ${payload.sceneTitle}\n` : ""}${payload.sceneDescription ? `Описание: ${payload.sceneDescription}\n` : ""}Язык диалога: ${languageLabel(payload.language)}. Дай диалог для этой сцены строго на этом языке.`,
     max: 180,
   },
   caption: {
     system:
-      "Ты пишешь авторские подписи к кадрам комикса. Одно предложение на русском, 10-20 слов, образно и визуально. Без кавычек и без префиксов.",
+      "Ты пишешь авторские подписи к кадрам комикса. Одно предложение, 10-20 слов, образно и визуально. Без кавычек и без префиксов.",
     instruction: (payload) =>
-      `История: ${payload.story}\n${payload.characters ? `Персонажи: ${payload.characters}\n` : ""}${payload.sceneTitle ? `Сцена: ${payload.sceneTitle}\n` : ""}${payload.sceneDescription ? `Описание: ${payload.sceneDescription}\n` : ""}Стиль: ${payload.style || "Аниме"}. Дай подпись, задающую атмосферу.`,
+      `История: ${payload.story}\n${payload.characters ? `Персонажи: ${payload.characters}\n` : ""}${payload.sceneTitle ? `Сцена: ${payload.sceneTitle}\n` : ""}${payload.sceneDescription ? `Описание: ${payload.sceneDescription}\n` : ""}Стиль: ${payload.style || "Аниме"}. Язык подписи: ${languageLabel(payload.language)}. Дай подпись на этом языке, задающую атмосферу.`,
     max: 120,
   },
   scenes: {
     system:
-      'Ты раскадровщик комиксов. Возвращай строго JSON-массив из 4-6 сцен без пояснений. Формат каждого элемента: {"title": "Сцена N", "description": "одно предложение на русском, 8-16 слов", "dialogue": "необязательные 1-2 короткие реплики с именами персонажей или пустая строка", "caption": "необязательная короткая подпись или пустая строка"}. Никакого текста до или после массива.',
-    instruction: (payload) =>
-      `История: ${payload.story}\n${payload.characters ? `Персонажи: ${payload.characters}\n` : ""}Тон: ${normalizeTextTone(payload.tone)}. Стиль: ${payload.style || "Аниме"}. Разбей страницу на сцены.`,
+      'Ты раскадровщик комиксов. Возвращай строго JSON-массив из 4-6 сцен без пояснений. Формат каждого элемента: {"title": "Сцена N", "description": "одно предложение на русском, 8-16 слов", "dialogue": "необязательные 1-2 короткие реплики с именами персонажей или пустая строка", "caption": "необязательная короткая подпись или пустая строка"}. Поля dialogue и caption пиши на языке, указанном пользователем. Никакого текста до или после массива.',
+    instruction: (payload) => {
+      const pages = Math.max(1, Number(payload.pageCount) || 1);
+      const pageHint = pages > 1
+        ? ` Сцены должны покрывать только одну страницу из ${pages}-страничного комикса (ту, которую пользователь сейчас редактирует).`
+        : "";
+      return `История: ${payload.story}\n${payload.characters ? `Персонажи: ${payload.characters}\n` : ""}Стиль: ${payload.style || "Аниме"}. Язык реплик: ${languageLabel(payload.language)}.${pageHint} Разбей страницу на сцены.`;
+    },
     max: 900,
   },
 };
