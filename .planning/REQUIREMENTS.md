@@ -138,68 +138,69 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SAFE-01 | TBD | Pending |
-| SAFE-02 | TBD | Pending |
-| SAFE-03 | TBD | Pending |
-| SAFE-04 | TBD | Pending |
-| SAFE-05 | TBD | Pending |
-| DATA-01 | TBD | Pending |
-| DATA-02 | TBD | Pending |
-| DATA-03 | TBD | Pending |
-| DATA-04 | TBD | Pending |
-| DATA-05 | TBD | Pending |
-| AUTH-01 | TBD | Pending |
-| AUTH-02 | TBD | Pending |
-| AUTH-03 | TBD | Pending |
-| AUTH-04 | TBD | Pending |
-| AUTH-05 | TBD | Pending |
-| AUTH-06 | TBD | Pending |
-| AUTH-07 | TBD | Pending |
-| PROF-01 | TBD | Pending |
-| PROF-02 | TBD | Pending |
-| PROF-03 | TBD | Pending |
-| PROF-04 | TBD | Pending |
-| WAL-01 | TBD | Pending |
-| WAL-02 | TBD | Pending |
-| WAL-03 | TBD | Pending |
-| WAL-04 | TBD | Pending |
-| WAL-05 | TBD | Pending |
-| WAL-06 | TBD | Pending |
-| WAL-07 | TBD | Pending |
-| COMIC-01 | TBD | Pending |
-| COMIC-02 | TBD | Pending |
-| COMIC-03 | TBD | Pending |
-| COMIC-04 | TBD | Pending |
-| COMIC-05 | TBD | Pending |
-| COMIC-06 | TBD | Pending |
-| GEN-01 | TBD | Pending |
-| GEN-02 | TBD | Pending |
-| GEN-03 | TBD | Pending |
-| GEN-04 | TBD | Pending |
-| GEN-05 | TBD | Pending |
-| GEN-06 | TBD | Pending |
-| GEN-07 | TBD | Pending |
-| PAY-01 | TBD | Pending |
-| PAY-02 | TBD | Pending |
-| PAY-03 | TBD | Pending |
-| OPS-01 | TBD | Pending |
-| OPS-02 | TBD | Pending |
-| OPS-03 | TBD | Pending |
-| OPS-04 | TBD | Pending |
-| OPS-05 | TBD | Pending |
-| OPS-06 | TBD | Pending |
-| TEST-01 | TBD | Pending |
-| TEST-02 | TBD | Pending |
-| TEST-03 | TBD | Pending |
-| TEST-04 | TBD | Pending |
-| TEST-05 | TBD | Pending |
-| TEST-06 | TBD | Pending |
+| SAFE-01 | Phase 1 | Pending |
+| SAFE-02 | Phase 1 | Pending |
+| SAFE-03 | Phase 1 | Pending |
+| SAFE-04 | Phase 1 | Pending |
+| SAFE-05 | Phase 1 | Pending |
+| DATA-01 | Phase 2 | Pending |
+| DATA-02 | Phase 2 | Pending |
+| DATA-03 | Phase 2 | Pending |
+| DATA-04 | Phase 2 | Pending |
+| DATA-05 | Phase 2 | Pending |
+| AUTH-01 | Phase 3 | Pending |
+| AUTH-02 | Phase 3 | Pending |
+| AUTH-03 | Phase 3 | Pending |
+| AUTH-04 | Phase 3 | Pending |
+| AUTH-05 | Phase 3 | Pending |
+| AUTH-06 | Phase 3 | Pending |
+| AUTH-07 | Phase 3 | Pending |
+| PROF-01 | Phase 3 | Pending |
+| PROF-02 | Phase 3 | Pending |
+| PROF-03 | Phase 3 | Pending |
+| PROF-04 | Phase 7 | Pending |
+| WAL-01 | Phase 4 | Pending |
+| WAL-02 | Phase 4 | Pending |
+| WAL-03 | Phase 4 | Pending |
+| WAL-04 | Phase 4 | Pending |
+| WAL-05 | Phase 4 | Pending |
+| WAL-06 | Phase 4 | Pending |
+| WAL-07 | Phase 4 | Pending |
+| COMIC-01 | Phase 5 | Pending |
+| COMIC-02 | Phase 5 | Pending |
+| COMIC-03 | Phase 5 | Pending |
+| COMIC-04 | Phase 5 | Pending |
+| COMIC-05 | Phase 5 | Pending |
+| COMIC-06 | Phase 5 | Pending |
+| GEN-01 | Phase 6 | Pending |
+| GEN-02 | Phase 6 | Pending |
+| GEN-03 | Phase 6 | Pending |
+| GEN-04 | Phase 6 | Pending |
+| GEN-05 | Phase 6 | Pending |
+| GEN-06 | Phase 6 | Pending |
+| GEN-07 | Phase 6 | Pending |
+| PAY-01 | Phase 2 | Pending |
+| PAY-02 | Phase 2 | Pending |
+| PAY-03 | Phase 2 | Pending |
+| OPS-01 | Phase 8 | Pending |
+| OPS-02 | Phase 8 | Pending |
+| OPS-03 | Phase 8 | Pending |
+| OPS-04 | Phase 8 | Pending |
+| OPS-05 | Phase 8 | Pending |
+| OPS-06 | Phase 1 | Pending |
+| TEST-01 | Phase 1 | Pending |
+| TEST-02 | Phase 3 | Pending |
+| TEST-03 | Phase 4 | Pending |
+| TEST-04 | Phase 5 | Pending |
+| TEST-05 | Phase 6 | Pending |
+| TEST-06 | Phase 7 | Pending |
 
 **Coverage:**
-- v1 requirements: 53 total
-- Mapped to phases: 0
-- Unmapped: 53 pending roadmap
+- v1 requirements: 56 total
+- Mapped to phases: 56
+- Unmapped: 0
+- Coverage: 100%
 
 ---
 *Requirements defined: 2026-04-25*
-*Last updated: 2026-04-25 after initial definition*
+*Last updated: 2026-04-25 after roadmap creation*
