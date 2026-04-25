@@ -118,6 +118,29 @@ svg {
   gap: 14px;
 }
 
+.header-actions .ghost {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 22px;
+  min-height: 50px;
+  border-radius: 8px;
+  color: #b8c3d6;
+  font-size: 14px;
+  font-weight: 600;
+  background: rgba(10, 18, 34, 0.7);
+  border: 1px solid rgba(75, 104, 165, 0.22);
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.header-actions .ghost:hover {
+  color: #ffffff;
+  background: rgba(16, 28, 52, 0.9);
+  border-color: rgba(83, 144, 255, 0.32);
+}
+
 .button,
 .primary-cta {
   display: inline-flex;
@@ -279,6 +302,7 @@ svg {
   margin: 48px 0 0;
   padding: 0;
   list-style: none;
+  transform: translateY(88px);
 }
 
 .hero-points li {
@@ -712,6 +736,46 @@ svg {
   height: 52px;
 }
 
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  align-items: center;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.footer-links a {
+  color: var(--muted);
+  transition: color 160ms ease;
+}
+
+.footer-links a:hover {
+  color: #ffffff;
+}
+
+.legal-page {
+  width: min(100% - 48px, 880px);
+  margin: 160px auto 80px;
+  padding: 40px 32px;
+  border: 1px solid rgba(75, 104, 165, 0.22);
+  border-radius: 20px;
+  background: rgba(8, 15, 28, 0.7);
+}
+
+.legal-page h1 {
+  margin: 0 0 18px;
+  font-size: 36px;
+  line-height: 1.2;
+}
+
+.legal-page p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
 @media (max-width: 1060px) {
   .site-header {
     width: min(100% - 32px, 920px);
@@ -729,6 +793,7 @@ svg {
   .hero-points {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
+    transform: translateY(56px);
   }
 
   .showcase {
@@ -830,6 +895,7 @@ svg {
     max-width: 640px;
     margin-inline: auto;
     text-align: left;
+    transform: none;
   }
 
   .preview-section,
