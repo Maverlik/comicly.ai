@@ -35,6 +35,7 @@ docker compose up --build
 ```
 
 The Compose stack starts the FastAPI service and a local PostgreSQL service. Use `docker compose up -d` for detached local development.
+The Docker image installs the lean runtime dependency set from `requirements-runtime.txt`; local test and lint tooling stays in `requirements.txt`.
 
 ## Environment
 

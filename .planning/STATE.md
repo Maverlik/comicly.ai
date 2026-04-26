@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 status: ready_for_phase_2
 stopped_at: Phase 1 verified; ready for Phase 2 discussion
-last_updated: "2026-04-26T12:38:40Z"
-last_activity: 2026-04-26 -- Phase 1 verified with pytest, Ruff, and Compose config
+last_updated: "2026-04-26T13:46:38Z"
+last_activity: 2026-04-26 -- Phase 1 Docker runtime verification passed
 progress:
   total_phases: 8
   completed_phases: 1
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 Phase: 2 (Data And Payment Foundation) - READY FOR DISCUSSION
 Plan: 0 of TBD
-Status: Phase 1 verified; Phase 2 context should be discussed before planning
-Last activity: 2026-04-26 -- Phase 1 verified with pytest, Ruff, and Compose config
+Status: Phase 1 fully verified; Phase 2 context should be discussed before planning
+Last activity: 2026-04-26 -- Phase 1 Docker runtime verification passed
 
 Progress: [##########] 100%
 
@@ -71,7 +71,7 @@ Recent decisions affecting current work:
 - [Phase 1 Plan 03]: Static safety is verified as an API-only negative guarantee: no StaticFiles mount and representative private/root/frontend paths are not served by FastAPI.
 - [Phase 1 Plan 03]: Existing root Node AI routes remain owned by the root runtime until a later approved migration plan changes frontend/root behavior.
 - [Phase 1 Plan 03]: Backend quality gates are `python -m pytest`, `python -m ruff check .`, and `python -m ruff format --check .` from `backend/`.
-- [Phase 1 Verification]: Pytest passed 15/15, Ruff lint/format passed, and `docker compose config` validated; Docker runtime smoke test is blocked only because Docker Desktop daemon is not running in this session.
+- [Phase 1 Verification]: Pytest passed 15/15, Ruff lint/format passed, `docker compose config` passed, `docker compose up -d --build` passed, and Docker `/health` plus `/ready` smoke tests returned healthy responses.
 
 ### Pending Todos
 
@@ -82,7 +82,6 @@ None yet.
 - Final production deployment provider and object storage provider remain open and should be decided before Phase 8 implementation details are locked.
 - Synchronous versus queued generation is not locked; Phase 6 should preserve a job-state path even if the first production route remains synchronous.
 - Starter coin amount should remain configurable until product value is confirmed.
-- Docker runtime smoke testing for Phase 1 requires Docker Desktop daemon to be running.
 
 ## Deferred Items
 
@@ -96,6 +95,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-26T12:38:40Z
-Stopped at: Phase 1 verified; ready for Phase 2 discussion
+Last session: 2026-04-26T13:46:38Z
+Stopped at: Phase 1 fully verified; ready for Phase 2 discussion
 Resume file: .planning/phases/01-backend-foundation-and-static-safety/01-VERIFICATION.md

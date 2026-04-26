@@ -31,11 +31,12 @@ No code findings.
 ## Verification Notes
 
 - `python -m pytest` from `backend/`: PASS, 15 tests passed.
-- `python -m ruff check .` from `backend/`: PASS after import-order fixes.
-- `python -m ruff format --check .` from `backend/`: PASS after formatting.
+- `python -m ruff check .` from `backend/`: PASS.
+- `python -m ruff format --check .` from `backend/`: PASS.
 - `docker compose config` from `backend/`: PASS.
-- `docker compose up -d --build`: blocked by local Docker daemon not running; Docker CLI reported missing `dockerDesktopLinuxEngine` pipe, and `Start-Service com.docker.service` was not permitted from this session.
+- `docker compose up -d --build`: PASS after Docker Desktop was started.
+- Docker smoke test: `GET /health` returned `{"status":"ok"}` and `GET /ready` returned `{"status":"ready"}`.
 
 ## Residual Risk
 
-Docker runtime smoke testing still needs to be run on a machine/session where Docker Desktop is already running. The Compose configuration itself validates successfully.
+No open Phase 1 review risks remain. Docker image build speed depends on network access to PyPI, but the runtime dependency set is now lean and the compose stack starts successfully.

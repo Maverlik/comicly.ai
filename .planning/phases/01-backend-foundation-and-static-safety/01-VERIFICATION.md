@@ -1,6 +1,6 @@
 # Phase 1 Verification
 
-**Status**: PASSED_WITH_EXTERNAL_DOCKER_BLOCKER
+**Status**: PASSED
 **Verified**: 2026-04-26
 
 ## Goal
@@ -27,10 +27,12 @@ Phase 1 implementation satisfies the backend foundation scope.
 | Check | Result | Notes |
 |-------|--------|-------|
 | `python -m pytest` | PASS | 15 tests passed from `backend/`. |
-| `python -m ruff check .` | PASS | Clean after import ordering fixes. |
-| `python -m ruff format --check .` | PASS | 18 files already formatted after local formatting pass. |
+| `python -m ruff check .` | PASS | All checks passed. |
+| `python -m ruff format --check .` | PASS | 18 files already formatted. |
 | `docker compose config` | PASS | Compose renders valid backend app + Postgres services. |
-| `docker compose up -d --build` | BLOCKED | Local Docker daemon is not running; `dockerDesktopLinuxEngine` pipe is unavailable and the Docker service could not be started from this session. |
+| `docker compose up -d --build` | PASS | Built backend image and started `comicly-backend-api` plus `comicly-backend-postgres`. |
+| `GET /health` via Docker | PASS | Returned `{"status":"ok"}` from `http://localhost:8000/health`. |
+| `GET /ready` via Docker | PASS | Returned `{"status":"ready"}` from `http://localhost:8000/ready`. |
 
 ## Boundary Check
 
@@ -40,19 +42,6 @@ Phase 1 implementation satisfies the backend foundation scope.
 - New backend serves no static files and does not mount repository-root or frontend paths.
 - Future business APIs remain reserved for `/api/v1/...`.
 
-## Follow-Up
+## Docker Follow-Up
 
-When Docker Desktop is running, run from `backend/`:
-
-```powershell
-docker compose up -d --build
-```
-
-Then smoke test:
-
-```powershell
-curl http://localhost:8000/health
-curl http://localhost:8000/ready
-```
-
-The Docker runtime smoke test is environment-blocked, not a known code defect.
+Docker runtime verification passed after Docker Desktop was started. The backend image now installs the lean runtime dependency set from `requirements-runtime.txt`, while local development and CI-style checks continue to use `requirements.txt`.
