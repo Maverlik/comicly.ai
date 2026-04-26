@@ -1,7 +1,17 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import (
+    JSON,
+    DateTime,
+    ForeignKey,
+    ForeignKeyConstraint,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -28,6 +38,10 @@ class Comic(Base):
 
 class ComicScene(Base):
     __tablename__ = "comic_scenes"
+    __table_args__ = (
+        UniqueConstraint("id", "comic_id", name="uq_comic_scenes_id_comic_id"),
+        UniqueConstraint("comic_id", "position", name="uq_comic_scenes_comic_position"),
+    )
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     comic_id: Mapped[UUID] = mapped_column(
@@ -51,13 +65,21 @@ class ComicScene(Base):
 
 class ComicPage(Base):
     __tablename__ = "comic_pages"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["comic_id", "scene_id"],
+            ["comic_scenes.comic_id", "comic_scenes.id"],
+            name="fk_comic_pages_scene_same_comic",
+        ),
+        UniqueConstraint("comic_id", "page_number", name="uq_comic_pages_comic_page"),
+    )
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     comic_id: Mapped[UUID] = mapped_column(
         ForeignKey("comics.id", ondelete="CASCADE"),
         nullable=False,
     )
-    scene_id: Mapped[UUID | None] = mapped_column(ForeignKey("comic_scenes.id"))
+    scene_id: Mapped[UUID | None]
     page_number: Mapped[int] = mapped_column(Integer, nullable=False)
     image_url: Mapped[str | None] = mapped_column(String(2048))
     storage_key: Mapped[str | None] = mapped_column(String(1024))
