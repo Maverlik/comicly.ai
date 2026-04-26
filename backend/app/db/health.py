@@ -15,4 +15,3 @@ async def check_database_ready() -> None:
             code="DATABASE_UNAVAILABLE",
             message="Database is not ready",
         ) from exc
-

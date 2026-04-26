@@ -4,7 +4,6 @@ from starlette.routing import Mount
 
 from app.main import create_app
 
-
 PRIVATE_OR_FRONTEND_PATHS = [
     "/.env",
     "/.planning/PROJECT.md",
