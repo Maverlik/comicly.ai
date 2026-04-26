@@ -1292,6 +1292,47 @@ select:focus {
   font-size: 13px;
 }
 
+.creator-footer {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin: 22px 0 0;
+  border-top: 1px solid var(--line);
+  padding: 20px 2px 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.creator-footer p {
+  margin: 0;
+  color: #7f8a9e;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 12px;
+  color: #c7d0df;
+  font-weight: 600;
+}
+
+.footer-links a {
+  color: inherit;
+  transition: color 160ms ease;
+}
+
+.footer-links a:hover {
+  color: #ffffff;
+}
+
+.footer-links span {
+  color: #657189;
+}
+
 /* ───────── Адаптив ───────── */
 @media (max-width: 1640px) {
   .workspace {
@@ -1377,5 +1418,14 @@ select:focus {
     right: 16px;
     bottom: 16px;
     max-width: none;
+  }
+
+  .creator-footer {
+    justify-items: start;
+    text-align: left;
+  }
+
+  .footer-links {
+    justify-content: flex-start;
   }
 }
