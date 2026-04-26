@@ -1344,9 +1344,9 @@ addPageButton?.addEventListener("click", addPage);
 continueButton?.addEventListener("click", continueStory);
 regenerateDialogueButton?.addEventListener("click", regenerateDialogue);
 generateCaptionButton?.addEventListener("click", generateCaption);
-creditInfoButton?.addEventListener("click", () =>
-  showToast(`Доступно ${credits} кредитов. Генерация страницы стоит ${PRICE_PER_PAGE}.`)
-);
+creditInfoButton?.addEventListener("click", () => {
+  window.location.href = "pricing.html";
+});
 addCreditsButton?.addEventListener("click", addCredits);
 notificationsButton?.addEventListener("click", () => showToast("Новых уведомлений нет."));
 renameButton?.addEventListener("click", () => {
