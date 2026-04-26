@@ -703,27 +703,40 @@ select:focus {
   font-size: 12px;
 }
 
-.spec-value {
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+.spec-bar {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
 }
 
-.spec-value.good {
-  color: #a7f1c2;
-  background: rgba(66, 214, 134, 0.16);
+.spec-bar i {
+  width: 16px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 
-.spec-value.mid {
-  color: #ffd89a;
-  background: rgba(255, 194, 78, 0.16);
+.spec-bar.level-1 i:nth-child(1),
+.spec-bar.level-2 i:nth-child(-n + 2),
+.spec-bar.level-3 i {
+  background: var(--bar-color, rgba(255, 255, 255, 0.5));
 }
 
-.spec-value.bad {
-  color: #ffb5b5;
-  background: rgba(255, 107, 107, 0.15);
+.spec-bar.good {
+  --bar-color: #42d686;
+}
+
+.spec-bar.good.level-3 i {
+  box-shadow: 0 0 6px rgba(66, 214, 134, 0.45);
+}
+
+.spec-bar.mid {
+  --bar-color: #ffc24e;
+}
+
+.spec-bar.bad {
+  --bar-color: #ff6b6b;
 }
 
 .model-summary {
@@ -817,7 +830,7 @@ select:focus {
   position: relative;
   display: grid;
   overflow: hidden;
-  width: min(100%, 590px);
+  width: min(100%, 615px);
   aspect-ratio: 3 / 4;
   margin: 0 auto;
   border: 1px solid var(--line);
@@ -1365,12 +1378,14 @@ select:focus {
 }
 
 .creator-footer {
-  display: grid;
-  justify-items: center;
-  gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 18px;
   margin: 22px 0 0;
   border-top: 1px solid var(--line);
-  padding: 20px 2px 0;
+  padding: 14px 2px 0;
   color: var(--muted);
   font-size: 13px;
   line-height: 1.55;
@@ -1493,7 +1508,7 @@ select:focus {
   }
 
   .creator-footer {
-    justify-items: start;
+    justify-content: flex-start;
     text-align: left;
   }
 

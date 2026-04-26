@@ -32,7 +32,7 @@ function loadEnv() {
 loadEnv();
 
 const DEFAULT_IMAGE_MODEL = "google/gemini-3-pro-image-preview";
-const DEFAULT_TEXT_MODEL = "google/gemini-2.5-flash";
+const DEFAULT_TEXT_MODEL = "google/gemini-3.1-flash-lite-preview";
 
 const ALLOWED_IMAGE_MODELS = new Set([
   "bytedance-seed/seedream-4.5",
@@ -307,14 +307,23 @@ async function generateComicPage(request, response) {
 
     const imageUrl = extractImageUrl(data);
     if (!imageUrl) {
+      const finishReason = data?.choices?.[0]?.finish_reason || "";
+      const nativeFinishReason = data?.choices?.[0]?.native_finish_reason || "";
+      const isContentFilter =
+        /content[_-]?filter/i.test(finishReason) ||
+        /prohibit|safety|blocked/i.test(nativeFinishReason);
       try {
         const debugDump = JSON.stringify(data).slice(0, 4000);
         console.warn(`[generate-comic-page] Empty image from ${model}. Raw response sample: ${debugDump}`);
       } catch {
         console.warn(`[generate-comic-page] Empty image from ${model}, response not serializable.`);
       }
+      const errorMessage = isContentFilter
+        ? `Модель ${model} отклонила запрос из-за фильтра безопасности (${nativeFinishReason || finishReason}). Смягчите формулировки сюжета/сцен или выберите другую модель.`
+        : `Модель ${model} не вернула изображение. Попробуйте другую модель — формат ответа залогирован в консоли сервера.`;
       sendJson(response, 502, {
-        error: `Модель ${model} не вернула изображение. Попробуйте другую модель — формат ответа залогирован в консоли сервера.`,
+        error: errorMessage,
+        code: isContentFilter ? "content_filter" : undefined,
       });
       return;
     }
