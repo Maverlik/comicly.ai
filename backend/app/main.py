@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 
+from app.api import health
 from app.core.config import get_settings
 from app.core.errors import ApiError, error_response
 
@@ -23,6 +24,8 @@ def create_app() -> FastAPI:
                 message="Invalid request.",
             )
         )
+
+    app.include_router(health.router)
 
     return app
 
