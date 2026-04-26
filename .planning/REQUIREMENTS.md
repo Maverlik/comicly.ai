@@ -9,11 +9,11 @@ Requirements for the initial production backend milestone. Each maps to one road
 
 ### Backend Foundation
 
-- [ ] **SAFE-01**: Static serving only exposes intended public application files and assets, not `.env`, `.planning/`, `backend/`, package metadata, or other private repository files.
+- [x] **SAFE-01**: Static serving only exposes intended public application files and assets, not `.env`, `.planning/`, `backend/`, package metadata, or other private repository files.
 - [x] **SAFE-02**: Server code is split into clear backend modules for app setup, config, routes, middleware, services, storage, and database access while preserving `npm start`.
 - [x] **SAFE-03**: JSON APIs return consistent error responses with stable machine-readable error codes.
 - [x] **SAFE-04**: Backend validates request bodies, query parameters, and route parameters before business logic runs.
-- [ ] **SAFE-05**: Existing AI route contracts remain available during migration: `GET /api/health`, `POST /api/ai-text`, and `POST /api/generate-comic-page`.
+- [x] **SAFE-05**: Existing AI route contracts remain available during migration: `GET /api/health`, `POST /api/ai-text`, and `POST /api/generate-comic-page`.
 
 ### Data Model
 
@@ -86,7 +86,7 @@ Requirements for the initial production backend milestone. Each maps to one road
 
 ### Verification
 
-- [ ] **TEST-01**: Automated tests cover static file safety, traversal/dotfile denial, API error format, and existing AI route compatibility.
+- [x] **TEST-01**: Automated tests cover static file safety, traversal/dotfile denial, API error format, and existing AI route compatibility.
 - [ ] **TEST-02**: Automated tests cover OAuth/session behavior using mocked providers or callback fixtures.
 - [ ] **TEST-03**: Automated tests cover wallet ledger correctness, insufficient balance, idempotency, refunds/no-debit on failure, and concurrent debit protection.
 - [ ] **TEST-04**: Automated tests cover comic ownership boundaries with at least two users.
@@ -138,11 +138,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SAFE-01 | Phase 1 | Pending |
+| SAFE-01 | Phase 1 | Complete in 01-03 |
 | SAFE-02 | Phase 1 | Complete in 01-01 |
 | SAFE-03 | Phase 1 | Complete in 01-01 |
 | SAFE-04 | Phase 1 | Complete in 01-01 |
-| SAFE-05 | Phase 1 | Pending |
+| SAFE-05 | Phase 1 | Complete in 01-03 |
 | DATA-01 | Phase 2 | Pending |
 | DATA-02 | Phase 2 | Pending |
 | DATA-03 | Phase 2 | Pending |
@@ -188,7 +188,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OPS-04 | Phase 8 | Pending |
 | OPS-05 | Phase 8 | Pending |
 | OPS-06 | Phase 1 | Complete in 01-02 |
-| TEST-01 | Phase 1 | Pending |
+| TEST-01 | Phase 1 | Complete in 01-03 |
 | TEST-02 | Phase 3 | Pending |
 | TEST-03 | Phase 4 | Pending |
 | TEST-04 | Phase 5 | Pending |

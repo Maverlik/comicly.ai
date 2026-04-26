@@ -12,7 +12,7 @@ This milestone turns the existing static Comicly.ai creator and prototype Node A
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Backend Foundation And Static Safety** - Modularize the server, lock down static/API safety, and preserve existing AI routes.
+- [x] **Phase 1: Backend Foundation And Static Safety** - Modularize the server, lock down static/API safety, and preserve existing AI routes.
 - [ ] **Phase 2: Data And Payment Foundation** - Add migrations, constraints, runtime pricing config, seeded coin packages, and payment-ready schema.
 - [ ] **Phase 3: OAuth Sessions And Profile Bootstrap** - Let users sign in with Google/Yandex, manage profile basics, and receive secure server-side sessions.
 - [ ] **Phase 4: Wallet Ledger And Coin Safety** - Make balances authoritative through backend ledger operations, idempotency, and concurrency-safe debits.
@@ -37,7 +37,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-01-PLAN.md — Backend project scaffold, config, error envelope, and Docker foundation.
 - [x] 01-02-PLAN.md — FastAPI health/readiness endpoints plus SQLAlchemy async DB and Alembic foundation.
-- [ ] 01-03-PLAN.md — Pytest/Ruff quality gates, static-safety coverage, documentation, and AI route migration boundary.
+- [x] 01-03-PLAN.md — Pytest/Ruff quality gates, static-safety coverage, documentation, and AI route migration boundary.
 
 ### Phase 2: Data And Payment Foundation
 **Goal**: Durable schema, constraints, seed data, and configuration exist for users, sessions, wallets, comics, generation, and future payments.
@@ -130,7 +130,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Backend Foundation And Static Safety | 2/3 | In progress | - |
+| 1. Backend Foundation And Static Safety | 3/3 | Complete | 2026-04-26 |
 | 2. Data And Payment Foundation | 0/TBD | Not started | - |
 | 3. OAuth Sessions And Profile Bootstrap | 0/TBD | Not started | - |
 | 4. Wallet Ledger And Coin Safety | 0/TBD | Not started | - |
