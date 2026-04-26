@@ -1,0 +1,29 @@
+services:
+  backend-api:
+    build:
+      context: .
+    container_name: comicly-backend-api
+    environment:
+      APP_NAME: Comicly API
+      APP_ENV: local
+      APP_DEBUG: "false"
+      DATABASE_URL: postgresql+asyncpg://comicly:comicly@backend-postgres:5432/comicly
+    ports:
+      - "8000:8000"
+    depends_on:
+      - backend-postgres
+
+  backend-postgres:
+    image: postgres:16-alpine
+    container_name: comicly-backend-postgres
+    environment:
+      POSTGRES_DB: comicly
+      POSTGRES_USER: comicly
+      POSTGRES_PASSWORD: comicly
+    ports:
+      - "5432:5432"
+    volumes:
+      - backend-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  backend-postgres-data:
