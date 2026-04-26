@@ -82,7 +82,7 @@ Requirements for the initial production backend milestone. Each maps to one road
 - [ ] **OPS-03**: Project includes production deployment instructions with database, storage, OAuth callback, cookie, and environment configuration.
 - [ ] **OPS-04**: Production deployment serves the app, connects to production database/storage, and supports Google/Yandex OAuth on the production domain.
 - [ ] **OPS-05**: Auth, generation, profile writes, and other sensitive endpoints have basic rate limiting and security headers.
-- [ ] **OPS-06**: Public health/readiness behavior is production-safe and does not expose secret/config details.
+- [x] **OPS-06**: Public health/readiness behavior is production-safe and does not expose secret/config details.
 
 ### Verification
 
@@ -187,7 +187,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OPS-03 | Phase 8 | Pending |
 | OPS-04 | Phase 8 | Pending |
 | OPS-05 | Phase 8 | Pending |
-| OPS-06 | Phase 1 | Pending |
+| OPS-06 | Phase 1 | Complete in 01-02 |
 | TEST-01 | Phase 1 | Pending |
 | TEST-02 | Phase 3 | Pending |
 | TEST-03 | Phase 4 | Pending |

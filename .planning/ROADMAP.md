@@ -36,7 +36,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 Plans:
 - [x] 01-01-PLAN.md — Backend project scaffold, config, error envelope, and Docker foundation.
-- [ ] 01-02-PLAN.md — FastAPI health/readiness endpoints plus SQLAlchemy async DB and Alembic foundation.
+- [x] 01-02-PLAN.md — FastAPI health/readiness endpoints plus SQLAlchemy async DB and Alembic foundation.
 - [ ] 01-03-PLAN.md — Pytest/Ruff quality gates, static-safety coverage, documentation, and AI route migration boundary.
 
 ### Phase 2: Data And Payment Foundation
@@ -130,7 +130,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Backend Foundation And Static Safety | 1/3 | In progress | - |
+| 1. Backend Foundation And Static Safety | 2/3 | In progress | - |
 | 2. Data And Payment Foundation | 0/TBD | Not started | - |
 | 3. OAuth Sessions And Profile Bootstrap | 0/TBD | Not started | - |
 | 4. Wallet Ledger And Coin Safety | 0/TBD | Not started | - |
