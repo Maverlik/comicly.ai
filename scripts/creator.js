@@ -55,6 +55,7 @@ const pageCountInput = document.querySelector("#pageCountInput");
 const pageCountSteps = Array.from(document.querySelectorAll("[data-page-count-step]"));
 const dialogueLanguageSelect = document.querySelector("#dialogueLanguage");
 const costValueEl = document.querySelector("[data-cost]");
+const continueButton = document.querySelector("[data-continue-story]");
 
 const DEFAULT_MODEL_ID = "bytedance-seed/seedream-4.5";
 const PRICE_PER_PAGE = 20;
@@ -73,10 +74,24 @@ const PLACEHOLDER_IMAGES = [
   "assets/comicly-reference.png",
 ];
 
+function createDefaultPageContext(overrides = {}) {
+  return {
+    story: "",
+    scenes: [],
+    characters: [],
+    pageCount: 1,
+    summary: "",
+    generated: false,
+    ...overrides,
+  };
+}
+
+const initialStoryValue = (typeof storyInput?.value === "string" ? storyInput.value : "") || "";
+let pageContexts = [createDefaultPageContext({ story: initialStoryValue })];
 let pages = [createPlaceholderDataUrl(1)];
 let pageImages = ["assets/comic-preview-fantasy.png"];
-let scenes = [];
-let characters = [];
+let scenes = pageContexts[0].scenes;
+let characters = pageContexts[0].characters;
 
 let activeStyle = "Аниме";
 let activeModel = DEFAULT_MODEL_ID;
@@ -90,6 +105,35 @@ let apiKeyReady = false;
 let isRestoring = false;
 let historyIndex = -1;
 let history = [];
+
+function isPlaceholderImage(src) {
+  return typeof src === "string" && src.startsWith("data:image/svg+xml");
+}
+
+function saveCurrentToContext() {
+  const ctx = pageContexts[activePage];
+  if (!ctx) return;
+  ctx.story = storyInput?.value || "";
+  ctx.pageCount = pageCount;
+}
+
+function loadActivePageContext() {
+  let ctx = pageContexts[activePage];
+  if (!ctx) {
+    ctx = createDefaultPageContext();
+    pageContexts[activePage] = ctx;
+  }
+  if (storyInput) storyInput.value = ctx.story || "";
+  scenes = ctx.scenes;
+  characters = ctx.characters;
+  pageCount = ctx.pageCount || 1;
+  if (pageCountInput) pageCountInput.value = String(pageCount);
+  activeScene = 0;
+  renderCharacters();
+  renderScenes();
+  updateStoryCounter();
+  updateCostNote();
+}
 
 function showToast(message) {
   if (!toast) return;
@@ -113,18 +157,23 @@ function escapeHtml(value = "") {
 }
 
 function getSnapshot() {
+  saveCurrentToContext();
   return {
     title: projectTitleInput?.value || "",
-    story: storyInput?.value || "",
-    characters: characters.map((c) => ({ ...c })),
     style: activeStyle,
     model: activeModel,
-    pageCount,
     dialogueLanguage,
     activePage,
     activeScene,
     pages: [...pages],
-    scenes: scenes.map((scene) => ({ ...scene })),
+    pageContexts: pageContexts.map((c) => ({
+      story: c.story || "",
+      scenes: (c.scenes || []).map((s) => ({ ...s })),
+      characters: (c.characters || []).map((ch) => ({ ...ch })),
+      pageCount: c.pageCount || 1,
+      summary: c.summary || "",
+      generated: Boolean(c.generated),
+    })),
     credits,
   };
 }
@@ -151,29 +200,53 @@ function pushHistory() {
 function restoreSnapshot(snapshot) {
   isRestoring = true;
 
-  if (projectTitleInput) projectTitleInput.value = snapshot.title;
-  if (storyInput) storyInput.value = snapshot.story;
-  characters = (snapshot.characters || []).map((c) => ({ ...c }));
-  pages = [...snapshot.pages];
-  scenes = snapshot.scenes.map((scene) => ({ ...scene }));
-  credits = snapshot.credits;
-  pageCount = snapshot.pageCount || 1;
-  dialogueLanguage = snapshot.dialogueLanguage || "ru";
+  if (projectTitleInput) projectTitleInput.value = snapshot.title || "";
+  pages = Array.isArray(snapshot.pages) && snapshot.pages.length
+    ? [...snapshot.pages]
+    : [createPlaceholderDataUrl(1)];
 
-  if (pageCountInput) pageCountInput.value = String(pageCount);
+  const restoredContexts = Array.isArray(snapshot.pageContexts) ? snapshot.pageContexts : [];
+  pageContexts = restoredContexts.map((c) => ({
+    story: c.story || "",
+    scenes: (c.scenes || []).map((s) => ({ ...s })),
+    characters: (c.characters || []).map((ch) => ({ ...ch })),
+    pageCount: c.pageCount || 1,
+    summary: c.summary || "",
+    generated: Boolean(c.generated),
+  }));
+  while (pageContexts.length < pages.length) pageContexts.push(createDefaultPageContext());
+  if (pageContexts.length > pages.length) pageContexts.length = pages.length;
+
+  credits = typeof snapshot.credits === "number" ? snapshot.credits : credits;
+  dialogueLanguage = snapshot.dialogueLanguage || "ru";
   if (dialogueLanguageSelect) dialogueLanguageSelect.value = dialogueLanguage;
 
-  renderCharacters();
+  activePage = Math.min(Math.max(0, Number(snapshot.activePage) || 0), pages.length - 1);
+  loadActivePageContext();
+  if (scenes.length) {
+    activeScene = Math.min(Math.max(0, Number(snapshot.activeScene) || 0), scenes.length - 1);
+  } else {
+    activeScene = 0;
+  }
+
   renderPageStrip();
-  renderScenes();
-  updateStoryCounter();
   updateCreditBalance();
-  updateCostNote();
   setStyle(snapshot.style, false);
   setModel(snapshot.model || DEFAULT_MODEL_ID, false);
-  if (scenes.length) setScene(Math.min(snapshot.activeScene, scenes.length - 1), false);
+
+  if (scenes.length) setScene(activeScene, false);
   else refreshSceneSelection();
-  setPage(Math.min(snapshot.activePage, pages.length - 1), false);
+
+  if (comicOutput) {
+    comicOutput.src = pages[activePage];
+    comicOutput.hidden = false;
+  }
+  if (emptyState) emptyState.hidden = true;
+  pageThumbs.forEach((thumb) => {
+    thumb.classList.toggle("is-active", Number(thumb.dataset.pageThumb) === activePage);
+  });
+  if (pageStatus) pageStatus.textContent = `Страница ${activePage + 1} из ${pages.length}`;
+  refreshContinueButton();
 
   isRestoring = false;
   updateUndoRedoButtons();
@@ -211,6 +284,13 @@ function setLoading(isLoading, label = "Генерируем страницу...
   if (loadingLabel && label) loadingLabel.textContent = label;
   if (generatePageButton) generatePageButton.disabled = isLoading;
   if (regenerateSceneButton) regenerateSceneButton.disabled = isLoading;
+  if (continueButton) {
+    if (isLoading) {
+      continueButton.disabled = true;
+    } else {
+      refreshContinueButton();
+    }
+  }
 }
 
 function createPlaceholderDataUrl(pageNumber) {
@@ -228,15 +308,34 @@ function createPlaceholderDataUrl(pageNumber) {
 function renderPageStrip() {
   if (!pageStrip || !addPageButton) return;
 
-  pageThumbs.forEach((thumb) => thumb.remove());
+  Array.from(pageStrip.querySelectorAll(".page-thumb-cell")).forEach((cell) => cell.remove());
   pageThumbs = pages.map((src, index) => {
+    const cell = document.createElement("div");
+    cell.className = "page-thumb-cell";
+    cell.dataset.pageThumbCell = String(index);
+
     const button = document.createElement("button");
     button.className = "page-thumb";
     button.type = "button";
     button.dataset.pageThumb = String(index);
     button.innerHTML = `<img src="${src}" alt="Страница ${index + 1}" /><span>${index + 1}</span>`;
     button.addEventListener("click", () => setPage(index));
-    pageStrip.insertBefore(button, addPageButton);
+    cell.appendChild(button);
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "page-thumb-remove";
+    removeBtn.type = "button";
+    removeBtn.dataset.pageRemove = String(index);
+    removeBtn.setAttribute("aria-label", `Удалить страницу ${index + 1}`);
+    removeBtn.title = "Удалить страницу";
+    removeBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 21a2 2 0 0 1-2-2V7H4V5h5V3h6v2h5v2h-1v12a2 2 0 0 1-2 2H7zm2-3h2V8H9v10zm4 0h2V8h-2v10z" /></svg>';
+    removeBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      removePage(index);
+    });
+    cell.appendChild(removeBtn);
+
+    pageStrip.insertBefore(cell, addPageButton);
     return button;
   });
   pageThumbs.forEach((thumb) => {
@@ -245,9 +344,57 @@ function renderPageStrip() {
   if (pageStatus) pageStatus.textContent = `Страница ${activePage + 1} из ${pages.length}`;
 }
 
+function removePage(index) {
+  if (typeof index !== "number" || index < 0 || index >= pages.length) return;
+
+  saveCurrentToContext();
+
+  if (pages.length <= 1) {
+    pages[0] = createPlaceholderDataUrl(1);
+    pageContexts[0] = createDefaultPageContext();
+    activePage = 0;
+    activeScene = 0;
+    renderPageStrip();
+    setPage(0, false);
+    pushHistory();
+    showToast("Страница очищена.");
+    return;
+  }
+
+  pages.splice(index, 1);
+  pageContexts.splice(index, 1);
+
+  pages.forEach((src, i) => {
+    if (isPlaceholderImage(src)) pages[i] = createPlaceholderDataUrl(i + 1);
+  });
+
+  let nextActive;
+  if (activePage === index) {
+    nextActive = Math.max(0, index - 1);
+  } else if (activePage > index) {
+    nextActive = activePage - 1;
+  } else {
+    nextActive = activePage;
+  }
+  nextActive = Math.min(nextActive, pages.length - 1);
+  activePage = nextActive;
+  activeScene = 0;
+
+  renderPageStrip();
+  setPage(activePage, false);
+  pushHistory();
+  showToast(`Страница удалена. Осталось страниц: ${pages.length}.`);
+}
+
 function setPage(index, save = true) {
   if (!pages[index]) return;
+  if (!isRestoring && index !== activePage) {
+    saveCurrentToContext();
+  }
   activePage = index;
+  if (!isRestoring) {
+    loadActivePageContext();
+  }
 
   pageThumbs.forEach((thumb) => {
     thumb.classList.toggle("is-active", Number(thumb.dataset.pageThumb) === index);
@@ -259,6 +406,7 @@ function setPage(index, save = true) {
     comicOutput.hidden = false;
   }
   if (emptyState) emptyState.hidden = true;
+  refreshContinueButton();
   if (save) pushHistory();
 }
 
@@ -524,30 +672,31 @@ function setPageCount(value) {
 }
 
 /* ───────── Язык диалогов ───────── */
-function setDialogueLanguage(value) {
+function setDialogueLanguage(value, save = true) {
   dialogueLanguage = value || "ru";
   if (dialogueLanguageSelect) dialogueLanguageSelect.value = dialogueLanguage;
-  pushHistory();
+  if (save) pushHistory();
 }
 
 /* ───────── AI вызовы ───────── */
-async function callAiText(task) {
+async function callAiText(task, extra = {}) {
   const scene = scenes[activeScene] || {};
+  const basePayload = {
+    task,
+    story: storyInput?.value.trim() || "",
+    characters: buildCharactersText(),
+    style: activeStyle,
+    language: dialogueLanguage,
+    pageCount,
+    sceneTitle: scene.title,
+    sceneDescription: scene.description,
+    dialogue: scene.dialogue,
+    caption: scene.caption,
+  };
   const response = await fetch("/api/ai-text", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      task,
-      story: storyInput?.value.trim() || "",
-      characters: buildCharactersText(),
-      style: activeStyle,
-      language: dialogueLanguage,
-      pageCount,
-      sceneTitle: scene.title,
-      sceneDescription: scene.description,
-      dialogue: scene.dialogue,
-      caption: scene.caption,
-    }),
+    body: JSON.stringify({ ...basePayload, ...extra }),
   });
 
   const data = await response.json().catch(() => ({}));
@@ -645,12 +794,14 @@ async function suggestScenes() {
     if (!Array.isArray(aiScenes) || !aiScenes.length) {
       throw new Error("Модель не вернула сцены.");
     }
-    scenes = aiScenes.map((scene, index) => ({
+    const mapped = aiScenes.map((scene, index) => ({
       title: scene.title || `Сцена ${index + 1}`,
       description: scene.description || "",
       dialogue: scene.dialogue || scenes[index]?.dialogue || "",
       caption: scene.caption || scenes[index]?.caption || "",
     }));
+    scenes.length = 0;
+    mapped.forEach((s) => scenes.push(s));
     activeScene = 0;
     renderScenes();
     setScene(0);
@@ -684,8 +835,26 @@ function toggleBusy(button, isBusy) {
   button.classList.toggle("is-busy", isBusy);
 }
 
-function buildScenePayload(pageIndex) {
-  const scenePrompts = scenes
+function buildCharactersTextFor(list) {
+  return (list || [])
+    .map((c) => {
+      const name = (c.name || "").trim();
+      const desc = (c.description || "").trim();
+      if (!name && !desc) return "";
+      if (name && desc) return `${name}: ${desc}`;
+      return name || desc;
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
+function buildScenePayload(pageIndex, options = {}) {
+  saveCurrentToContext();
+  const ctx = pageContexts[pageIndex] || pageContexts[activePage] || createDefaultPageContext();
+  const ctxScenes = ctx.scenes || [];
+  const ctxStory = (ctx.story || "").trim();
+
+  const scenePrompts = ctxScenes
     .map((scene, index) => {
       const parts = [
         scene.title || `Сцена ${index + 1}`,
@@ -699,24 +868,47 @@ function buildScenePayload(pageIndex) {
     })
     .filter(Boolean);
 
+  const isActivePage = pageIndex === activePage;
+  const focusScene = isActivePage ? ctxScenes[activeScene] : null;
+
+  const previousPagesContext = pageContexts
+    .slice(0, pageIndex)
+    .map((c) => (c?.summary || c?.story || "").trim())
+    .filter(Boolean);
+
+  const resolvedPagesTotal = typeof options.pagesTotal === "number"
+    ? Math.max(1, options.pagesTotal)
+    : (ctx.pageCount && isActivePage ? ctx.pageCount : 1);
+
   return {
-    story: storyInput?.value.trim() || "",
-    characters: buildCharactersText(),
+    story: ctxStory,
+    characters: buildCharactersTextFor(ctx.characters),
     style: activeStyle,
     language: dialogueLanguage,
     model: activeModel,
     page: pageIndex + 1,
-    pagesTotal: pageCount,
-    selectedScene: scenes.length ? activeScene + 1 : null,
+    pagesTotal: resolvedPagesTotal,
+    selectedScene: ctxScenes.length && isActivePage ? activeScene + 1 : null,
     scenes: scenePrompts,
-    dialogue: dialogueInput?.value.trim() || "",
-    caption: captionInput?.value.trim() || "",
+    dialogue: focusScene?.dialogue || (isActivePage ? (dialogueInput?.value.trim() || "") : ""),
+    caption: focusScene?.caption || (isActivePage ? (captionInput?.value.trim() || "") : ""),
     layout: "single full comic page, cinematic panel layout, readable speech bubbles, high contrast",
+    previousPagesContext,
   };
 }
 
-async function generateSinglePage(pageIndex, label) {
-  const payload = buildScenePayload(pageIndex);
+async function generateSinglePage(pageIndex, label, options = {}) {
+  while (pages.length <= pageIndex) {
+    pages.push(createPlaceholderDataUrl(pages.length + 1));
+  }
+  while (pageContexts.length <= pageIndex) {
+    const inheritFrom = pageContexts[activePage] || pageContexts[0];
+    pageContexts.push(createDefaultPageContext({
+      story: inheritFrom?.story || "",
+      characters: (inheritFrom?.characters || []).map((c) => ({ ...c })),
+    }));
+  }
+  const payload = buildScenePayload(pageIndex, options);
   setLoading(true, label);
 
   const response = await fetch("/api/generate-comic-page", {
@@ -734,20 +926,61 @@ async function generateSinglePage(pageIndex, label) {
     throw new Error("OpenRouter не вернул изображение.");
   }
 
-  while (pages.length <= pageIndex) {
-    pages.push(createPlaceholderDataUrl(pages.length + 1));
-  }
   pages[pageIndex] = data.imageUrl;
+  if (pageContexts[pageIndex]) pageContexts[pageIndex].generated = true;
 
   setPage(pageIndex, false);
   renderPageStrip();
   if (comicOutput) comicOutput.src = data.imageUrl;
   if (emptyState) emptyState.hidden = true;
+  refreshContinueButton();
 
   return data;
 }
 
+function hasMeaningfulCharacters(list) {
+  return (list || []).some((c) =>
+    (c?.name || "").trim() || (c?.description || "").trim()
+  );
+}
+
+function isFirstGeneration() {
+  return !pageContexts.some((c) => c?.generated);
+}
+
+async function autoExtractCharactersIfNeeded() {
+  const ctx = pageContexts[activePage];
+  if (!ctx) return;
+  if (!isFirstGeneration()) return;
+  if (hasMeaningfulCharacters(ctx.characters)) return;
+
+  const story = (ctx.story || storyInput?.value || "").trim();
+  if (!story) return;
+
+  setLoading(true, "Создаём персонажей по истории...");
+  try {
+    const { characters: aiChars } = await callAiText("characters");
+    if (!Array.isArray(aiChars) || !aiChars.length) return;
+    const mapped = aiChars
+      .map((c) => ({
+        name: typeof c?.name === "string" ? c.name.trim() : "",
+        description: typeof c?.description === "string" ? c.description.trim() : "",
+      }))
+      .filter((c) => c.name || c.description);
+    if (!mapped.length) return;
+
+    ctx.characters.length = 0;
+    mapped.forEach((c) => ctx.characters.push(c));
+    // characters — это ссылка на ctx.characters, поэтому достаточно перерисовать
+    renderCharacters();
+    showToast(`AI создал ${mapped.length} персонажей по истории — можете отредактировать в «Расширенных настройках».`);
+  } catch {
+    // best-effort — даже без авто-персонажей продолжаем основную генерацию
+  }
+}
+
 async function generateComicPage() {
+  saveCurrentToContext();
   if (!storyInput?.value.trim()) {
     showToast("Добавьте описание истории перед генерацией.");
     return;
@@ -760,17 +993,30 @@ async function generateComicPage() {
     return;
   }
 
+  await autoExtractCharactersIfNeeded();
+
   const startIndex = activePage;
+  const sourceCtx = pageContexts[startIndex];
 
   try {
     for (let i = 0; i < totalPages; i += 1) {
       const targetIndex = totalPages > 1 ? startIndex + i : startIndex;
+      while (pages.length <= targetIndex) {
+        pages.push(createPlaceholderDataUrl(pages.length + 1));
+      }
+      while (pageContexts.length <= targetIndex) {
+        pageContexts.push(createDefaultPageContext({
+          story: sourceCtx?.story || "",
+          characters: (sourceCtx?.characters || []).map((c) => ({ ...c })),
+        }));
+      }
       const label = totalPages > 1
         ? `Генерируем страницу ${i + 1} из ${totalPages}...`
         : "Генерируем страницу...";
-      await generateSinglePage(targetIndex, label);
+      await generateSinglePage(targetIndex, label, { pagesTotal: totalPages });
       credits = Math.max(0, credits - PRICE_PER_PAGE);
       updateCreditBalance();
+      void generatePageSummary(targetIndex);
     }
     pushHistory();
     showToast(totalPages > 1 ? `Готово: ${totalPages} страниц.` : "Страница сгенерирована.");
@@ -778,6 +1024,156 @@ async function generateComicPage() {
     showToast(error.message);
   } finally {
     setLoading(false);
+  }
+}
+
+async function generatePageSummary(pageIndex) {
+  const ctx = pageContexts[pageIndex];
+  if (!ctx) return;
+  const baseStory = (ctx.story || "").trim();
+  if (!baseStory) return;
+
+  const sceneDescription = (ctx.scenes || [])
+    .map((s) => {
+      const t = (s.title || "").trim();
+      const d = (s.description || "").trim();
+      if (!t && !d) return "";
+      if (t && d) return `${t}: ${d}`;
+      return t || d;
+    })
+    .filter(Boolean)
+    .join("; ");
+  const dialogue = (ctx.scenes || [])
+    .map((s) => (s.dialogue || "").trim())
+    .filter(Boolean)
+    .join("\n");
+  const charsText = buildCharactersTextFor(ctx.characters);
+
+  try {
+    const { text } = await callAiText("summarize", {
+      story: baseStory,
+      characters: charsText,
+      sceneDescription,
+      dialogue,
+    });
+    if (text && pageContexts[pageIndex]) {
+      pageContexts[pageIndex].summary = text.trim();
+    }
+  } catch {
+    // Резюме — best-effort, без него продолжение работает по основному сюжету.
+  }
+}
+
+function findLastGeneratedIndex() {
+  for (let i = pageContexts.length - 1; i >= 0; i -= 1) {
+    if (pageContexts[i]?.generated) return i;
+  }
+  for (let i = pages.length - 1; i >= 0; i -= 1) {
+    if (typeof pages[i] === "string" && !isPlaceholderImage(pages[i])) return i;
+  }
+  return -1;
+}
+
+function refreshContinueButton() {
+  if (!continueButton) return;
+  const hasAnyGenerated = findLastGeneratedIndex() >= 0;
+  continueButton.disabled = !hasAnyGenerated;
+  continueButton.title = hasAnyGenerated
+    ? "AI продолжит сюжет на основе уже сгенерированных страниц"
+    : "Сначала сгенерируйте хотя бы одну страницу — потом её можно будет продолжать";
+}
+
+async function continueStory() {
+  saveCurrentToContext();
+
+  const ctx = pageContexts[activePage];
+  if (!ctx) return;
+
+  const lastGenerated = findLastGeneratedIndex();
+  if (lastGenerated < 0) {
+    showToast("Сначала сгенерируйте хотя бы одну страницу — потом я смогу её продолжить.");
+    return;
+  }
+
+  const baseStory = (pageContexts[0]?.story || ctx.story || "").trim();
+  if (!baseStory) {
+    showToast("Опишите историю в сюжете, чтобы я знал, что продолжать.");
+    return;
+  }
+
+  if (credits < PRICE_PER_PAGE) {
+    showToast(`Недостаточно кредитов. Нужно ${PRICE_PER_PAGE}.`);
+    return;
+  }
+
+  // Решаем: заполнить текущую пустую страницу ИЛИ создать новую после.
+  const currentIsEmptyDraft =
+    !ctx.generated &&
+    !(ctx.story || "").trim() &&
+    !(ctx.scenes || []).length;
+  // Самый нижний контекст для продолжения — последняя сгенерированная страница до текущего слота.
+  const refIndex = currentIsEmptyDraft
+    ? Math.min(lastGenerated, activePage - 1)
+    : lastGenerated;
+  const summarySource = pageContexts.slice(0, refIndex + 1);
+
+  toggleBusy(continueButton, true);
+  setLoading(true, "Придумываем продолжение...");
+  try {
+    const previousSummaries = summarySource
+      .map((c) => (c?.summary || c?.story || "").trim())
+      .filter(Boolean);
+
+    const charsMap = new Map();
+    summarySource.forEach((c) => {
+      (c?.characters || []).forEach((ch) => {
+        const key = (ch.name || "").trim().toLowerCase() || `__anon_${charsMap.size}`;
+        if (!charsMap.has(key)) charsMap.set(key, ch);
+      });
+    });
+    const allCharsText = buildCharactersTextFor(Array.from(charsMap.values()));
+
+    const { text } = await callAiText("continue", {
+      story: baseStory,
+      characters: allCharsText,
+      previousPagesContext: previousSummaries,
+    });
+    const continuationText = (text || "").trim();
+    if (!continuationText) throw new Error("Модель не вернула продолжение.");
+
+    let targetIndex;
+    if (currentIsEmptyDraft) {
+      targetIndex = activePage;
+      ctx.story = continuationText;
+      if (!(ctx.characters || []).length && pageContexts[refIndex]) {
+        ctx.characters = (pageContexts[refIndex].characters || []).map((c) => ({ ...c }));
+      }
+      loadActivePageContext();
+    } else {
+      targetIndex = activePage + 1;
+      pages.splice(targetIndex, 0, createPlaceholderDataUrl(targetIndex + 1));
+      pageContexts.splice(targetIndex, 0, createDefaultPageContext({
+        story: continuationText,
+        characters: (ctx.characters || pageContexts[refIndex]?.characters || []).map((c) => ({ ...c })),
+      }));
+      renderPageStrip();
+      setPage(targetIndex, false);
+    }
+
+    setLoading(true, "Генерируем страницу...");
+    await generateSinglePage(targetIndex, "Генерируем страницу...", { pagesTotal: 1 });
+    credits = Math.max(0, credits - PRICE_PER_PAGE);
+    updateCreditBalance();
+    void generatePageSummary(targetIndex);
+
+    pushHistory();
+    showToast("Продолжение готово.");
+  } catch (error) {
+    showToast(error.message || "Не удалось продолжить историю.");
+  } finally {
+    toggleBusy(continueButton, false);
+    setLoading(false);
+    refreshContinueButton();
   }
 }
 
@@ -818,11 +1214,16 @@ async function shareProject() {
 }
 
 function addPage() {
+  saveCurrentToContext();
+  const inheritFrom = pageContexts[activePage];
   pages.push(createPlaceholderDataUrl(pages.length + 1));
+  pageContexts.push(createDefaultPageContext({
+    characters: (inheritFrom?.characters || []).map((c) => ({ ...c })),
+  }));
   renderPageStrip();
   setPage(pages.length - 1);
   pushHistory();
-  showToast("Новая страница добавлена. Нажмите «Сгенерировать страницу».");
+  showToast("Новая страница добавлена. Опишите её сюжет или нажмите «Продолжить историю».");
 }
 
 function addCredits() {
@@ -940,6 +1341,7 @@ addSceneButton?.addEventListener("click", () => addScene());
 downloadButton?.addEventListener("click", () => { downloadCurrentPage(); toggleBurgerMenu(false); });
 shareButton?.addEventListener("click", () => { shareProject(); toggleBurgerMenu(false); });
 addPageButton?.addEventListener("click", addPage);
+continueButton?.addEventListener("click", continueStory);
 regenerateDialogueButton?.addEventListener("click", regenerateDialogue);
 generateCaptionButton?.addEventListener("click", generateCaption);
 creditInfoButton?.addEventListener("click", () =>
