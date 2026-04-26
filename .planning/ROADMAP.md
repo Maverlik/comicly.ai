@@ -49,7 +49,11 @@ Plans:
   3. Developer can seed active 100, 500, and 1000 coin packages, and authenticated product code can fetch the active package catalog from the backend.
   4. Generation costs and starter coins are defined through runtime configuration rather than scattered hardcoded frontend and backend literals.
   5. Payment placeholder records can represent status, user, package, amount, currency, external provider fields, and future webhook idempotency without wallet schema redesign.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 02-01-PLAN.md — Serverless-aware settings plus SQLAlchemy models for identity, wallet, comics, generation jobs, coin packages, and payments.
+- [ ] 02-02-PLAN.md — Initial Alembic schema migration with direct migration URL handling and production constraints.
+- [ ] 02-03-PLAN.md — Idempotent coin package seed, active package catalog API, pricing/env docs, and quality gates.
 
 ### Phase 3: OAuth Sessions And Profile Bootstrap
 **Goal**: Users can securely access their accounts, and account/profile/wallet bootstrap data is created and returned by trusted backend APIs.
@@ -131,7 +135,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Backend Foundation And Static Safety | 3/3 | Complete | 2026-04-26 |
-| 2. Data And Payment Foundation | 0/TBD | Not started | - |
+| 2. Data And Payment Foundation | 0/3 | Planned | - |
 | 3. OAuth Sessions And Profile Bootstrap | 0/TBD | Not started | - |
 | 4. Wallet Ledger And Coin Safety | 0/TBD | Not started | - |
 | 5. Private Comic Persistence | 0/TBD | Not started | - |
