@@ -52,7 +52,7 @@ Plans:
 **Plans**: 3 plans
 Plans:
 - [x] 02-01-PLAN.md — Serverless-aware settings plus SQLAlchemy models for identity, wallet, comics, generation jobs, coin packages, and payments.
-- [ ] 02-02-PLAN.md — Initial Alembic schema migration with direct migration URL handling and production constraints.
+- [x] 02-02-PLAN.md — Initial Alembic schema migration with direct migration URL handling and production constraints.
 - [ ] 02-03-PLAN.md — Idempotent coin package seed, active package catalog API, pricing/env docs, and quality gates.
 
 ### Phase 3: OAuth Sessions And Profile Bootstrap
@@ -135,7 +135,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Backend Foundation And Static Safety | 3/3 | Complete | 2026-04-26 |
-| 2. Data And Payment Foundation | 1/3 | In progress | - |
+| 2. Data And Payment Foundation | 2/3 | In progress | - |
 | 3. OAuth Sessions And Profile Bootstrap | 0/TBD | Not started | - |
 | 4. Wallet Ledger And Coin Safety | 0/TBD | Not started | - |
 | 5. Private Comic Persistence | 0/TBD | Not started | - |
