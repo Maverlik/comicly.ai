@@ -33,7 +33,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Invalid API bodies, query strings, and route parameters return consistent JSON errors with stable machine-readable codes before business logic runs.
   4. Public health/readiness responses are production-safe and do not expose secrets, configured provider keys, or sensitive model configuration.
   5. Developer can run automated tests covering static file safety, traversal and dotfile denial, API error format, and legacy AI route compatibility.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 01-01-PLAN.md — Backend project scaffold, config, error envelope, and Docker foundation.
+- [ ] 01-02-PLAN.md — FastAPI health/readiness endpoints plus SQLAlchemy async DB and Alembic foundation.
+- [ ] 01-03-PLAN.md — Pytest/Ruff quality gates, static-safety coverage, documentation, and AI route migration boundary.
 
 ### Phase 2: Data And Payment Foundation
 **Goal**: Durable schema, constraints, seed data, and configuration exist for users, sessions, wallets, comics, generation, and future payments.
