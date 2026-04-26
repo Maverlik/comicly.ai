@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 
-from app.api import health
+from app.api import health, v1
 from app.core.config import get_settings
 from app.core.errors import ApiError, error_response
 
@@ -26,6 +26,7 @@ def create_app() -> FastAPI:
         )
 
     app.include_router(health.router)
+    app.include_router(v1.router)
 
     return app
 

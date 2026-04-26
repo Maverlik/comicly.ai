@@ -1,6 +1,6 @@
 # Comicly Backend
 
-Standalone FastAPI backend for Comicly.ai production backend work. Phase 1 is API-only: it does not serve frontend assets and it does not migrate the existing root Node AI routes.
+Standalone FastAPI backend for Comicly.ai production backend work. The backend is API-only: it does not serve frontend assets and it does not migrate the existing root Node AI routes.
 
 ## Local Setup
 
@@ -25,6 +25,10 @@ The backend port defaults to `8000`. Health endpoints are unprefixed:
 
 Future business APIs belong under `/api/v1/`.
 
+Phase 2 currently exposes:
+
+- `GET /api/v1/coin-packages`
+
 ## Docker
 
 Postgres and the backend app are managed by the backend Docker Compose file:
@@ -37,9 +41,11 @@ docker compose up --build
 The Compose stack starts the FastAPI service and a local PostgreSQL service. Use `docker compose up -d` for detached local development.
 The Docker image installs the lean runtime dependency set from `requirements-runtime.txt`; local test and lint tooling stays in `requirements.txt`.
 
+Docker Compose is local-only. Production deployment should use a managed Postgres database such as Neon through Vercel Marketplace or equivalent provider integration.
+
 ## Environment
 
-Copy `backend/.env.example` to `backend/.env` for local overrides. Phase 1 only requires foundation settings:
+Copy `backend/.env.example` to `backend/.env` for local overrides.
 
 | Variable | Meaning | Default |
 | --- | --- | --- |
@@ -47,8 +53,20 @@ Copy `backend/.env.example` to `backend/.env` for local overrides. Phase 1 only 
 | `APP_ENV` | Runtime environment label | `local` |
 | `APP_DEBUG` | FastAPI debug flag | `false` |
 | `DATABASE_URL` | SQLAlchemy async database URL | local Docker Postgres URL |
+| `MIGRATION_DATABASE_URL` | Optional direct database URL for Alembic migrations | unset |
+| `DATABASE_DIRECT_URL` | Optional direct database URL fallback for Alembic migrations | unset |
+| `CORS_ORIGINS` | Comma-separated future frontend origins | unset |
+| `FULL_PAGE_GENERATION_COST` | Future full page generation coin cost | `20` |
+| `SCENE_REGENERATION_COST` | Future scene regeneration coin cost | `4` |
+| `STARTER_COINS` | Future starter wallet coin amount | `100` |
 
-Later-phase variables such as OAuth secrets, OpenRouter keys, storage settings, session secrets, and starter coin amounts are documented in `.env.example` as references only. They are intentionally not required for Phase 1 startup.
+For Vercel/Neon production:
+
+- `DATABASE_URL` should be the Neon pooled connection URL converted to the async SQLAlchemy driver form, for example `postgresql+asyncpg://...`.
+- `MIGRATION_DATABASE_URL` should be the Neon direct non-pooled URL for Alembic when available.
+- Secrets such as `OPENROUTER_API_KEY`, OAuth secrets, session secrets, and storage credentials should be configured through environment variables, not committed files.
+
+Later-phase variables such as OAuth secrets, OpenRouter keys, storage settings, and session secrets are documented in `.env.example` as references only. They are intentionally not required for startup yet.
 
 ## Quality Gates
 
@@ -74,7 +92,7 @@ git -C .. diff --name-only -- server.js package.json index.html create.html scri
 
 ## Migrations
 
-Alembic is configured under `backend/` and reads the same `DATABASE_URL` setting as the app.
+Alembic is configured under `backend/`. It prefers `MIGRATION_DATABASE_URL`, then `DATABASE_DIRECT_URL`, and finally falls back to runtime `DATABASE_URL`.
 
 ```powershell
 cd backend
@@ -83,7 +101,22 @@ python -m alembic revision -m "describe change"
 python -m alembic upgrade head
 ```
 
-Business schema migrations for users, wallets, comics, payments, and generation results are deferred to later phases.
+The Phase 2 initial migration creates users, auth identity placeholders, wallets, comics, generation jobs, coin packages, and payment placeholders.
+
+## Seed Data
+
+Seed the default active coin package catalog after migrations:
+
+```powershell
+cd backend
+python scripts/seed_coin_packages.py
+```
+
+The seed is idempotent and maintains these active packages:
+
+- `coins_100`
+- `coins_500`
+- `coins_1000`
 
 ## Phase 1 Boundary
 
