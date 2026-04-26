@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready_for_phase_2
-stopped_at: Phase 1 verified; ready for Phase 2 discussion
-last_updated: "2026-04-26T13:46:38Z"
-last_activity: 2026-04-26 -- Phase 1 Docker runtime verification passed
+status: planning
+stopped_at: Phase 2 context gathered
+last_updated: "2026-04-26T14:20:40.990Z"
+last_activity: 2026-04-26 -- Phase 2 context gathered with Vercel/Neon deployment constraints
 progress:
   total_phases: 8
   completed_phases: 1
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 Phase: 2 (Data And Payment Foundation) - READY FOR DISCUSSION
 Plan: 0 of TBD
-Status: Phase 1 fully verified; Phase 2 context should be discussed before planning
-Last activity: 2026-04-26 -- Phase 1 Docker runtime verification passed
+Status: Phase 2 context gathered; ready for Phase 2 planning
+Last activity: 2026-04-26 -- Phase 2 context gathered with Vercel/Neon deployment constraints
 
 Progress: [##########] 100%
 
@@ -72,6 +72,8 @@ Recent decisions affecting current work:
 - [Phase 1 Plan 03]: Existing root Node AI routes remain owned by the root runtime until a later approved migration plan changes frontend/root behavior.
 - [Phase 1 Plan 03]: Backend quality gates are `python -m pytest`, `python -m ruff check .`, and `python -m ruff format --check .` from `backend/`.
 - [Phase 1 Verification]: Pytest passed 15/15, Ruff lint/format passed, `docker compose config` passed, `docker compose up -d --build` passed, and Docker `/health` plus `/ready` smoke tests returned healthy responses.
+- [Phase 2 Discussion]: MVP deployment is Vercel-first with separate frontend/backend projects, frontend on `comicly.ai`/`www.comicly.ai`, backend API on `api.comicly.ai`, Neon pooled `DATABASE_URL` for runtime, and direct migration DB URL if needed for Alembic.
+- [Phase 2 Discussion]: Generation jobs should be represented in schema for future queue/status polling, while MVP generation may remain synchronous within Vercel Hobby limits.
 
 ### Pending Todos
 
@@ -79,8 +81,8 @@ None yet.
 
 ### Blockers/Concerns
 
-- Final production deployment provider and object storage provider remain open and should be decided before Phase 8 implementation details are locked.
-- Synchronous versus queued generation is not locked; Phase 6 should preserve a job-state path even if the first production route remains synchronous.
+- Object storage provider remains open and should be decided before Phase 6/8 implementation details are locked.
+- Production deployment target is Vercel-first, but backend portability should be preserved for Render/Railway/Fly fallback if Vercel limitations become critical.
 - Starter coin amount should remain configurable until product value is confirmed.
 
 ## Deferred Items
@@ -95,6 +97,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-26T13:46:38Z
-Stopped at: Phase 1 fully verified; ready for Phase 2 discussion
-Resume file: .planning/phases/01-backend-foundation-and-static-safety/01-VERIFICATION.md
+Last session: 2026-04-26T14:20:40.967Z
+Stopped at: Phase 2 context gathered
+Resume file: .planning/phases/02-data-and-payment-foundation/02-CONTEXT.md
