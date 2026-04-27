@@ -13,7 +13,7 @@ This milestone turns the existing static Comicly.ai creator and prototype Node A
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Backend Foundation And Static Safety** - Modularize the server, lock down static/API safety, and preserve existing AI routes.
-- [ ] **Phase 2: Data And Payment Foundation** - Add migrations, constraints, runtime pricing config, seeded coin packages, and payment-ready schema.
+- [x] **Phase 2: Data And Payment Foundation** - Add migrations, constraints, runtime pricing config, seeded coin packages, and payment-ready schema.
 - [ ] **Phase 3: OAuth Sessions And Profile Bootstrap** - Let users sign in with Google/Yandex, manage profile basics, and receive secure server-side sessions.
 - [ ] **Phase 4: Wallet Ledger And Coin Safety** - Make balances authoritative through backend ledger operations, idempotency, and concurrency-safe debits.
 - [ ] **Phase 5: Private Comic Persistence** - Persist user-owned comic drafts, scenes, pages, and owner-scoped history.
@@ -135,7 +135,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Backend Foundation And Static Safety | 3/3 | Complete | 2026-04-26 |
-| 2. Data And Payment Foundation | 3/3 | Verification pending | - |
+| 2. Data And Payment Foundation | 3/3 | Complete | 2026-04-26 |
 | 3. OAuth Sessions And Profile Bootstrap | 0/TBD | Not started | - |
 | 4. Wallet Ledger And Coin Safety | 0/TBD | Not started | - |
 | 5. Private Comic Persistence | 0/TBD | Not started | - |

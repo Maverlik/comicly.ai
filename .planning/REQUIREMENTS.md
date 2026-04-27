@@ -17,11 +17,11 @@ Requirements for the initial production backend milestone. Each maps to one road
 
 ### Data Model
 
-- [ ] **DATA-01**: Developer can run database migrations from a clean checkout to create all production backend tables.
-- [ ] **DATA-02**: Database stores users, OAuth provider identities, profiles, sessions, wallets, wallet transactions, comics, comic scenes, comic pages, generation jobs, coin packages, and payment placeholders.
-- [ ] **DATA-03**: Database constraints prevent duplicate provider identities, duplicate idempotency keys, invalid wallet balances, and cross-owner comic/page relationships.
-- [ ] **DATA-04**: Seed data creates active coin packages for 100, 500, and 1000 coins.
-- [ ] **DATA-05**: Runtime configuration defines generation costs and starter coins without scattering hardcoded prices through frontend and backend code.
+- [x] **DATA-01**: Developer can run database migrations from a clean checkout to create all production backend tables.
+- [x] **DATA-02**: Database stores users, OAuth provider identities, profiles, sessions, wallets, wallet transactions, comics, comic scenes, comic pages, generation jobs, coin packages, and payment placeholders.
+- [x] **DATA-03**: Database constraints prevent duplicate provider identities, duplicate idempotency keys, invalid wallet balances, and cross-owner comic/page relationships.
+- [x] **DATA-04**: Seed data creates active coin packages for 100, 500, and 1000 coins.
+- [x] **DATA-05**: Runtime configuration defines generation costs and starter coins without scattering hardcoded prices through frontend and backend code.
 
 ### Authentication
 
@@ -71,9 +71,9 @@ Requirements for the initial production backend milestone. Each maps to one road
 
 ### Payment Preparation
 
-- [ ] **PAY-01**: User can fetch active coin package catalog from the backend.
-- [ ] **PAY-02**: Database includes payment placeholder records with status, user, package, amount, currency, and external provider fields.
-- [ ] **PAY-03**: Payment schema can support future provider webhook idempotency without redesigning wallet or package tables.
+- [x] **PAY-01**: User can fetch active coin package catalog from the backend.
+- [x] **PAY-02**: Database includes payment placeholder records with status, user, package, amount, currency, and external provider fields.
+- [x] **PAY-03**: Payment schema can support future provider webhook idempotency without redesigning wallet or package tables.
 
 ### Deployment And Operations
 
@@ -143,11 +143,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SAFE-03 | Phase 1 | Complete in 01-01 |
 | SAFE-04 | Phase 1 | Complete in 01-01 |
 | SAFE-05 | Phase 1 | Complete in 01-03 |
-| DATA-01 | Phase 2 | Pending |
-| DATA-02 | Phase 2 | Pending |
-| DATA-03 | Phase 2 | Pending |
-| DATA-04 | Phase 2 | Pending |
-| DATA-05 | Phase 2 | Pending |
+| DATA-01 | Phase 2 | Complete in 02-02 |
+| DATA-02 | Phase 2 | Complete in 02-01/02-02 |
+| DATA-03 | Phase 2 | Complete in 02-02 |
+| DATA-04 | Phase 2 | Complete in 02-03 |
+| DATA-05 | Phase 2 | Complete in 02-01/02-03 |
 | AUTH-01 | Phase 3 | Pending |
 | AUTH-02 | Phase 3 | Pending |
 | AUTH-03 | Phase 3 | Pending |
@@ -179,9 +179,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GEN-05 | Phase 6 | Pending |
 | GEN-06 | Phase 6 | Pending |
 | GEN-07 | Phase 6 | Pending |
-| PAY-01 | Phase 2 | Pending |
-| PAY-02 | Phase 2 | Pending |
-| PAY-03 | Phase 2 | Pending |
+| PAY-01 | Phase 2 | Complete in 02-03 |
+| PAY-02 | Phase 2 | Complete in 02-02 |
+| PAY-03 | Phase 2 | Complete in 02-02 |
 | OPS-01 | Phase 8 | Pending |
 | OPS-02 | Phase 8 | Pending |
 | OPS-03 | Phase 8 | Pending |
@@ -203,4 +203,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-25*
-*Last updated: 2026-04-25 after roadmap creation*
+*Last updated: 2026-04-26 after Phase 2 verification*

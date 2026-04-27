@@ -20,16 +20,17 @@ Users can reliably create AI-generated comic pages under their own account, with
 - [x] AI text generation exists through `POST /api/ai-text` for story enhancement, dialogue, captions, and scene suggestions.
 - [x] AI comic page generation exists through `POST /api/generate-comic-page` using server-side OpenRouter credentials.
 - [x] Local health/config feedback exists through `GET /api/health` and the creator configuration banner.
+- [x] Phase 2 backend data/payment foundation exists: Alembic creates the production schema surface, runtime pricing is centralized, and active coin packages can be seeded and fetched from `/api/v1/coin-packages`.
 
 ### Active
 
 - [ ] Implement production-ready backend architecture without breaking the existing AI generation routes.
 - [ ] Add OAuth login through Google and Yandex with secure server-side sessions.
-- [ ] Store users, provider identities, profiles, wallets, coin transactions, comics, and comic pages in a database.
+- [x] Store users, provider identities, profiles, wallets, coin transactions, comics, and comic pages in a database schema.
 - [ ] Move coin balance and all debit/credit decisions to backend APIs, including transaction logs and insufficient-balance errors.
 - [ ] Persist generated comics and pages so users can list, reopen, and continue their own work.
 - [ ] Replace demo profile and hardcoded frontend credits with authenticated backend data.
-- [ ] Prepare payment product and payment tables for future coin purchases, including seeded packages for 100, 500, and 1000 coins.
+- [x] Prepare payment product and payment tables for future coin purchases, including seeded packages for 100, 500, and 1000 coins.
 - [ ] Add deployment configuration, environment documentation, and local/production run instructions.
 - [ ] Add safety gates: validation, auth protection, rate limiting, request idempotency, secure cookies, and tests around critical API behavior.
 
@@ -70,6 +71,7 @@ The backend task spec in `backend/BACKEND_TZ.md` defines the intended production
 | Use Google and Yandex OAuth for v1 auth | The backend spec explicitly requires both providers and no separate password flow | Pending |
 | Prepare payments without real provider integration | The data model must support future purchases, but actual acquiring/webhook work is out of current scope | Pending |
 | Add tests before expanding risky backend behavior | Auth, static serving, coin debits, idempotency, and OpenRouter error handling have high regression risk | Pending |
+| Use Neon pooled runtime URL and direct migration URL separation | Vercel/serverless runtime should use pooled connections while Alembic can use direct migration connectivity | Validated in Phase 2 |
 
 ## Evolution
 
@@ -89,4 +91,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state.
 
 ---
-*Last updated: 2026-04-25 after initialization*
+*Last updated: 2026-04-26 after Phase 2 verification*
