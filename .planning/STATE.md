@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready_for_discussion
-stopped_at: Phase 4 complete; ready to discuss Phase 5
-last_updated: "2026-04-27T18:44:00+03:00"
-last_activity: 2026-04-27 -- Phase 4 complete
+status: ready_to_plan
+stopped_at: Phase 5 context gathered; ready to plan
+last_updated: "2026-04-27T20:37:43+03:00"
+last_activity: 2026-04-27 -- Phase 5 context gathered
 progress:
   total_phases: 8
   completed_phases: 4
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 ## Current Position
 
-Phase: 5 (Private Comic Persistence) - READY TO DISCUSS
+Phase: 5 (Private Comic Persistence) - READY TO PLAN
 Plan: 0 of TBD
-Status: Phase 4 complete; ready to discuss Phase 5
-Last activity: 2026-04-27 -- Phase 4 complete
+Status: Phase 5 context gathered; ready to plan
+Last activity: 2026-04-27 -- Phase 5 context gathered
 
 Progress: [----------] 0%
 
@@ -79,6 +79,7 @@ Recent decisions affecting current work:
 - [Phase 3 Verification]: Google/Yandex OAuth route surfaces, provider normalization, first-login bootstrap, verified-email linking, `/api/v1/me`, display-name update, and current-session logout are implemented and covered by mocked provider/session tests.
 - [Phase 4 Discussion]: Wallet ledger scope is backend-only foundation: `GET /api/v1/wallet` balance plus recent transactions, debit-before-generation primitives with refund support, required `Idempotency-Key` for billable operations, and no real generation/frontend integration until later phases.
 - [Phase 4 Verification]: Wallet ledger service, authenticated wallet API, insufficient funds, idempotency, refund primitives, and concurrent debit protection are implemented and covered by automated tests.
+- [Phase 5 Discussion]: Private comic persistence should be backend API-only with explicit CRUD, first-class comic metadata columns, structured scenes, persistence-only page APIs, soft archive, compact list plus full detail, last-write-wins, and strict owner scoping.
 
 ### Pending Todos
 
@@ -102,6 +103,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-27T18:44:00+03:00
-Stopped at: Phase 4 complete; ready to discuss Phase 5
-Resume file: .planning/phases/04-wallet-ledger-and-coin-safety/04-VERIFICATION.md
+Last session: 2026-04-27T20:37:43+03:00
+Stopped at: Phase 5 context gathered; ready to plan
+Resume file: .planning/phases/05-private-comic-persistence/05-CONTEXT.md
