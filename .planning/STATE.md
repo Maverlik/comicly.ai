@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready_to_execute
-stopped_at: Phase 5 planned; ready to execute
-last_updated: "2026-04-27T20:41:08+03:00"
-last_activity: 2026-04-27 -- Phase 5 planning complete
+status: ready_for_discussion
+stopped_at: Phase 5 complete; ready to discuss Phase 6
+last_updated: "2026-04-27T21:05:58+03:00"
+last_activity: 2026-04-27 -- Phase 5 verification complete
 progress:
   total_phases: 8
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 17
-  completed_plans: 13
-  percent: 76
+  completed_plans: 17
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-25)
 
 **Core value:** Users can reliably create AI-generated comic pages under their own account, with durable comic history and trustworthy server-side coin accounting.
-**Current focus:** Phase 5 - Private Comic Persistence
+**Current focus:** Phase 6 - Production AI Generation Pipeline
 
 ## Current Position
 
-Phase: 5 (Private Comic Persistence) - READY TO EXECUTE
-Plan: 0 of 4
-Status: Phase 5 planned; ready to execute
-Last activity: 2026-04-27 -- Phase 5 planning complete
+Phase: 6 (Production AI Generation Pipeline) - READY TO DISCUSS
+Plan: 0 of TBD
+Status: Phase 5 complete; ready to discuss Phase 6
+Last activity: 2026-04-27 -- Phase 5 verification complete
 
-Progress: [----------] 0%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
@@ -80,6 +80,7 @@ Recent decisions affecting current work:
 - [Phase 4 Discussion]: Wallet ledger scope is backend-only foundation: `GET /api/v1/wallet` balance plus recent transactions, debit-before-generation primitives with refund support, required `Idempotency-Key` for billable operations, and no real generation/frontend integration until later phases.
 - [Phase 4 Verification]: Wallet ledger service, authenticated wallet API, insufficient funds, idempotency, refund primitives, and concurrent debit protection are implemented and covered by automated tests.
 - [Phase 5 Discussion]: Private comic persistence should be backend API-only with explicit CRUD, first-class comic metadata columns, structured scenes, persistence-only page APIs, soft archive, compact list plus full detail, last-write-wins, and strict owner scoping.
+- [Phase 5 Verification]: Private comic schema fields, service layer, authenticated `/api/v1/comics` CRUD/archive APIs, structured scenes/pages persistence, and two-user owner-scoping tests are implemented; full backend gates pass.
 
 ### Pending Todos
 
@@ -103,6 +104,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-27T20:41:08+03:00
-Stopped at: Phase 5 planned; ready to execute
-Resume file: .planning/phases/05-private-comic-persistence/05-01-PLAN.md
+Last session: 2026-04-27T21:05:58+03:00
+Stopped at: Phase 5 complete; ready to discuss Phase 6
+Resume file: .planning/phases/05-private-comic-persistence/05-VERIFICATION.md

@@ -52,12 +52,12 @@ Requirements for the initial production backend milestone. Each maps to one road
 
 ### Comic Persistence
 
-- [ ] **COMIC-01**: User can create a private comic draft with title, story, characters, style, tone, selected model, and status.
-- [ ] **COMIC-02**: User can save and reload comic scenes with title, description, dialogue, caption, and order.
-- [ ] **COMIC-03**: User can save and reload comic pages with page number, generation status, model, cost, image location, and timestamps.
-- [ ] **COMIC-04**: User can list their own comics and open one by id.
-- [ ] **COMIC-05**: User cannot list, open, update, or generate pages for another user's comics.
-- [ ] **COMIC-06**: Browser refresh or reopening a comic restores persisted draft metadata, scenes, and generated pages.
+- [x] **COMIC-01**: User can create a private comic draft with title, story, characters, style, tone, selected model, and status.
+- [x] **COMIC-02**: User can save and reload comic scenes with title, description, dialogue, caption, and order.
+- [x] **COMIC-03**: User can save and reload comic pages with page number, generation status, model, cost, image location, and timestamps.
+- [x] **COMIC-04**: User can list their own comics and open one by id.
+- [x] **COMIC-05**: User cannot list, open, update, or generate pages for another user's comics.
+- [x] **COMIC-06**: Browser refresh or reopening a comic restores persisted draft metadata, scenes, and generated pages.
 
 ### AI Generation
 
@@ -89,7 +89,7 @@ Requirements for the initial production backend milestone. Each maps to one road
 - [x] **TEST-01**: Automated tests cover static file safety, traversal/dotfile denial, API error format, and existing AI route compatibility.
 - [x] **TEST-02**: Automated tests cover OAuth/session behavior using mocked providers or callback fixtures.
 - [x] **TEST-03**: Automated tests cover wallet ledger correctness, insufficient balance, idempotency, refunds/no-debit on failure, and concurrent debit protection.
-- [ ] **TEST-04**: Automated tests cover comic ownership boundaries with at least two users.
+- [x] **TEST-04**: Automated tests cover comic ownership boundaries with at least two users.
 - [ ] **TEST-05**: Automated tests cover OpenRouter response parsing and generation failure modes using fixtures.
 - [ ] **TEST-06**: Manual or automated smoke checks cover sign-in, profile display, balance display, comic creation, page generation, reload/reopen, and logout.
 
@@ -166,12 +166,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | WAL-05 | Phase 4 | Complete in 04-01 |
 | WAL-06 | Phase 4 | Complete in 04-01 |
 | WAL-07 | Phase 4 | Complete in 04-01 |
-| COMIC-01 | Phase 5 | Pending |
-| COMIC-02 | Phase 5 | Pending |
-| COMIC-03 | Phase 5 | Pending |
-| COMIC-04 | Phase 5 | Pending |
-| COMIC-05 | Phase 5 | Pending |
-| COMIC-06 | Phase 5 | Pending |
+| COMIC-01 | Phase 5 | Complete in 05-03 |
+| COMIC-02 | Phase 5 | Complete in 05-03 |
+| COMIC-03 | Phase 5 | Complete in 05-03 |
+| COMIC-04 | Phase 5 | Complete in 05-03 |
+| COMIC-05 | Phase 5 | Complete in 05-03 |
+| COMIC-06 | Phase 5 | Complete in 05-03 |
 | GEN-01 | Phase 6 | Pending |
 | GEN-02 | Phase 6 | Pending |
 | GEN-03 | Phase 6 | Pending |
@@ -191,7 +191,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TEST-01 | Phase 1 | Complete in 01-03 |
 | TEST-02 | Phase 3 | Complete in 03-04 |
 | TEST-03 | Phase 4 | Complete in 04-03 |
-| TEST-04 | Phase 5 | Pending |
+| TEST-04 | Phase 5 | Complete in 05-04 |
 | TEST-05 | Phase 6 | Pending |
 | TEST-06 | Phase 7 | Pending |
 
@@ -203,4 +203,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-25*
-*Last updated: 2026-04-27 after Phase 4 verification*
+*Last updated: 2026-04-27 after Phase 5 verification*

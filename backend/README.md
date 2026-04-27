@@ -45,6 +45,19 @@ Phase 4 adds the authoritative wallet read endpoint:
 
 The wallet endpoint requires the product session cookie and returns the current database balance plus a short recent transaction list.
 
+Phase 5 adds authenticated private comic persistence:
+
+- `POST /api/v1/comics`
+- `GET /api/v1/comics`
+- `GET /api/v1/comics?include_archived=true`
+- `GET /api/v1/comics/{comic_id}`
+- `PATCH /api/v1/comics/{comic_id}`
+- `DELETE /api/v1/comics/{comic_id}`
+- `PUT /api/v1/comics/{comic_id}/scenes`
+- `PUT /api/v1/comics/{comic_id}/pages`
+
+Comic APIs require the product session cookie. They are owner-scoped: users can only list, open, update, archive, and replace scenes/pages for their own comics.
+
 ## Docker
 
 Postgres and the backend app are managed by the backend Docker Compose file:
@@ -139,6 +152,43 @@ Server-controlled generation costs are:
 - scene regeneration: `SCENE_REGENERATION_COST`, default `4`.
 
 If a user cannot cover a debit, the service returns `INSUFFICIENT_COINS` with HTTP status `409` and does not create a debit row. If a future OpenRouter generation fails after a debit, the caller should create one idempotent refund transaction rather than silently editing the original debit.
+
+## Private Comic Persistence
+
+Comic persistence is backend-owned and API-only in Phase 5. The frontend has not been changed yet.
+
+Stored comic draft metadata includes:
+
+- `title`
+- `story`
+- `characters`
+- `style`
+- `tone`
+- `selected_model`
+- `status`
+
+Stored scene fields include:
+
+- `position`
+- `title`
+- `description`
+- `dialogue`
+- `caption`
+
+Stored page fields include:
+
+- `page_number`
+- `status`
+- `model`
+- `coin_cost`
+- `image_url`
+- `storage_key`
+- `width`
+- `height`
+- `scene_id`
+- `generated_at`
+
+Comics are soft-archived with status `archived`; list responses hide archived comics unless `include_archived=true` is requested. Scene and page replacement endpoints use stable ordering by `position` and `page_number`. Phase 5 does not call OpenRouter, debit coins, upload images, or integrate the existing static creator UI; those belong to later phases.
 
 ## Quality Gates
 
