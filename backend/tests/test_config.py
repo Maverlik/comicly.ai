@@ -103,15 +103,15 @@ def test_runtime_engine_uses_runtime_database_url_not_direct_url(monkeypatch) ->
     )
 
 
-def test_settings_ignore_unimplemented_secret_env_vars(monkeypatch) -> None:
+def test_settings_ignore_later_phase_secret_env_vars(monkeypatch) -> None:
     monkeypatch.setenv("OPENROUTER_API_KEY", "not-used-in-phase-1")
-    monkeypatch.setenv("GOOGLE_CLIENT_SECRET", "not-used-in-phase-1")
+    monkeypatch.setenv("GOOGLE_CLIENT_SECRET", "phase-3-secret")
     monkeypatch.setenv("STORAGE_SECRET_ACCESS_KEY", "not-used-in-phase-1")
 
     settings = Settings(_env_file=None)
 
     assert not hasattr(settings, "openrouter_api_key")
-    assert not hasattr(settings, "google_client_secret")
+    assert settings.google_client_secret == "phase-3-secret"
     assert not hasattr(settings, "storage_secret_access_key")
 
 
