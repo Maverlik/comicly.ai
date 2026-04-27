@@ -25,18 +25,18 @@ Requirements for the initial production backend milestone. Each maps to one road
 
 ### Authentication
 
-- [ ] **AUTH-01**: User can sign in with Google OAuth and receive a secure server-side session.
-- [ ] **AUTH-02**: User can sign in with Yandex OAuth and receive a secure server-side session.
-- [ ] **AUTH-03**: First OAuth login creates the user, provider identity, profile, wallet, and starter coin ledger entry.
-- [ ] **AUTH-04**: Returning OAuth login attaches to the existing user by provider and provider user id.
-- [ ] **AUTH-05**: User can log out, and the server invalidates the session.
-- [ ] **AUTH-06**: Private APIs reject anonymous requests and never trust user identity supplied by the browser.
-- [ ] **AUTH-07**: Session cookies are `HttpOnly`, production `Secure`, and use an appropriate `SameSite` policy.
+- [x] **AUTH-01**: User can sign in with Google OAuth and receive a secure server-side session.
+- [x] **AUTH-02**: User can sign in with Yandex OAuth and receive a secure server-side session.
+- [x] **AUTH-03**: First OAuth login creates the user, provider identity, profile, wallet, and starter coin ledger entry.
+- [x] **AUTH-04**: Returning OAuth login attaches to the existing user by provider and provider user id.
+- [x] **AUTH-05**: User can log out, and the server invalidates the session.
+- [x] **AUTH-06**: Private APIs reject anonymous requests and never trust user identity supplied by the browser.
+- [x] **AUTH-07**: Session cookies are `HttpOnly`, production `Secure`, and use an appropriate `SameSite` policy.
 
 ### Profile And Bootstrap
 
-- [ ] **PROF-01**: User can fetch current account, profile, and wallet summary through an authenticated bootstrap API.
-- [ ] **PROF-02**: User can update display name through an authenticated API and see it persist after reload.
+- [x] **PROF-01**: User can fetch current account, profile, and wallet summary through an authenticated bootstrap API.
+- [x] **PROF-02**: User can update display name through an authenticated API and see it persist after reload.
 - [ ] **PROF-03**: User can upload or replace an avatar with file type and size validation.
 - [ ] **PROF-04**: Frontend creator shell replaces demo profile data and hardcoded credit display with authenticated backend data.
 
@@ -87,7 +87,7 @@ Requirements for the initial production backend milestone. Each maps to one road
 ### Verification
 
 - [x] **TEST-01**: Automated tests cover static file safety, traversal/dotfile denial, API error format, and existing AI route compatibility.
-- [ ] **TEST-02**: Automated tests cover OAuth/session behavior using mocked providers or callback fixtures.
+- [x] **TEST-02**: Automated tests cover OAuth/session behavior using mocked providers or callback fixtures.
 - [ ] **TEST-03**: Automated tests cover wallet ledger correctness, insufficient balance, idempotency, refunds/no-debit on failure, and concurrent debit protection.
 - [ ] **TEST-04**: Automated tests cover comic ownership boundaries with at least two users.
 - [ ] **TEST-05**: Automated tests cover OpenRouter response parsing and generation failure modes using fixtures.
@@ -148,15 +148,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DATA-03 | Phase 2 | Complete in 02-02 |
 | DATA-04 | Phase 2 | Complete in 02-03 |
 | DATA-05 | Phase 2 | Complete in 02-01/02-03 |
-| AUTH-01 | Phase 3 | Pending |
-| AUTH-02 | Phase 3 | Pending |
-| AUTH-03 | Phase 3 | Pending |
-| AUTH-04 | Phase 3 | Pending |
-| AUTH-05 | Phase 3 | Pending |
-| AUTH-06 | Phase 3 | Pending |
-| AUTH-07 | Phase 3 | Pending |
-| PROF-01 | Phase 3 | Pending |
-| PROF-02 | Phase 3 | Pending |
+| AUTH-01 | Phase 3 | Complete in 03-02 |
+| AUTH-02 | Phase 3 | Complete in 03-02 |
+| AUTH-03 | Phase 3 | Complete in 03-02 |
+| AUTH-04 | Phase 3 | Complete in 03-02 |
+| AUTH-05 | Phase 3 | Complete in 03-03 |
+| AUTH-06 | Phase 3 | Complete in 03-03 |
+| AUTH-07 | Phase 3 | Complete in 03-01 |
+| PROF-01 | Phase 3 | Complete in 03-03 |
+| PROF-02 | Phase 3 | Complete in 03-03 |
 | PROF-03 | Deferred | Pending storage provider decision |
 | PROF-04 | Phase 7 | Pending |
 | WAL-01 | Phase 4 | Pending |
@@ -189,7 +189,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OPS-05 | Phase 8 | Pending |
 | OPS-06 | Phase 1 | Complete in 01-02 |
 | TEST-01 | Phase 1 | Complete in 01-03 |
-| TEST-02 | Phase 3 | Pending |
+| TEST-02 | Phase 3 | Complete in 03-04 |
 | TEST-03 | Phase 4 | Pending |
 | TEST-04 | Phase 5 | Pending |
 | TEST-05 | Phase 6 | Pending |
@@ -203,4 +203,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-25*
-*Last updated: 2026-04-26 after Phase 2 verification*
+*Last updated: 2026-04-27 after Phase 3 verification*

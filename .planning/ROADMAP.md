@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Backend Foundation And Static Safety** - Modularize the server, lock down static/API safety, and preserve existing AI routes.
 - [x] **Phase 2: Data And Payment Foundation** - Add migrations, constraints, runtime pricing config, seeded coin packages, and payment-ready schema.
-- [ ] **Phase 3: OAuth Sessions And Profile Bootstrap** - Let users sign in with Google/Yandex, manage profile basics, and receive secure server-side sessions.
+- [x] **Phase 3: OAuth Sessions And Profile Bootstrap** - Let users sign in with Google/Yandex, manage profile basics, and receive secure server-side sessions.
 - [ ] **Phase 4: Wallet Ledger And Coin Safety** - Make balances authoritative through backend ledger operations, idempotency, and concurrency-safe debits.
 - [ ] **Phase 5: Private Comic Persistence** - Persist user-owned comic drafts, scenes, pages, and owner-scoped history.
 - [ ] **Phase 6: Production AI Generation Pipeline** - Connect protected OpenRouter generation to jobs, durable storage, page persistence, and updated balance responses.
@@ -67,10 +67,10 @@ Plans:
   5. User can log out, the server invalidates the session, anonymous private API requests are rejected, and session cookies are `HttpOnly`, production `Secure`, and use an appropriate `SameSite` policy.
 **Plans**: 4 plans
 Plans:
-- [ ] 03-01-PLAN.md — Auth config, product session helpers, OAuth state middleware, CORS/cookie safety.
-- [ ] 03-02-PLAN.md — Google/Yandex OAuth route surface, provider normalization, first-login bootstrap, verified-email linking.
-- [ ] 03-03-PLAN.md — Current-user dependency, `/api/v1/me`, display-name update, logout.
-- [ ] 03-04-PLAN.md — OAuth/session docs, env example updates, full backend quality gates and boundary check.
+- [x] 03-01-PLAN.md — Auth config, product session helpers, OAuth state middleware, CORS/cookie safety.
+- [x] 03-02-PLAN.md — Google/Yandex OAuth route surface, provider normalization, first-login bootstrap, verified-email linking.
+- [x] 03-03-PLAN.md — Current-user dependency, `/api/v1/me`, display-name update, logout.
+- [x] 03-04-PLAN.md — OAuth/session docs, env example updates, full backend quality gates and boundary check.
 
 ### Phase 4: Wallet Ledger And Coin Safety
 **Goal**: Coin balances and every balance-changing decision are authoritative, auditable, idempotent, and safe under retries or concurrent requests.
@@ -141,7 +141,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 |-------|----------------|--------|-----------|
 | 1. Backend Foundation And Static Safety | 3/3 | Complete | 2026-04-26 |
 | 2. Data And Payment Foundation | 3/3 | Complete | 2026-04-26 |
-| 3. OAuth Sessions And Profile Bootstrap | 0/4 | Planned | - |
+| 3. OAuth Sessions And Profile Bootstrap | 4/4 | Complete | 2026-04-27 |
 | 4. Wallet Ledger And Coin Safety | 0/TBD | Not started | - |
 | 5. Private Comic Persistence | 0/TBD | Not started | - |
 | 6. Production AI Generation Pipeline | 0/TBD | Not started | - |

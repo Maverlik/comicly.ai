@@ -21,11 +21,12 @@ Users can reliably create AI-generated comic pages under their own account, with
 - [x] AI comic page generation exists through `POST /api/generate-comic-page` using server-side OpenRouter credentials.
 - [x] Local health/config feedback exists through `GET /api/health` and the creator configuration banner.
 - [x] Phase 2 backend data/payment foundation exists: Alembic creates the production schema surface, runtime pricing is centralized, and active coin packages can be seeded and fetched from `/api/v1/coin-packages`.
+- [x] Phase 3 OAuth/session foundation exists: Google/Yandex OAuth route surfaces, DB-backed opaque sessions, `/api/v1/me`, display-name update, logout, and mocked provider tests.
 
 ### Active
 
 - [ ] Implement production-ready backend architecture without breaking the existing AI generation routes.
-- [ ] Add OAuth login through Google and Yandex with secure server-side sessions.
+- [x] Add OAuth login through Google and Yandex with secure server-side sessions.
 - [x] Store users, provider identities, profiles, wallets, coin transactions, comics, and comic pages in a database schema.
 - [ ] Move coin balance and all debit/credit decisions to backend APIs, including transaction logs and insufficient-balance errors.
 - [ ] Persist generated comics and pages so users can list, reopen, and continue their own work.
@@ -72,6 +73,7 @@ The backend task spec in `backend/BACKEND_TZ.md` defines the intended production
 | Prepare payments without real provider integration | The data model must support future purchases, but actual acquiring/webhook work is out of current scope | Pending |
 | Add tests before expanding risky backend behavior | Auth, static serving, coin debits, idempotency, and OpenRouter error handling have high regression risk | Pending |
 | Use Neon pooled runtime URL and direct migration URL separation | Vercel/serverless runtime should use pooled connections while Alembic can use direct migration connectivity | Validated in Phase 2 |
+| Use opaque DB-backed session cookies instead of JWTs | Sessions need server-side revocation, 30-day lifetime, and simple MVP portability across Vercel/Render/Railway | Validated in Phase 3 |
 
 ## Evolution
 
@@ -91,4 +93,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state.
 
 ---
-*Last updated: 2026-04-26 after Phase 2 verification*
+*Last updated: 2026-04-27 after Phase 3 verification*

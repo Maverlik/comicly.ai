@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready_to_execute
-stopped_at: Phase 3 planned; ready to execute
-last_updated: "2026-04-27T13:52:03.7776585+03:00"
-last_activity: 2026-04-27 -- Phase 3 planning complete
+status: ready_for_discussion
+stopped_at: Phase 3 complete; ready to discuss Phase 4
+last_updated: "2026-04-27T14:56:00+03:00"
+last_activity: 2026-04-27 -- Phase 3 verified complete
 progress:
   total_phases: 8
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 10
-  completed_plans: 6
-  percent: 60
+  completed_plans: 10
+  percent: 100
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-25)
 
 **Core value:** Users can reliably create AI-generated comic pages under their own account, with durable comic history and trustworthy server-side coin accounting.
-**Current focus:** Phase 3 - OAuth Sessions And Profile Bootstrap
+**Current focus:** Phase 4 - Wallet Ledger And Coin Safety
 
 ## Current Position
 
-Phase: 3 (OAuth Sessions And Profile Bootstrap) - READY TO EXECUTE
-Plan: 0 of 4
-Status: Phase 3 planned; ready to execute
-Last activity: 2026-04-27 -- Phase 3 planning complete
+Phase: 4 (Wallet Ledger And Coin Safety) - READY FOR DISCUSSION
+Plan: 0 of TBD
+Status: Phase 3 complete; ready to discuss Phase 4
+Last activity: 2026-04-27 -- Phase 3 verified complete
 
 Progress: [----------] 0%
 
@@ -76,6 +76,7 @@ Recent decisions affecting current work:
 - [Phase 2 Discussion]: Generation jobs should be represented in schema for future queue/status polling, while MVP generation may remain synchronous within Vercel Hobby limits.
 - [Phase 2 Verification]: Alembic migration, metadata/constraint tests, seed script, `/api/v1/coin-packages`, docs, pytest, ruff, and code review all passed.
 - [Phase 3 Discussion]: OAuth is backend-owned redirect flow for Google/Yandex, successful login redirects to `comicly.ai/create.html`, sessions are opaque DB-backed cookies for 30 days, providers link by verified email, Phase 3 is backend API-only, and avatar upload is deferred until storage is selected.
+- [Phase 3 Verification]: Google/Yandex OAuth route surfaces, provider normalization, first-login bootstrap, verified-email linking, `/api/v1/me`, display-name update, and current-session logout are implemented and covered by mocked provider/session tests.
 
 ### Pending Todos
 
@@ -99,6 +100,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-27T13:52:03.7776585+03:00
-Stopped at: Phase 3 planned; ready to execute
-Resume file: .planning/phases/03-oauth-sessions-and-profile-bootstrap/03-01-PLAN.md
+Last session: 2026-04-27T14:56:00+03:00
+Stopped at: Phase 3 complete; ready to discuss Phase 4
+Resume file: .planning/phases/03-oauth-sessions-and-profile-bootstrap/03-VERIFICATION.md
