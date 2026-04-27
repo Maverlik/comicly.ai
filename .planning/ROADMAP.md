@@ -98,7 +98,12 @@ Plans:
   3. User can list their own comics and open one by id.
   4. User cannot list, open, update, or generate pages for another user's comics.
   5. Browser refresh or reopening a comic restores persisted draft metadata, scenes, and generated page records, with tests proving two-user ownership boundaries.
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 05-01-PLAN.md - Comic persistence schema/model expansion and Alembic migration.
+- [ ] 05-02-PLAN.md - Private comic service layer for metadata, scenes, pages, archive, and owner scope.
+- [ ] 05-03-PLAN.md - Authenticated `/api/v1/comics` API surface and ownership tests.
+- [ ] 05-04-PLAN.md - Private comic persistence docs, full backend gates, and backend-only boundary check.
 
 ### Phase 6: Production AI Generation Pipeline
 **Goal**: Authenticated AI generation produces durable comic page records, controlled image assets, correct job states, and updated balance/page data.
@@ -147,7 +152,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 2. Data And Payment Foundation | 3/3 | Complete | 2026-04-26 |
 | 3. OAuth Sessions And Profile Bootstrap | 4/4 | Complete | 2026-04-27 |
 | 4. Wallet Ledger And Coin Safety | 3/3 | Complete | 2026-04-27 |
-| 5. Private Comic Persistence | 0/TBD | Not started | - |
+| 5. Private Comic Persistence | 0/4 | Planned | - |
 | 6. Production AI Generation Pipeline | 0/TBD | Not started | - |
 | 7. Creator Frontend Backend Integration | 0/TBD | Not started | - |
 | 8. Deployment And Operations | 0/TBD | Not started | - |
