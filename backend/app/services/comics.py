@@ -28,6 +28,13 @@ PAGE_STATUS_FAILED = "failed"
 PAGE_STATUSES = {PAGE_STATUS_PENDING, PAGE_STATUS_GENERATED, PAGE_STATUS_FAILED}
 
 
+class _UnsetType:
+    pass
+
+
+UNSET = _UnsetType()
+
+
 @dataclass(frozen=True)
 class ComicCreate:
     title: str
@@ -41,13 +48,13 @@ class ComicCreate:
 
 @dataclass(frozen=True)
 class ComicUpdate:
-    title: str | None = None
-    story: str | None = None
-    characters: str | None = None
-    style: str | None = None
-    tone: str | None = None
-    selected_model: str | None = None
-    status: str | None = None
+    title: str | None | _UnsetType = UNSET
+    story: str | None | _UnsetType = UNSET
+    characters: str | None | _UnsetType = UNSET
+    style: str | None | _UnsetType = UNSET
+    tone: str | None | _UnsetType = UNSET
+    selected_model: str | None | _UnsetType = UNSET
+    status: str | None | _UnsetType = UNSET
 
 
 @dataclass(frozen=True)
@@ -156,20 +163,32 @@ async def update_comic(
 ) -> ComicSummary:
     comic = await get_owned_comic(session, user_id=user_id, comic_id=comic_id)
 
-    if data.title is not None:
+    if data.title is not UNSET:
+        if data.title is None:
+            raise ApiError(
+                status_code=400,
+                code="COMIC_VALIDATION_ERROR",
+                message="title is required.",
+            )
         comic.title = _required_text(data.title, field_name="title")
-    if data.story is not None:
+    if data.story is not UNSET:
         comic.story = _optional_text(data.story)
-    if data.characters is not None:
+    if data.characters is not UNSET:
         comic.characters = _optional_text(data.characters)
-    if data.style is not None:
+    if data.style is not UNSET:
         comic.style = _optional_text(data.style)
         comic.style_preset = _optional_text(data.style)
-    if data.tone is not None:
+    if data.tone is not UNSET:
         comic.tone = _optional_text(data.tone)
-    if data.selected_model is not None:
+    if data.selected_model is not UNSET:
         comic.selected_model = _optional_text(data.selected_model)
-    if data.status is not None:
+    if data.status is not UNSET:
+        if data.status is None:
+            raise ApiError(
+                status_code=400,
+                code="COMIC_STATUS_INVALID",
+                message="status is invalid.",
+            )
         _validate_status(data.status, allowed=COMIC_STATUSES, field_name="status")
         comic.status = data.status
 
