@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: ready_for_discussion
-stopped_at: Phase 3 complete; ready to discuss Phase 4
-last_updated: "2026-04-27T14:56:00+03:00"
-last_activity: 2026-04-27 -- Phase 3 verified complete
+stopped_at: Phase 4 context gathered; ready to plan
+last_updated: "2026-04-27T18:10:55+03:00"
+last_activity: 2026-04-27 -- Phase 4 context gathered
 progress:
   total_phases: 8
   completed_phases: 3
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 ## Current Position
 
-Phase: 4 (Wallet Ledger And Coin Safety) - READY FOR DISCUSSION
+Phase: 4 (Wallet Ledger And Coin Safety) - READY TO PLAN
 Plan: 0 of TBD
-Status: Phase 3 complete; ready to discuss Phase 4
-Last activity: 2026-04-27 -- Phase 3 verified complete
+Status: Phase 4 context gathered; ready to plan
+Last activity: 2026-04-27 -- Phase 4 context gathered
 
 Progress: [----------] 0%
 
@@ -77,6 +77,7 @@ Recent decisions affecting current work:
 - [Phase 2 Verification]: Alembic migration, metadata/constraint tests, seed script, `/api/v1/coin-packages`, docs, pytest, ruff, and code review all passed.
 - [Phase 3 Discussion]: OAuth is backend-owned redirect flow for Google/Yandex, successful login redirects to `comicly.ai/create.html`, sessions are opaque DB-backed cookies for 30 days, providers link by verified email, Phase 3 is backend API-only, and avatar upload is deferred until storage is selected.
 - [Phase 3 Verification]: Google/Yandex OAuth route surfaces, provider normalization, first-login bootstrap, verified-email linking, `/api/v1/me`, display-name update, and current-session logout are implemented and covered by mocked provider/session tests.
+- [Phase 4 Discussion]: Wallet ledger scope is backend-only foundation: `GET /api/v1/wallet` balance plus recent transactions, debit-before-generation primitives with refund support, required `Idempotency-Key` for billable operations, and no real generation/frontend integration until later phases.
 
 ### Pending Todos
 
@@ -100,6 +101,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-27T14:56:00+03:00
-Stopped at: Phase 3 complete; ready to discuss Phase 4
-Resume file: .planning/phases/03-oauth-sessions-and-profile-bootstrap/03-VERIFICATION.md
+Last session: 2026-04-27T18:10:55+03:00
+Stopped at: Phase 4 context gathered; ready to plan
+Resume file: .planning/phases/04-wallet-ledger-and-coin-safety/04-CONTEXT.md
