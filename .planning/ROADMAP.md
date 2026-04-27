@@ -62,10 +62,15 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. User can sign in with Google OAuth and receive a secure server-side session cookie.
   2. User can sign in with Yandex OAuth, and returning logins attach to the existing provider identity by provider and provider user id.
-  3. First OAuth login creates the user, provider identity, profile, wallet, and starter coin ledger entry, then `GET /api/me` returns account, profile, and wallet summary.
+  3. First OAuth login creates the user, provider identity, profile, wallet, and starter coin ledger entry, then `GET /api/v1/me` returns account, profile, and wallet summary.
   4. User can update display name and receive an OAuth-provided avatar URL when available; real avatar file upload is deferred until object storage is selected.
   5. User can log out, the server invalidates the session, anonymous private API requests are rejected, and session cookies are `HttpOnly`, production `Secure`, and use an appropriate `SameSite` policy.
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 03-01-PLAN.md — Auth config, product session helpers, OAuth state middleware, CORS/cookie safety.
+- [ ] 03-02-PLAN.md — Google/Yandex OAuth route surface, provider normalization, first-login bootstrap, verified-email linking.
+- [ ] 03-03-PLAN.md — Current-user dependency, `/api/v1/me`, display-name update, logout.
+- [ ] 03-04-PLAN.md — OAuth/session docs, env example updates, full backend quality gates and boundary check.
 
 ### Phase 4: Wallet Ledger And Coin Safety
 **Goal**: Coin balances and every balance-changing decision are authoritative, auditable, idempotent, and safe under retries or concurrent requests.
@@ -136,7 +141,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 |-------|----------------|--------|-----------|
 | 1. Backend Foundation And Static Safety | 3/3 | Complete | 2026-04-26 |
 | 2. Data And Payment Foundation | 3/3 | Complete | 2026-04-26 |
-| 3. OAuth Sessions And Profile Bootstrap | 0/TBD | Not started | - |
+| 3. OAuth Sessions And Profile Bootstrap | 0/4 | Planned | - |
 | 4. Wallet Ledger And Coin Safety | 0/TBD | Not started | - |
 | 5. Private Comic Persistence | 0/TBD | Not started | - |
 | 6. Production AI Generation Pipeline | 0/TBD | Not started | - |
