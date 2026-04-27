@@ -22,13 +22,14 @@ Users can reliably create AI-generated comic pages under their own account, with
 - [x] Local health/config feedback exists through `GET /api/health` and the creator configuration banner.
 - [x] Phase 2 backend data/payment foundation exists: Alembic creates the production schema surface, runtime pricing is centralized, and active coin packages can be seeded and fetched from `/api/v1/coin-packages`.
 - [x] Phase 3 OAuth/session foundation exists: Google/Yandex OAuth route surfaces, DB-backed opaque sessions, `/api/v1/me`, display-name update, logout, and mocked provider tests.
+- [x] Phase 4 wallet ledger foundation exists: authenticated `/api/v1/wallet`, centralized wallet service, auditable grant/debit/refund transactions, idempotency, insufficient-funds handling, and concurrent debit protection.
 
 ### Active
 
 - [ ] Implement production-ready backend architecture without breaking the existing AI generation routes.
 - [x] Add OAuth login through Google and Yandex with secure server-side sessions.
 - [x] Store users, provider identities, profiles, wallets, coin transactions, comics, and comic pages in a database schema.
-- [ ] Move coin balance and all debit/credit decisions to backend APIs, including transaction logs and insufficient-balance errors.
+- [x] Move coin balance and all debit/credit decisions to backend APIs, including transaction logs and insufficient-balance errors.
 - [ ] Persist generated comics and pages so users can list, reopen, and continue their own work.
 - [ ] Replace demo profile and hardcoded frontend credits with authenticated backend data.
 - [x] Prepare payment product and payment tables for future coin purchases, including seeded packages for 100, 500, and 1000 coins.
@@ -68,7 +69,7 @@ The backend task spec in `backend/BACKEND_TZ.md` defines the intended production
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Treat the current app as brownfield, not greenfield | The creator UI and OpenRouter proxy already exist and should be preserved while production backend capabilities are added | Pending |
-| Make backend wallet state authoritative | Frontend credits are bypassable and cannot support paid or private generation | Pending |
+| Make backend wallet state authoritative | Frontend credits are bypassable and cannot support paid or private generation | Validated in Phase 4 |
 | Use Google and Yandex OAuth for v1 auth | The backend spec explicitly requires both providers and no separate password flow | Pending |
 | Prepare payments without real provider integration | The data model must support future purchases, but actual acquiring/webhook work is out of current scope | Pending |
 | Add tests before expanding risky backend behavior | Auth, static serving, coin debits, idempotency, and OpenRouter error handling have high regression risk | Pending |
@@ -93,4 +94,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state.
 
 ---
-*Last updated: 2026-04-27 after Phase 3 verification*
+*Last updated: 2026-04-27 after Phase 4 verification*

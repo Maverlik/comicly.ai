@@ -115,9 +115,7 @@ async def test_get_wallet_returns_balance_and_recent_transactions(
     assert response.status_code == 200
     payload = response.json()
     assert payload["balance"] == 40
-    amounts = [
-        transaction["amount"] for transaction in payload["recent_transactions"]
-    ]
+    amounts = [transaction["amount"] for transaction in payload["recent_transactions"]]
     assert amounts == [
         -20,
         10,

@@ -78,9 +78,7 @@ async def test_grant_records_transaction_and_updates_wallet(
         wallet = (
             await session.execute(select(Wallet).where(Wallet.user_id == user.id))
         ).scalar_one()
-        transaction = (
-            await session.execute(select(WalletTransaction))
-        ).scalar_one()
+        transaction = (await session.execute(select(WalletTransaction))).scalar_one()
 
     assert result.balance == 25
     assert wallet.balance == 25
@@ -115,9 +113,7 @@ async def test_generation_debit_uses_configured_cost_and_records_transaction(
         wallet = (
             await session.execute(select(Wallet).where(Wallet.user_id == user.id))
         ).scalar_one()
-        transaction = (
-            await session.execute(select(WalletTransaction))
-        ).scalar_one()
+        transaction = (await session.execute(select(WalletTransaction))).scalar_one()
 
     assert result.balance == 30
     assert wallet.balance == 30
@@ -202,8 +198,8 @@ async def test_duplicate_idempotency_key_does_not_double_debit(
             await session.execute(select(Wallet).where(Wallet.user_id == user.id))
         ).scalar_one()
         transactions = (
-            await session.execute(select(WalletTransaction))
-        ).scalars().all()
+            (await session.execute(select(WalletTransaction))).scalars().all()
+        )
 
     assert first.balance == 30
     assert second.balance == 30
@@ -278,10 +274,14 @@ async def test_refund_restores_balance_once(
             await session.execute(select(Wallet).where(Wallet.user_id == user.id))
         ).scalar_one()
         transactions = (
-            await session.execute(
-                select(WalletTransaction).order_by(WalletTransaction.amount)
+            (
+                await session.execute(
+                    select(WalletTransaction).order_by(WalletTransaction.amount)
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
 
     assert first_refund.balance == 50
     assert second_refund.balance == 50
@@ -347,8 +347,8 @@ async def test_concurrent_debits_cannot_create_negative_balance(
             await session.execute(select(Wallet).where(Wallet.user_id == user.id))
         ).scalar_one()
         transactions = (
-            await session.execute(select(WalletTransaction))
-        ).scalars().all()
+            (await session.execute(select(WalletTransaction))).scalars().all()
+        )
 
     assert sorted(results) == ["INSUFFICIENT_COINS", "ok"]
     assert wallet.balance == 10

@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Backend Foundation And Static Safety** - Modularize the server, lock down static/API safety, and preserve existing AI routes.
 - [x] **Phase 2: Data And Payment Foundation** - Add migrations, constraints, runtime pricing config, seeded coin packages, and payment-ready schema.
 - [x] **Phase 3: OAuth Sessions And Profile Bootstrap** - Let users sign in with Google/Yandex, manage profile basics, and receive secure server-side sessions.
-- [ ] **Phase 4: Wallet Ledger And Coin Safety** - Make balances authoritative through backend ledger operations, idempotency, and concurrency-safe debits.
+- [x] **Phase 4: Wallet Ledger And Coin Safety** - Make balances authoritative through backend ledger operations, idempotency, and concurrency-safe debits.
 - [ ] **Phase 5: Private Comic Persistence** - Persist user-owned comic drafts, scenes, pages, and owner-scoped history.
 - [ ] **Phase 6: Production AI Generation Pipeline** - Connect protected OpenRouter generation to jobs, durable storage, page persistence, and updated balance responses.
 - [ ] **Phase 7: Creator Frontend Backend Integration** - Replace demo creator state with authenticated backend profile, balance, comic, and generation data.
@@ -84,9 +84,9 @@ Plans:
   5. Concurrent wallet operations cannot create negative balances, and automated tests cover ledger correctness, insufficient balance, idempotency, no-debit/refund failure paths, and concurrent debit protection.
 **Plans**: 3 plans
 Plans:
-- [ ] 04-01-PLAN.md - Wallet ledger service, debit/grant/refund primitives, idempotency, insufficient-funds, and race-safe balance changes.
-- [ ] 04-02-PLAN.md - Authenticated wallet API returning authoritative balance and recent transactions.
-- [ ] 04-03-PLAN.md - Wallet ledger docs, full backend gates, and backend-only boundary check.
+- [x] 04-01-PLAN.md - Wallet ledger service, debit/grant/refund primitives, idempotency, insufficient-funds, and race-safe balance changes.
+- [x] 04-02-PLAN.md - Authenticated wallet API returning authoritative balance and recent transactions.
+- [x] 04-03-PLAN.md - Wallet ledger docs, full backend gates, and backend-only boundary check.
 
 ### Phase 5: Private Comic Persistence
 **Goal**: Authenticated users can create, save, reopen, and continue private comics that belong only to them.
@@ -146,7 +146,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 1. Backend Foundation And Static Safety | 3/3 | Complete | 2026-04-26 |
 | 2. Data And Payment Foundation | 3/3 | Complete | 2026-04-26 |
 | 3. OAuth Sessions And Profile Bootstrap | 4/4 | Complete | 2026-04-27 |
-| 4. Wallet Ledger And Coin Safety | 0/3 | Planned | - |
+| 4. Wallet Ledger And Coin Safety | 3/3 | Complete | 2026-04-27 |
 | 5. Private Comic Persistence | 0/TBD | Not started | - |
 | 6. Production AI Generation Pipeline | 0/TBD | Not started | - |
 | 7. Creator Frontend Backend Integration | 0/TBD | Not started | - |

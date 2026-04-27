@@ -39,6 +39,12 @@ Phase 3 adds API-only auth/profile endpoints:
 - `PATCH /api/v1/me`
 - `POST /api/v1/me/logout`
 
+Phase 4 adds the authoritative wallet read endpoint:
+
+- `GET /api/v1/wallet`
+
+The wallet endpoint requires the product session cookie and returns the current database balance plus a short recent transaction list.
+
 ## Docker
 
 Postgres and the backend app are managed by the backend Docker Compose file:
@@ -109,6 +115,30 @@ OAuth uses two different cookie concepts:
 Avatar file upload is not implemented in Phase 3. The backend stores the provider-supplied `avatar_url` from OAuth and leaves real upload/storage for the later storage decision.
 
 Later-phase variables such as OpenRouter keys and storage settings are documented in `.env.example` as references only. They are intentionally not required for startup yet.
+
+## Wallet Ledger
+
+Wallet balance is authoritative in PostgreSQL. Client-sent balances, owner ids, generation costs, and payment state must never be trusted for accounting.
+
+Every balance change goes through `app.services.wallets` and creates a `wallet_transactions` row:
+
+- grants and adjustments use positive amounts;
+- generation debits use negative amounts;
+- generation refunds use positive amounts linked to the failed/debited reference;
+- each transaction stores `balance_after` for audit/debugging.
+
+Current public wallet API:
+
+- `GET /api/v1/wallet` returns `balance` and recent transactions for the authenticated user.
+
+Phase 4 does not expose public debit/grant endpoints. Future billable generation code should call the wallet service with an `Idempotency-Key` value from the request. Missing billable idempotency maps to `IDEMPOTENCY_KEY_REQUIRED`; duplicate keys replay the existing logical operation and do not double-charge.
+
+Server-controlled generation costs are:
+
+- full page generation: `FULL_PAGE_GENERATION_COST`, default `20`;
+- scene regeneration: `SCENE_REGENERATION_COST`, default `4`.
+
+If a user cannot cover a debit, the service returns `INSUFFICIENT_COINS` with HTTP status `409` and does not create a debit row. If a future OpenRouter generation fails after a debit, the caller should create one idempotent refund transaction rather than silently editing the original debit.
 
 ## Quality Gates
 

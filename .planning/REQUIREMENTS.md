@@ -42,13 +42,13 @@ Requirements for the initial production backend milestone. Each maps to one road
 
 ### Wallet And Coins
 
-- [ ] **WAL-01**: User can fetch wallet balance from the backend, and the balance matches transaction history.
-- [ ] **WAL-02**: Backend records every coin grant, debit, refund, and adjustment as an append-only transaction row.
-- [ ] **WAL-03**: Backend blocks generation when the authenticated user has insufficient coins and returns a clear error code.
-- [ ] **WAL-04**: Full comic page generation costs 20 coins through backend-controlled pricing.
-- [ ] **WAL-05**: Scene regeneration costs 4 coins through backend-controlled pricing.
-- [ ] **WAL-06**: Duplicate or retried requests using the same idempotency key do not double-charge the user.
-- [ ] **WAL-07**: Wallet operations cannot produce negative balances under concurrent requests.
+- [x] **WAL-01**: User can fetch wallet balance from the backend, and the balance matches transaction history.
+- [x] **WAL-02**: Backend records every coin grant, debit, refund, and adjustment as an append-only transaction row.
+- [x] **WAL-03**: Backend blocks generation when the authenticated user has insufficient coins and returns a clear error code.
+- [x] **WAL-04**: Full comic page generation costs 20 coins through backend-controlled pricing.
+- [x] **WAL-05**: Scene regeneration costs 4 coins through backend-controlled pricing.
+- [x] **WAL-06**: Duplicate or retried requests using the same idempotency key do not double-charge the user.
+- [x] **WAL-07**: Wallet operations cannot produce negative balances under concurrent requests.
 
 ### Comic Persistence
 
@@ -88,7 +88,7 @@ Requirements for the initial production backend milestone. Each maps to one road
 
 - [x] **TEST-01**: Automated tests cover static file safety, traversal/dotfile denial, API error format, and existing AI route compatibility.
 - [x] **TEST-02**: Automated tests cover OAuth/session behavior using mocked providers or callback fixtures.
-- [ ] **TEST-03**: Automated tests cover wallet ledger correctness, insufficient balance, idempotency, refunds/no-debit on failure, and concurrent debit protection.
+- [x] **TEST-03**: Automated tests cover wallet ledger correctness, insufficient balance, idempotency, refunds/no-debit on failure, and concurrent debit protection.
 - [ ] **TEST-04**: Automated tests cover comic ownership boundaries with at least two users.
 - [ ] **TEST-05**: Automated tests cover OpenRouter response parsing and generation failure modes using fixtures.
 - [ ] **TEST-06**: Manual or automated smoke checks cover sign-in, profile display, balance display, comic creation, page generation, reload/reopen, and logout.
@@ -159,13 +159,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROF-02 | Phase 3 | Complete in 03-03 |
 | PROF-03 | Deferred | Pending storage provider decision |
 | PROF-04 | Phase 7 | Pending |
-| WAL-01 | Phase 4 | Pending |
-| WAL-02 | Phase 4 | Pending |
-| WAL-03 | Phase 4 | Pending |
-| WAL-04 | Phase 4 | Pending |
-| WAL-05 | Phase 4 | Pending |
-| WAL-06 | Phase 4 | Pending |
-| WAL-07 | Phase 4 | Pending |
+| WAL-01 | Phase 4 | Complete in 04-02 |
+| WAL-02 | Phase 4 | Complete in 04-01 |
+| WAL-03 | Phase 4 | Complete in 04-01 |
+| WAL-04 | Phase 4 | Complete in 04-01 |
+| WAL-05 | Phase 4 | Complete in 04-01 |
+| WAL-06 | Phase 4 | Complete in 04-01 |
+| WAL-07 | Phase 4 | Complete in 04-01 |
 | COMIC-01 | Phase 5 | Pending |
 | COMIC-02 | Phase 5 | Pending |
 | COMIC-03 | Phase 5 | Pending |
@@ -190,7 +190,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OPS-06 | Phase 1 | Complete in 01-02 |
 | TEST-01 | Phase 1 | Complete in 01-03 |
 | TEST-02 | Phase 3 | Complete in 03-04 |
-| TEST-03 | Phase 4 | Pending |
+| TEST-03 | Phase 4 | Complete in 04-03 |
 | TEST-04 | Phase 5 | Pending |
 | TEST-05 | Phase 6 | Pending |
 | TEST-06 | Phase 7 | Pending |
@@ -203,4 +203,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-25*
-*Last updated: 2026-04-27 after Phase 3 verification*
+*Last updated: 2026-04-27 after Phase 4 verification*

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready_to_execute
-stopped_at: Phase 4 planned; ready to execute
-last_updated: "2026-04-27T18:16:29+03:00"
-last_activity: 2026-04-27 -- Phase 4 planning complete
+status: ready_for_discussion
+stopped_at: Phase 4 complete; ready to discuss Phase 5
+last_updated: "2026-04-27T18:44:00+03:00"
+last_activity: 2026-04-27 -- Phase 4 complete
 progress:
   total_phases: 8
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 13
-  completed_plans: 10
-  percent: 77
+  completed_plans: 13
+  percent: 100
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-25)
 
 **Core value:** Users can reliably create AI-generated comic pages under their own account, with durable comic history and trustworthy server-side coin accounting.
-**Current focus:** Phase 4 - Wallet Ledger And Coin Safety
+**Current focus:** Phase 5 - Private Comic Persistence
 
 ## Current Position
 
-Phase: 4 (Wallet Ledger And Coin Safety) - READY TO EXECUTE
-Plan: 0 of 3
-Status: Phase 4 planned; ready to execute
-Last activity: 2026-04-27 -- Phase 4 planning complete
+Phase: 5 (Private Comic Persistence) - READY TO DISCUSS
+Plan: 0 of TBD
+Status: Phase 4 complete; ready to discuss Phase 5
+Last activity: 2026-04-27 -- Phase 4 complete
 
 Progress: [----------] 0%
 
@@ -78,6 +78,7 @@ Recent decisions affecting current work:
 - [Phase 3 Discussion]: OAuth is backend-owned redirect flow for Google/Yandex, successful login redirects to `comicly.ai/create.html`, sessions are opaque DB-backed cookies for 30 days, providers link by verified email, Phase 3 is backend API-only, and avatar upload is deferred until storage is selected.
 - [Phase 3 Verification]: Google/Yandex OAuth route surfaces, provider normalization, first-login bootstrap, verified-email linking, `/api/v1/me`, display-name update, and current-session logout are implemented and covered by mocked provider/session tests.
 - [Phase 4 Discussion]: Wallet ledger scope is backend-only foundation: `GET /api/v1/wallet` balance plus recent transactions, debit-before-generation primitives with refund support, required `Idempotency-Key` for billable operations, and no real generation/frontend integration until later phases.
+- [Phase 4 Verification]: Wallet ledger service, authenticated wallet API, insufficient funds, idempotency, refund primitives, and concurrent debit protection are implemented and covered by automated tests.
 
 ### Pending Todos
 
@@ -101,6 +102,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-27T18:16:29+03:00
-Stopped at: Phase 4 planned; ready to execute
-Resume file: .planning/phases/04-wallet-ledger-and-coin-safety/04-01-PLAN.md
+Last session: 2026-04-27T18:44:00+03:00
+Stopped at: Phase 4 complete; ready to discuss Phase 5
+Resume file: .planning/phases/04-wallet-ledger-and-coin-safety/04-VERIFICATION.md

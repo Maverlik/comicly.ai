@@ -142,14 +142,18 @@ async def debit_coins(
         return _idempotent_result(existing, user_id=user_id)
 
     row = (
-        await session.execute(
-            update(Wallet)
-            .where(Wallet.user_id == user_id)
-            .where(Wallet.balance >= amount)
-            .values(balance=Wallet.balance - amount)
-            .returning(Wallet.id, Wallet.balance)
+        (
+            await session.execute(
+                update(Wallet)
+                .where(Wallet.user_id == user_id)
+                .where(Wallet.balance >= amount)
+                .values(balance=Wallet.balance - amount)
+                .returning(Wallet.id, Wallet.balance)
+            )
         )
-    ).mappings().one_or_none()
+        .mappings()
+        .one_or_none()
+    )
 
     if row is None:
         await _raise_wallet_missing_or_insufficient(session, user_id=user_id)
@@ -181,7 +185,7 @@ async def refund_generation_debit(
     reference_id: UUID | None,
     idempotency_key: str | None,
 ) -> WalletOperationResult:
-    _require_idempotency_key(idempotency_key)
+    key = _require_idempotency_key(idempotency_key)
     return await _record_positive_operation(
         session,
         user_id=user_id,
@@ -189,7 +193,7 @@ async def refund_generation_debit(
         reason=WalletTransactionReason.GENERATION_REFUND,
         reference_type=reference_type,
         reference_id=reference_id,
-        idempotency_key=idempotency_key,
+        idempotency_key=key,
     )
 
 
@@ -204,21 +208,26 @@ async def _record_positive_operation(
     idempotency_key: str | None,
 ) -> WalletOperationResult:
     _require_positive_amount(amount)
+    key = idempotency_key.strip() if idempotency_key else None
     existing = None
-    if idempotency_key:
-        existing = await _get_idempotent_transaction(session, key=idempotency_key)
+    if key:
+        existing = await _get_idempotent_transaction(session, key=key)
     if existing is not None:
         return _idempotent_result(existing, user_id=user_id)
 
     wallet = await _get_or_create_wallet(session, user_id=user_id)
     row = (
-        await session.execute(
-            update(Wallet)
-            .where(Wallet.id == wallet.id)
-            .values(balance=Wallet.balance + amount)
-            .returning(Wallet.id, Wallet.balance)
+        (
+            await session.execute(
+                update(Wallet)
+                .where(Wallet.id == wallet.id)
+                .values(balance=Wallet.balance + amount)
+                .returning(Wallet.id, Wallet.balance)
+            )
         )
-    ).mappings().one()
+        .mappings()
+        .one()
+    )
     transaction = WalletTransaction(
         wallet_id=row["id"],
         user_id=user_id,
@@ -227,7 +236,7 @@ async def _record_positive_operation(
         reason=reason.value,
         reference_type=reference_type,
         reference_id=reference_id,
-        idempotency_key=idempotency_key,
+        idempotency_key=key,
         created_at=datetime.now(UTC),
     )
     return await _flush_transaction_with_idempotency_replay(

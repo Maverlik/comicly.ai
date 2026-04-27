@@ -11,6 +11,7 @@ import app.models  # noqa: F401
 from app.api.v1.auth import (
     get_oauth_provider_service,
 )
+from app.core.config import Settings, get_settings
 from app.db.base import Base
 from app.db.session import get_async_session
 from app.main import create_app
@@ -94,12 +95,17 @@ async def test_oauth_callback_bootstraps_user_and_sets_product_session_cookie(
 ) -> None:
     app = create_app()
     fake_provider = FakeOAuthProviderService()
+    settings = Settings(
+        _env_file=None,
+        frontend_creator_url="https://comicly.ai/create.html",
+    )
 
     async def override_session() -> AsyncIterator[AsyncSession]:
         async with session_maker() as session:
             yield session
 
     app.dependency_overrides[get_async_session] = override_session
+    app.dependency_overrides[get_settings] = lambda: settings
     app.dependency_overrides[get_oauth_provider_service] = lambda: fake_provider
 
     transport = ASGITransport(app=app)
@@ -127,12 +133,17 @@ async def test_oauth_callback_redirects_stable_error_on_provider_failure(
     session_maker: async_sessionmaker[AsyncSession],
 ) -> None:
     app = create_app()
+    settings = Settings(
+        _env_file=None,
+        frontend_creator_url="https://comicly.ai/create.html",
+    )
 
     async def override_session() -> AsyncIterator[AsyncSession]:
         async with session_maker() as session:
             yield session
 
     app.dependency_overrides[get_async_session] = override_session
+    app.dependency_overrides[get_settings] = lambda: settings
     app.dependency_overrides[get_oauth_provider_service] = (
         lambda: FakeOAuthProviderService(should_fail=True)
     )
