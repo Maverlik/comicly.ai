@@ -50,6 +50,7 @@ def test_comic_page_relationships_prevent_orphans_and_cross_scene_links() -> Non
     targets = foreign_key_targets("comic_pages")
 
     assert "fk_comic_pages_scene_same_comic" in names
+    assert "ck_comic_pages_coin_cost_non_negative" in names
     assert "comics.id" in targets
     assert "comic_scenes.id" in targets
     assert "comic_scenes.comic_id" in targets

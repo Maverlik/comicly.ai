@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
+    CheckConstraint,
     JSON,
     DateTime,
     ForeignKey,
@@ -23,6 +24,11 @@ class Comic(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     title: Mapped[str] = mapped_column(String(200), nullable=False)
+    story: Mapped[str | None] = mapped_column(Text)
+    characters: Mapped[str | None] = mapped_column(Text)
+    style: Mapped[str | None] = mapped_column(String(120))
+    tone: Mapped[str | None] = mapped_column(String(120))
+    selected_model: Mapped[str | None] = mapped_column(String(160))
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="draft")
     style_preset: Mapped[str | None] = mapped_column(String(120))
     created_at: Mapped[datetime] = mapped_column(
@@ -49,6 +55,10 @@ class ComicScene(Base):
         nullable=False,
     )
     position: Mapped[int] = mapped_column(Integer, nullable=False)
+    title: Mapped[str | None] = mapped_column(String(200))
+    description: Mapped[str | None] = mapped_column(Text)
+    dialogue: Mapped[str | None] = mapped_column(Text)
+    caption: Mapped[str | None] = mapped_column(Text)
     prompt: Mapped[str] = mapped_column(Text, nullable=False)
     script_text: Mapped[str | None] = mapped_column(Text)
     metadata_json: Mapped[dict | None] = mapped_column(JSON)
@@ -66,6 +76,10 @@ class ComicScene(Base):
 class ComicPage(Base):
     __tablename__ = "comic_pages"
     __table_args__ = (
+        CheckConstraint(
+            "coin_cost IS NULL OR coin_cost >= 0",
+            name="ck_comic_pages_coin_cost_non_negative",
+        ),
         ForeignKeyConstraint(
             ["comic_id", "scene_id"],
             ["comic_scenes.comic_id", "comic_scenes.id"],
@@ -83,9 +97,12 @@ class ComicPage(Base):
     page_number: Mapped[int] = mapped_column(Integer, nullable=False)
     image_url: Mapped[str | None] = mapped_column(String(2048))
     storage_key: Mapped[str | None] = mapped_column(String(1024))
+    model: Mapped[str | None] = mapped_column(String(160))
+    coin_cost: Mapped[int | None] = mapped_column(Integer)
     width: Mapped[int | None] = mapped_column(Integer)
     height: Mapped[int | None] = mapped_column(Integer)
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="pending")
+    generated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),

@@ -54,3 +54,27 @@ def test_initial_migration_mentions_all_phase2_tables() -> None:
 
     for table_name in REQUIRED_PHASE2_TABLES:
         assert f'"{table_name}"' in migration
+
+
+def test_phase5_migration_mentions_comic_persistence_fields() -> None:
+    migration = Path(
+        "alembic/versions/0002_phase5_comic_persistence_fields.py"
+    ).read_text(encoding="utf-8")
+
+    for field_name in {
+        "story",
+        "characters",
+        "style",
+        "tone",
+        "selected_model",
+        "title",
+        "description",
+        "dialogue",
+        "caption",
+        "model",
+        "coin_cost",
+        "generated_at",
+    }:
+        assert f'"{field_name}"' in migration
+
+    assert "ck_comic_pages_coin_cost_non_negative" in migration

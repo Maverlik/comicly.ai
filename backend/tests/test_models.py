@@ -46,6 +46,39 @@ def test_identity_wallet_generation_and_payment_columns_exist() -> None:
     }.issubset(tables["payments"].columns.keys())
 
 
+def test_comic_persistence_columns_exist() -> None:
+    tables = Base.metadata.tables
+
+    assert {
+        "title",
+        "story",
+        "characters",
+        "style",
+        "tone",
+        "selected_model",
+        "status",
+    }.issubset(tables["comics"].columns.keys())
+    assert {
+        "title",
+        "description",
+        "dialogue",
+        "caption",
+        "position",
+        "prompt",
+    }.issubset(tables["comic_scenes"].columns.keys())
+    assert {
+        "page_number",
+        "status",
+        "model",
+        "coin_cost",
+        "image_url",
+        "storage_key",
+        "width",
+        "height",
+        "generated_at",
+    }.issubset(tables["comic_pages"].columns.keys())
+
+
 def test_representative_constraints_are_present() -> None:
     tables = Base.metadata.tables
 
