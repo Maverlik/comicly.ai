@@ -1152,6 +1152,67 @@ select:focus {
   resize: vertical;
 }
 
+.character-reference {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.character-reference-preview {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  overflow: hidden;
+  place-items: center;
+  border: 1px solid rgba(83, 144, 255, 0.22);
+  border-radius: 8px;
+  background: rgba(6, 12, 24, 0.72);
+}
+
+.character-reference-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.character-reference-preview svg {
+  width: 22px;
+  height: 22px;
+  color: var(--muted);
+}
+
+.character-reference-upload input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.character-reference-upload span,
+.character-reference-clear {
+  display: grid;
+  min-height: 34px;
+  place-items: center;
+  border: 1px solid rgba(83, 144, 255, 0.22);
+  border-radius: 8px;
+  background: rgba(12, 22, 42, 0.82);
+  color: #f5f6ff;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.character-reference-clear {
+  padding: 0 10px;
+}
+
+.character-reference-upload span:hover,
+.character-reference-clear:hover {
+  border-color: rgba(87, 155, 255, 0.5);
+}
+
 .character-remove {
   display: grid;
   width: 32px;

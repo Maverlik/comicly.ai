@@ -77,6 +77,7 @@ const PLACEHOLDER_IMAGES = [
 function createDefaultPageContext(overrides = {}) {
   return {
     story: "",
+    pageOutline: "",
     scenes: [],
     characters: [],
     pageCount: 1,
@@ -168,6 +169,7 @@ function getSnapshot() {
     pages: [...pages],
     pageContexts: pageContexts.map((c) => ({
       story: c.story || "",
+      pageOutline: c.pageOutline || "",
       scenes: (c.scenes || []).map((s) => ({ ...s })),
       characters: (c.characters || []).map((ch) => ({ ...ch })),
       pageCount: c.pageCount || 1,
@@ -208,6 +210,7 @@ function restoreSnapshot(snapshot) {
   const restoredContexts = Array.isArray(snapshot.pageContexts) ? snapshot.pageContexts : [];
   pageContexts = restoredContexts.map((c) => ({
     story: c.story || "",
+    pageOutline: c.pageOutline || "",
     scenes: (c.scenes || []).map((s) => ({ ...s })),
     characters: (c.characters || []).map((ch) => ({ ...ch })),
     pageCount: c.pageCount || 1,
@@ -599,9 +602,14 @@ function buildCharactersText() {
     .map((c) => {
       const name = (c.name || "").trim();
       const desc = (c.description || "").trim();
-      if (!name && !desc) return "";
+      const hasReference = Boolean(c.referenceImage);
+      const referenceNote = hasReference ? "есть фото-референс" : "";
+      if (!name && !desc && !hasReference) return "";
+      if (name && desc && referenceNote) return `${name}: ${desc} (${referenceNote})`;
       if (name && desc) return `${name}: ${desc}`;
-      return name || desc;
+      if (name && referenceNote) return `${name}: ${referenceNote}`;
+      if (desc && referenceNote) return `${desc} (${referenceNote})`;
+      return name || desc || referenceNote;
     })
     .filter(Boolean)
     .join("\n");
@@ -612,6 +620,7 @@ function renderCharacters() {
   characterListEl.innerHTML = "";
 
   characters.forEach((character, index) => {
+    const hasReference = Boolean(character.referenceImage);
     const card = document.createElement("div");
     card.className = "character-card";
     card.dataset.characterIndex = String(index);
@@ -622,12 +631,26 @@ function renderCharacters() {
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 21a2 2 0 0 1-2-2V7H4V5h5V3h6v2h5v2h-1v12a2 2 0 0 1-2 2H7zm2-3h2V8H9v10zm4 0h2V8h-2v10z" /></svg>
         </button>
       </div>
+      <div class="character-reference">
+        <div class="character-reference-preview ${hasReference ? "" : "is-empty"}">
+          ${hasReference
+            ? `<img src="${escapeHtml(character.referenceImage)}" alt="Референс персонажа" />`
+            : `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 10c4.4 0 8 2.2 8 5v1H4v-1c0-2.8 3.6-5 8-5z" /></svg>`}
+        </div>
+        <label class="character-reference-upload">
+          <input type="file" accept="image/*" data-character-reference />
+          <span>${hasReference ? "Заменить фото" : "Добавить фото"}</span>
+        </label>
+        <button class="character-reference-clear" type="button" data-character-reference-clear ${hasReference ? "" : "hidden"}>Убрать</button>
+      </div>
       <textarea data-character-description placeholder="Внешность, характер, роль">${escapeHtml(character.description || "")}</textarea>
     `;
 
     const nameInput = card.querySelector("[data-character-name]");
     const descInput = card.querySelector("[data-character-description]");
     const removeBtn = card.querySelector("[data-character-remove]");
+    const referenceInput = card.querySelector("[data-character-reference]");
+    const referenceClear = card.querySelector("[data-character-reference-clear]");
 
     let nameTimer;
     let descTimer;
@@ -641,9 +664,55 @@ function renderCharacters() {
       window.clearTimeout(descTimer);
       descTimer = window.setTimeout(pushHistory, 600);
     });
+    referenceInput?.addEventListener("change", async () => {
+      const file = referenceInput.files?.[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")) {
+        showToast("Выберите файл изображения.");
+        referenceInput.value = "";
+        return;
+      }
+      characters[index].referenceImage = await readImageFileAsDataUrl(file);
+      renderCharacters();
+      pushHistory();
+      showToast("Фото персонажа добавлено как референс.");
+    });
+    referenceClear?.addEventListener("click", () => {
+      delete characters[index].referenceImage;
+      renderCharacters();
+      pushHistory();
+      showToast("Фото персонажа убрано.");
+    });
     removeBtn.addEventListener("click", () => removeCharacter(index));
 
     characterListEl.appendChild(card);
+  });
+}
+
+function readImageFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const maxSide = 1024;
+        const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Не удалось обработать изображение."));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.85));
+      };
+      img.onerror = () => reject(new Error("Не удалось загрузить изображение."));
+      img.src = String(reader.result || "");
+    };
+    reader.onerror = () => reject(reader.error || new Error("Не удалось прочитать изображение."));
+    reader.readAsDataURL(file);
   });
 }
 
@@ -790,16 +859,20 @@ async function suggestScenes() {
   }
   toggleBusy(suggestScenesButton, true);
   try {
-    const { scenes: aiScenes } = await callAiText("scenes");
+    saveCurrentToContext();
+    const ctx = pageContexts[activePage];
+    const { scenes: aiScenes } = await callAiText("scenes", {
+      story: (ctx?.pageOutline || ctx?.story || storyInput?.value || "").trim(),
+      page: activePage + 1,
+      pagesTotal: Math.max(1, pageCount),
+    });
     if (!Array.isArray(aiScenes) || !aiScenes.length) {
       throw new Error("Модель не вернула сцены.");
     }
-    const mapped = aiScenes.map((scene, index) => ({
-      title: scene.title || `Сцена ${index + 1}`,
-      description: scene.description || "",
-      dialogue: scene.dialogue || scenes[index]?.dialogue || "",
-      caption: scene.caption || scenes[index]?.caption || "",
-    }));
+    const mapped = mapAiScenes(aiScenes, scenes);
+    if (!mapped.length) {
+      throw new Error("Модель не вернула подходящие сцены.");
+    }
     scenes.length = 0;
     mapped.forEach((s) => scenes.push(s));
     activeScene = 0;
@@ -829,6 +902,141 @@ function addScene(save = true) {
   showToast("Сцена добавлена.");
 }
 
+function hasMeaningfulScenes(list) {
+  return (list || []).some((scene) => {
+    const title = (scene?.title || "").trim();
+    const defaultTitle = /^\u0421\u0446\u0435\u043d\u0430\s+\d+$/i.test(title);
+    return (
+      (title && !defaultTitle) ||
+      (scene?.description || "").trim() ||
+      (scene?.dialogue || "").trim() ||
+      (scene?.caption || "").trim()
+    );
+  });
+}
+
+function mapAiScenes(aiScenes, existingScenes = []) {
+  return (aiScenes || [])
+    .map((scene, index) => ({
+      title: scene?.title || `Сцена ${index + 1}`,
+      description: scene?.description || "",
+      dialogue: scene?.dialogue || existingScenes[index]?.dialogue || "",
+      caption: scene?.caption || existingScenes[index]?.caption || "",
+    }))
+    .filter((scene) =>
+      scene.title.trim() ||
+      scene.description.trim() ||
+      scene.dialogue.trim() ||
+      scene.caption.trim()
+    );
+}
+
+function buildPagePlanContext(ctx) {
+  const outline = (ctx?.pageOutline || "").trim();
+  if (outline) return outline;
+
+  const summary = (ctx?.summary || "").trim();
+  if (summary) return summary;
+
+  const pageScenes = (ctx?.scenes || [])
+    .map((scene, index) => {
+      const title = (scene.title || `Сцена ${index + 1}`).trim();
+      const description = (scene.description || "").trim();
+      const dialogue = (scene.dialogue || "").trim();
+      const caption = (scene.caption || "").trim();
+      return [title, description, dialogue, caption].filter(Boolean).join("; ");
+    })
+    .filter(Boolean)
+    .join(" | ");
+
+  return pageScenes || (ctx?.story || "").trim();
+}
+
+async function autoGenerateScenesIfNeeded(pageIndex, options = {}) {
+  const ctx = pageContexts[pageIndex];
+  if (ctx && !Array.isArray(ctx.scenes)) ctx.scenes = [];
+  if (!ctx || hasMeaningfulScenes(ctx.scenes)) return;
+
+  const story = (ctx.pageOutline || ctx.story || pageContexts[0]?.story || storyInput?.value || "").trim();
+  if (!story) return;
+
+  const totalPages = Math.max(1, Number(options.pagesTotal) || pageCount || 1);
+  const previousPagesContext = pageContexts
+    .slice(0, pageIndex)
+    .map(buildPagePlanContext)
+    .filter(Boolean);
+
+  setLoading(true, options.label || "Создаём сцены для страницы...");
+  const { scenes: aiScenes } = await callAiText("scenes", {
+    story,
+    characters: buildCharactersTextFor(ctx.characters),
+    pageCount: totalPages,
+    pagesTotal: totalPages,
+    page: Math.max(1, Number(options.pageNumber) || pageIndex + 1),
+    previousPagesContext,
+  });
+
+  if (!Array.isArray(aiScenes) || !aiScenes.length) {
+    throw new Error("Модель не вернула сцены.");
+  }
+
+  const mapped = mapAiScenes(aiScenes, ctx.scenes);
+  if (!mapped.length) {
+    throw new Error("Модель не вернула подходящие сцены.");
+  }
+
+  ctx.scenes.length = 0;
+  mapped.forEach((scene) => ctx.scenes.push(scene));
+
+  if (pageIndex === activePage) {
+    scenes = ctx.scenes;
+    activeScene = 0;
+    renderScenes();
+    setScene(0, false);
+  }
+}
+
+function mapPageOutlines(aiPages, totalPages) {
+  const byPage = new Map();
+  (aiPages || []).forEach((item, index) => {
+    const page = Math.max(1, Number(item?.page) || index + 1);
+    const outline = String(item?.summary || item?.story || item?.outline || "").trim();
+    if (outline && page <= totalPages) byPage.set(page, outline);
+  });
+  return Array.from({ length: totalPages }, (_, index) => byPage.get(index + 1) || "");
+}
+
+async function ensurePageOutlinesForGeneration(startIndex, totalPages, sourceCtx) {
+  if (totalPages <= 1) return;
+
+  const needsOutline = Array.from({ length: totalPages }, (_, i) => {
+    const ctx = pageContexts[startIndex + i];
+    return !(ctx?.pageOutline || "").trim();
+  }).some(Boolean);
+  if (!needsOutline) return;
+
+  const story = (sourceCtx?.story || storyInput?.value || "").trim();
+  if (!story) return;
+
+  setLoading(true, "Планируем сюжет по страницам...");
+  const { pages: aiPages } = await callAiText("pagePlan", {
+    story,
+    characters: buildCharactersTextFor(sourceCtx?.characters || characters),
+    pageCount: totalPages,
+    pagesTotal: totalPages,
+  });
+
+  const outlines = mapPageOutlines(aiPages, totalPages);
+  if (outlines.filter(Boolean).length !== totalPages) {
+    throw new Error("Модель не смогла разложить сюжет по страницам.");
+  }
+
+  outlines.forEach((outline, i) => {
+    const ctx = pageContexts[startIndex + i];
+    if (ctx) ctx.pageOutline = outline;
+  });
+}
+
 function toggleBusy(button, isBusy) {
   if (!button) return;
   button.disabled = isBusy;
@@ -840,19 +1048,33 @@ function buildCharactersTextFor(list) {
     .map((c) => {
       const name = (c.name || "").trim();
       const desc = (c.description || "").trim();
-      if (!name && !desc) return "";
+      const hasReference = Boolean(c.referenceImage);
+      const referenceNote = hasReference ? "есть фото-референс" : "";
+      if (!name && !desc && !hasReference) return "";
+      if (name && desc && referenceNote) return `${name}: ${desc} (${referenceNote})`;
       if (name && desc) return `${name}: ${desc}`;
-      return name || desc;
+      if (name && referenceNote) return `${name}: ${referenceNote}`;
+      if (desc && referenceNote) return `${desc} (${referenceNote})`;
+      return name || desc || referenceNote;
     })
     .filter(Boolean)
     .join("\n");
+}
+
+function buildCharacterImageRefsFor(list) {
+  return (list || [])
+    .map((c, index) => ({
+      name: (c.name || `Character ${index + 1}`).trim() || `Character ${index + 1}`,
+      imageUrl: c.referenceImage || "",
+    }))
+    .filter((c) => c.imageUrl);
 }
 
 function buildScenePayload(pageIndex, options = {}) {
   saveCurrentToContext();
   const ctx = pageContexts[pageIndex] || pageContexts[activePage] || createDefaultPageContext();
   const ctxScenes = ctx.scenes || [];
-  const ctxStory = (ctx.story || "").trim();
+  const ctxStory = (ctx.pageOutline || ctx.story || "").trim();
 
   const scenePrompts = ctxScenes
     .map((scene, index) => {
@@ -883,10 +1105,11 @@ function buildScenePayload(pageIndex, options = {}) {
   return {
     story: ctxStory,
     characters: buildCharactersTextFor(ctx.characters),
+    characterImages: buildCharacterImageRefsFor(ctx.characters),
     style: activeStyle,
     language: dialogueLanguage,
     model: activeModel,
-    page: pageIndex + 1,
+    page: Math.max(1, Number(options.pageNumber) || pageIndex + 1),
     pagesTotal: resolvedPagesTotal,
     selectedScene: ctxScenes.length && isActivePage ? activeScene + 1 : null,
     scenes: scenePrompts,
@@ -908,6 +1131,17 @@ async function generateSinglePage(pageIndex, label, options = {}) {
       characters: (inheritFrom?.characters || []).map((c) => ({ ...c })),
     }));
   }
+  const ctx = pageContexts[pageIndex];
+  const inheritFrom = pageContexts[activePage] || pageContexts[0];
+  if (ctx && !(ctx.story || "").trim()) ctx.story = inheritFrom?.story || "";
+  if (ctx && !(ctx.characters || []).length) {
+    ctx.characters = (inheritFrom?.characters || []).map((c) => ({ ...c }));
+  }
+  await autoGenerateScenesIfNeeded(pageIndex, {
+    pagesTotal: options.pagesTotal,
+    pageNumber: options.pageNumber,
+    label: "Создаём сцены для страницы...",
+  });
   const payload = buildScenePayload(pageIndex, options);
   setLoading(true, label);
 
@@ -940,7 +1174,7 @@ async function generateSinglePage(pageIndex, label, options = {}) {
 
 function hasMeaningfulCharacters(list) {
   return (list || []).some((c) =>
-    (c?.name || "").trim() || (c?.description || "").trim()
+    (c?.name || "").trim() || (c?.description || "").trim() || c?.referenceImage
   );
 }
 
@@ -1010,10 +1244,23 @@ async function generateComicPage() {
           characters: (sourceCtx?.characters || []).map((c) => ({ ...c })),
         }));
       }
+      const targetCtx = pageContexts[targetIndex];
+      if (targetCtx && !(targetCtx.story || "").trim()) {
+        targetCtx.story = sourceCtx?.story || "";
+      }
+      if (targetCtx && !(targetCtx.characters || []).length) {
+        targetCtx.characters = (sourceCtx?.characters || []).map((c) => ({ ...c }));
+      }
+    }
+
+    await ensurePageOutlinesForGeneration(startIndex, totalPages, sourceCtx);
+
+    for (let i = 0; i < totalPages; i += 1) {
+      const targetIndex = totalPages > 1 ? startIndex + i : startIndex;
       const label = totalPages > 1
         ? `Генерируем страницу ${i + 1} из ${totalPages}...`
         : "Генерируем страницу...";
-      await generateSinglePage(targetIndex, label, { pagesTotal: totalPages });
+      await generateSinglePage(targetIndex, label, { pagesTotal: totalPages, pageNumber: i + 1 });
       credits = Math.max(0, credits - PRICE_PER_PAGE);
       updateCreditBalance();
       void generatePageSummary(targetIndex);
@@ -1030,7 +1277,7 @@ async function generateComicPage() {
 async function generatePageSummary(pageIndex) {
   const ctx = pageContexts[pageIndex];
   if (!ctx) return;
-  const baseStory = (ctx.story || "").trim();
+  const baseStory = (ctx.pageOutline || ctx.story || "").trim();
   if (!baseStory) return;
 
   const sceneDescription = (ctx.scenes || [])

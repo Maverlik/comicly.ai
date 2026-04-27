@@ -40,6 +40,11 @@ const ALLOWED_IMAGE_MODELS = new Set([
   "openai/gpt-5.4-image-2",
 ]);
 
+const TEXT_AND_IMAGE_OUTPUT_MODELS = new Set([
+  "google/gemini-3-pro-image-preview",
+  "openai/gpt-5.4-image-2",
+]);
+
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -66,7 +71,7 @@ function readJson(request) {
 
     request.on("data", (chunk) => {
       body += chunk;
-      if (body.length > 1_000_000) {
+      if (body.length > 12_000_000) {
         request.destroy();
         reject(new Error("Request body is too large."));
       }
@@ -115,12 +120,19 @@ function buildImagePrompt(payload) {
   const previousPagesBlock = Array.isArray(payload.previousPagesContext) && payload.previousPagesContext.length
     ? `Continuity from earlier pages — preserve the same characters, locations, and visual world; do not retell, just continue:\n${payload.previousPagesContext.map((s, i) => `Page ${i + 1}: ${s}`).join("\n")}`
     : "";
+  const characterImageRefs = Array.isArray(payload.characterImages)
+    ? payload.characterImages
+        .map((c, index) => `${index + 1}. ${c?.name || `Character ${index + 1}`}`)
+        .filter(Boolean)
+        .join("\n")
+    : "";
 
   return [
     "Create a complete, publication-ready comic book page.",
     "The page must contain 4-6 clearly bordered panels with polished composition, cinematic lighting, varied shot sizes, and readable speech bubbles placed inside panels.",
     `Story: ${payload.story}`,
     payload.characters ? `Character reference: ${payload.characters}` : "If character references are not provided, design distinct characters and keep them visually consistent across panels.",
+    characterImageRefs ? `Attached character reference images:\n${characterImageRefs}\nUse these images as the primary source for each character's face, hairstyle, body type, and outfit. Keep those identities consistent across panels and pages.` : "",
     `Visual style: ${payload.style || "Anime"}.`,
     `Speech bubble language: ${language}. All dialogue and captions must be written in ${language}.`,
     pageContext,
@@ -129,6 +141,7 @@ function buildImagePrompt(payload) {
     payload.dialogue ? `Key dialogue to include as speech bubbles, preserving speakers when named: ${payload.dialogue}` : `If dialogue is not provided, write natural ${language} speech bubbles for the characters.`,
     payload.caption ? `Scene caption: ${payload.caption}` : "",
     payload.layout ? `Layout direction: ${payload.layout}` : "",
+    "Return the final comic page as generated image output. Do not answer with a text-only description.",
     "Keep character design consistent across panels. Avoid watermarks, UI chrome, page numbers, or any explanatory text outside the comic art.",
   ]
     .filter(Boolean)
@@ -241,6 +254,27 @@ function extractText(data) {
   return "";
 }
 
+function buildImageMessageContent(prompt, characterImages) {
+  const content = [{ type: "text", text: prompt }];
+  if (!Array.isArray(characterImages)) return prompt;
+
+  characterImages.forEach((character, index) => {
+    const imageUrl = typeof character?.imageUrl === "string" ? character.imageUrl : "";
+    if (!imageUrl) return;
+    const name = character?.name || `Character ${index + 1}`;
+    content.push({
+      type: "text",
+      text: `Character reference image ${index + 1}: ${name}.`,
+    });
+    content.push({
+      type: "image_url",
+      image_url: { url: imageUrl },
+    });
+  });
+
+  return content.length > 1 ? content : prompt;
+}
+
 
 async function callOpenRouter({ model, messages, modalities, imageConfig }) {
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -293,8 +327,9 @@ async function generateComicPage(request, response) {
       : process.env.OPENROUTER_IMAGE_MODEL || DEFAULT_IMAGE_MODEL;
     const prompt = buildImagePrompt(payload);
 
-    const isGoogle = /^google\//i.test(model);
-    const modalities = isGoogle ? ["image", "text"] : ["image"];
+    const modalities = TEXT_AND_IMAGE_OUTPUT_MODELS.has(model)
+      ? ["image", "text"]
+      : ["image"];
 
     const data = await callOpenRouter({
       model,
@@ -302,11 +337,12 @@ async function generateComicPage(request, response) {
       imageConfig: {
         aspect_ratio: process.env.OPENROUTER_IMAGE_ASPECT_RATIO || "1:1",
       },
-      messages: [{ role: "user", content: prompt }],
+      messages: [{ role: "user", content: buildImageMessageContent(prompt, payload.characterImages) }],
     });
 
     const imageUrl = extractImageUrl(data);
     if (!imageUrl) {
+      const returnedText = extractText(data).trim();
       const finishReason = data?.choices?.[0]?.finish_reason || "";
       const nativeFinishReason = data?.choices?.[0]?.native_finish_reason || "";
       const isContentFilter =
@@ -320,6 +356,8 @@ async function generateComicPage(request, response) {
       }
       const errorMessage = isContentFilter
         ? `Модель ${model} отклонила запрос из-за фильтра безопасности (${nativeFinishReason || finishReason}). Смягчите формулировки сюжета/сцен или выберите другую модель.`
+        : returnedText
+          ? `Модель ${model} вернула текст вместо изображения: ${returnedText.slice(0, 240)}`
         : `Модель ${model} не вернула изображение. Попробуйте другую модель — формат ответа залогирован в консоли сервера.`;
       sendJson(response, 502, {
         error: errorMessage,
@@ -368,13 +406,26 @@ const TEXT_TASKS = {
     system:
       'Ты раскадровщик комиксов. Возвращай строго JSON-массив из 4-6 сцен без пояснений. Формат каждого элемента: {"title": "Сцена N", "description": "одно предложение на русском, 8-16 слов", "dialogue": "необязательные 1-2 короткие реплики с именами персонажей или пустая строка", "caption": "необязательная короткая подпись или пустая строка"}. Поля dialogue и caption пиши на языке, указанном пользователем. Никакого текста до или после массива.',
     instruction: (payload) => {
-      const pages = Math.max(1, Number(payload.pageCount) || 1);
+      const pages = Math.max(1, Number(payload.pagesTotal || payload.pageCount) || 1);
+      const page = Math.min(pages, Math.max(1, Number(payload.page) || 1));
       const pageHint = pages > 1
-        ? ` Сцены должны покрывать только одну страницу из ${pages}-страничного комикса (ту, которую пользователь сейчас редактирует).`
+        ? ` Сцены должны покрывать только страницу ${page} из ${pages}-страничного комикса. Это уникальный отрезок общего сюжета: не повторяй события других страниц, но сохраняй единую причинно-следственную линию.`
         : "";
-      return `История: ${payload.story}\n${payload.characters ? `Персонажи: ${payload.characters}\n` : ""}Стиль: ${payload.style || "Аниме"}. Язык реплик: ${languageLabel(payload.language)}.${pageHint} Разбей страницу на сцены.`;
+      const previousPages = Array.isArray(payload.previousPagesContext) && payload.previousPagesContext.length
+        ? `\nЧто уже запланировано на предыдущих страницах:\n${payload.previousPagesContext.map((s, i) => `Стр.${i + 1}: ${s}`).join("\n")}`
+        : "";
+      return `История: ${payload.story}\n${payload.characters ? `Персонажи: ${payload.characters}\n` : ""}Стиль: ${payload.style || "Аниме"}. Язык реплик: ${languageLabel(payload.language)}.${pageHint}${previousPages}\nРазбей страницу на сцены.`;
     },
     max: 900,
+  },
+  pagePlan: {
+    system:
+      'Ты сценарист-редактор комиксов. Возвращай строго JSON-массив без пояснений, ровно по одному элементу на каждую страницу. Формат элемента: {"page": 1, "summary": "что происходит только на этой странице, 2-4 предложения на русском"}. Сохраняй хронологию исходной истории, ничего не переставляй местами, не повторяй одно событие на разных страницах.',
+    instruction: (payload) => {
+      const pages = Math.max(1, Number(payload.pagesTotal || payload.pageCount) || 1);
+      return `Разложи историю на ${pages} страниц комикса. Каждая страница должна быть отдельным последовательным отрезком одного сюжета: страница 1 начинает историю, страница ${pages} завершает этот фрагмент. Не пропускай важные события и не возвращайся назад во времени.\n\nИстория: ${payload.story}\n${payload.characters ? `Персонажи: ${payload.characters}\n` : ""}Стиль: ${payload.style || "Аниме"}.`;
+    },
+    max: 1000,
   },
   continue: {
     system:
@@ -431,12 +482,14 @@ async function handleAiText(request, response) {
       return;
     }
 
-    if (payload.task === "scenes" || payload.task === "characters") {
+    if (payload.task === "scenes" || payload.task === "characters" || payload.task === "pagePlan") {
       const jsonMatch = text.match(/\[[\s\S]*\]/);
       try {
         const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : text);
         if (payload.task === "characters") {
           sendJson(response, 200, { characters: parsed, model });
+        } else if (payload.task === "pagePlan") {
+          sendJson(response, 200, { pages: parsed, model });
         } else {
           sendJson(response, 200, { scenes: parsed, model });
         }
@@ -444,7 +497,9 @@ async function handleAiText(request, response) {
       } catch {
         const errorMessage = payload.task === "characters"
           ? "Не удалось разобрать персонажей от модели."
-          : "Не удалось разобрать сцены от модели.";
+          : payload.task === "pagePlan"
+            ? "Не удалось разобрать план страниц от модели."
+            : "Не удалось разобрать сцены от модели.";
         sendJson(response, 502, { error: errorMessage });
         return;
       }
