@@ -82,7 +82,11 @@ Plans:
   3. Backend blocks billable generation when balance is insufficient and returns a clear error code, using server-controlled pricing of 20 coins for full pages and 4 coins for scene regeneration.
   4. Duplicate or retried requests with the same idempotency key return one logical result and do not double-charge the user.
   5. Concurrent wallet operations cannot create negative balances, and automated tests cover ledger correctness, insufficient balance, idempotency, no-debit/refund failure paths, and concurrent debit protection.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 04-01-PLAN.md - Wallet ledger service, debit/grant/refund primitives, idempotency, insufficient-funds, and race-safe balance changes.
+- [ ] 04-02-PLAN.md - Authenticated wallet API returning authoritative balance and recent transactions.
+- [ ] 04-03-PLAN.md - Wallet ledger docs, full backend gates, and backend-only boundary check.
 
 ### Phase 5: Private Comic Persistence
 **Goal**: Authenticated users can create, save, reopen, and continue private comics that belong only to them.
@@ -142,7 +146,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 1. Backend Foundation And Static Safety | 3/3 | Complete | 2026-04-26 |
 | 2. Data And Payment Foundation | 3/3 | Complete | 2026-04-26 |
 | 3. OAuth Sessions And Profile Bootstrap | 4/4 | Complete | 2026-04-27 |
-| 4. Wallet Ledger And Coin Safety | 0/TBD | Not started | - |
+| 4. Wallet Ledger And Coin Safety | 0/3 | Planned | - |
 | 5. Private Comic Persistence | 0/TBD | Not started | - |
 | 6. Production AI Generation Pipeline | 0/TBD | Not started | - |
 | 7. Creator Frontend Backend Integration | 0/TBD | Not started | - |
