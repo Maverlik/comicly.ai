@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: ready_for_discussion
-stopped_at: Phase 2 complete; ready to discuss Phase 3
-last_updated: "2026-04-26T15:35:00.000Z"
-last_activity: 2026-04-26 -- Phase 2 verified complete
+stopped_at: Phase 3 context gathered
+last_updated: "2026-04-27T10:44:57.126Z"
+last_activity: 2026-04-27 -- Phase 3 context gathered
 progress:
   total_phases: 8
   completed_phases: 2
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 Phase: 3 (OAuth Sessions And Profile Bootstrap) - READY FOR DISCUSSION
 Plan: 0 of TBD
-Status: Phase 2 verified complete; ready to discuss Phase 3
-Last activity: 2026-04-26 -- Phase 2 verified complete
+Status: Phase 3 context gathered; ready for Phase 3 planning
+Last activity: 2026-04-27 -- Phase 3 context gathered
 
 Progress: [##########] 100%
 
@@ -75,6 +75,7 @@ Recent decisions affecting current work:
 - [Phase 2 Discussion]: MVP deployment is Vercel-first with separate frontend/backend projects, frontend on `comicly.ai`/`www.comicly.ai`, backend API on `api.comicly.ai`, Neon pooled `DATABASE_URL` for runtime, and direct migration DB URL if needed for Alembic.
 - [Phase 2 Discussion]: Generation jobs should be represented in schema for future queue/status polling, while MVP generation may remain synchronous within Vercel Hobby limits.
 - [Phase 2 Verification]: Alembic migration, metadata/constraint tests, seed script, `/api/v1/coin-packages`, docs, pytest, ruff, and code review all passed.
+- [Phase 3 Discussion]: OAuth is backend-owned redirect flow for Google/Yandex, successful login redirects to `comicly.ai/create.html`, sessions are opaque DB-backed cookies for 30 days, providers link by verified email, Phase 3 is backend API-only, and avatar upload is deferred until storage is selected.
 
 ### Pending Todos
 
@@ -98,6 +99,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-26T15:35:00.000Z
-Stopped at: Phase 2 complete; ready to discuss Phase 3
-Resume file: .planning/phases/02-data-and-payment-foundation/02-VERIFICATION.md
+Last session: 2026-04-27T10:44:57.126Z
+Stopped at: Phase 3 context gathered
+Resume file: .planning/phases/03-oauth-sessions-and-profile-bootstrap/03-CONTEXT.md

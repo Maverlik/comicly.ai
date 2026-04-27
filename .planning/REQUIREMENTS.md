@@ -157,7 +157,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-07 | Phase 3 | Pending |
 | PROF-01 | Phase 3 | Pending |
 | PROF-02 | Phase 3 | Pending |
-| PROF-03 | Phase 3 | Pending |
+| PROF-03 | Deferred | Pending storage provider decision |
 | PROF-04 | Phase 7 | Pending |
 | WAL-01 | Phase 4 | Pending |
 | WAL-02 | Phase 4 | Pending |

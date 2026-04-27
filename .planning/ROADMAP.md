@@ -58,12 +58,12 @@ Plans:
 ### Phase 3: OAuth Sessions And Profile Bootstrap
 **Goal**: Users can securely access their accounts, and account/profile/wallet bootstrap data is created and returned by trusted backend APIs.
 **Depends on**: Phase 2
-**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, AUTH-06, AUTH-07, PROF-01, PROF-02, PROF-03, TEST-02
+**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, AUTH-06, AUTH-07, PROF-01, PROF-02, TEST-02
 **Success Criteria** (what must be TRUE):
   1. User can sign in with Google OAuth and receive a secure server-side session cookie.
   2. User can sign in with Yandex OAuth, and returning logins attach to the existing provider identity by provider and provider user id.
   3. First OAuth login creates the user, provider identity, profile, wallet, and starter coin ledger entry, then `GET /api/me` returns account, profile, and wallet summary.
-  4. User can update display name and upload or replace an avatar with server-side file type and size validation, and both persist after reload.
+  4. User can update display name and receive an OAuth-provided avatar URL when available; real avatar file upload is deferred until object storage is selected.
   5. User can log out, the server invalidates the session, anonymous private API requests are rejected, and session cookies are `HttpOnly`, production `Secure`, and use an appropriate `SameSite` policy.
 **Plans**: TBD
 
