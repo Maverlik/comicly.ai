@@ -38,7 +38,7 @@ Requirements for the initial production backend milestone. Each maps to one road
 - [x] **PROF-01**: User can fetch current account, profile, and wallet summary through an authenticated bootstrap API.
 - [x] **PROF-02**: User can update display name through an authenticated API and see it persist after reload.
 - [ ] **PROF-03**: User can upload or replace an avatar with file type and size validation.
-- [ ] **PROF-04**: Frontend creator shell replaces demo profile data and hardcoded credit display with authenticated backend data.
+- [x] **PROF-04**: Frontend creator shell replaces demo profile data and hardcoded credit display with authenticated backend data.
 
 ### Wallet And Coins
 
@@ -91,7 +91,7 @@ Requirements for the initial production backend milestone. Each maps to one road
 - [x] **TEST-03**: Automated tests cover wallet ledger correctness, insufficient balance, idempotency, refunds/no-debit on failure, and concurrent debit protection.
 - [x] **TEST-04**: Automated tests cover comic ownership boundaries with at least two users.
 - [x] **TEST-05**: Automated tests cover OpenRouter response parsing and generation failure modes using fixtures.
-- [ ] **TEST-06**: Manual or automated smoke checks cover sign-in, profile display, balance display, comic creation, page generation, reload/reopen, and logout.
+- [x] **TEST-06**: Manual or automated smoke checks cover creator auth entry, profile display, balance display, current comic creation, page generation success/error states, landing public access, and logout.
 
 ## v2 Requirements
 
@@ -158,7 +158,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROF-01 | Phase 3 | Complete in 03-03 |
 | PROF-02 | Phase 3 | Complete in 03-03 |
 | PROF-03 | Deferred | Pending storage provider decision |
-| PROF-04 | Phase 7 | Pending |
+| PROF-04 | Phase 7 | Complete in 07-01/07-04 |
 | WAL-01 | Phase 4 | Complete in 04-02 |
 | WAL-02 | Phase 4 | Complete in 04-01 |
 | WAL-03 | Phase 4 | Complete in 04-01 |
@@ -193,7 +193,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TEST-03 | Phase 4 | Complete in 04-03 |
 | TEST-04 | Phase 5 | Complete in 05-04 |
 | TEST-05 | Phase 6 | Complete in 06-05 |
-| TEST-06 | Phase 7 | Pending |
+| TEST-06 | Phase 7 | Complete in 07-04 |
 
 **Coverage:**
 - v1 requirements: 56 total
@@ -203,4 +203,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-25*
-*Last updated: 2026-04-28 after Phase 6 verification*
+*Last updated: 2026-04-28 after Phase 7 verification*

@@ -56,10 +56,18 @@ const pageCountSteps = Array.from(document.querySelectorAll("[data-page-count-st
 const dialogueLanguageSelect = document.querySelector("#dialogueLanguage");
 const costValueEl = document.querySelector("[data-cost]");
 const continueButton = document.querySelector("[data-continue-story]");
+const authOverlay = document.querySelector("[data-auth-overlay]");
+const authLoginLinks = Array.from(document.querySelectorAll("[data-auth-login]"));
+const authError = document.querySelector("[data-auth-error]");
+const saveStatus = document.querySelector("[data-save-status]");
+const profileName = document.querySelector("[data-profile-name]");
+const profileEmail = document.querySelector("[data-profile-email]");
+const profileAvatar = document.querySelector("[data-profile-avatar]");
 
 const DEFAULT_MODEL_ID = "bytedance-seed/seedream-4.5";
 const PRICE_PER_PAGE = 20;
 const MAX_PAGE_COUNT = 10;
+const API_BASE_URL = resolveApiBaseUrl();
 
 const MODEL_LABELS = {
   "bytedance-seed/seedream-4.5": "Seedream",
@@ -101,11 +109,69 @@ let dialogueLanguage = "ru";
 
 let activePage = 0;
 let activeScene = 0;
-let credits = 240;
-let apiKeyReady = false;
+let credits = 0;
 let isRestoring = false;
 let historyIndex = -1;
 let history = [];
+let currentAccount = null;
+let currentComicId = null;
+let saveTimer = null;
+let activeGenerationButton = null;
+
+class ApiClientError extends Error {
+  constructor(message, { status = 0, code = "API_ERROR", payload = null } = {}) {
+    super(message);
+    this.name = "ApiClientError";
+    this.status = status;
+    this.code = code;
+    this.payload = payload;
+  }
+}
+
+function resolveApiBaseUrl() {
+  const configured = typeof window.COMICLY_API_BASE_URL === "string"
+    ? window.COMICLY_API_BASE_URL.trim()
+    : "";
+  if (configured) return configured.replace(/\/+$/, "");
+
+  const hostname = window.location.hostname;
+  if (hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1") {
+    return "http://localhost:8000";
+  }
+  return "https://api.comicly.ai";
+}
+
+function buildApiUrl(path) {
+  return `${API_BASE_URL}${path}`;
+}
+
+async function apiFetch(path, options = {}) {
+  const headers = { ...(options.headers || {}) };
+  const init = {
+    ...options,
+    credentials: "include",
+    headers,
+  };
+
+  if (init.body && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  const response = await fetch(buildApiUrl(path), init);
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const envelope = data?.error || {};
+    const message = envelope.message || data?.message || data?.detail || "Backend недоступен.";
+    throw new ApiClientError(message, {
+      status: response.status,
+      code: envelope.code || data?.code || "API_ERROR",
+      payload: data,
+    });
+  }
+
+  return data;
+}
 
 function isPlaceholderImage(src) {
   return typeof src === "string" && src.startsWith("data:image/svg+xml");
@@ -145,6 +211,74 @@ function showToast(message) {
   showToast.timer = window.setTimeout(() => {
     toast.hidden = true;
   }, 3800);
+}
+
+function setAuthOverlayVisible(isVisible, message = "") {
+  if (authOverlay) authOverlay.hidden = !isVisible;
+  if (authError) {
+    authError.textContent = message;
+    authError.hidden = !message;
+  }
+}
+
+function resetTrustedState() {
+  currentAccount = null;
+  currentComicId = null;
+  credits = 0;
+  updateCreditBalance();
+  updateProfileDisplay(null);
+}
+
+function updateProfileDisplay(account) {
+  const displayName = account?.display_name || account?.email || "Профиль";
+  const email = account?.email || "Автор";
+  const initial = displayName.trim().charAt(0).toUpperCase() || "?";
+
+  if (profileName) profileName.textContent = displayName;
+  if (profileEmail) profileEmail.textContent = email;
+  if (profileAvatar) profileAvatar.textContent = initial;
+}
+
+function setSaveStatus(state, text) {
+  if (!saveStatus) return;
+  saveStatus.textContent = text;
+  saveStatus.classList.toggle("is-saving", state === "saving");
+  saveStatus.classList.toggle("is-saved", state === "saved");
+  saveStatus.classList.toggle("is-error", state === "error");
+}
+
+function updateSessionState(data) {
+  currentAccount = data?.account || null;
+  credits = Number(data?.wallet?.balance ?? 0);
+  updateCreditBalance();
+  updateProfileDisplay(currentAccount);
+  setAuthOverlayVisible(false);
+}
+
+async function bootstrapSession() {
+  setAuthOverlayVisible(false);
+  setSaveStatus("saving", "Проверяем вход...");
+
+  authLoginLinks.forEach((link) => {
+    const provider = link.dataset.authLogin;
+    link.href = buildApiUrl(`/api/v1/auth/${provider}/login`);
+  });
+
+  try {
+    const data = await apiFetch("/api/v1/me");
+    updateSessionState(data);
+    setSaveStatus("saved", "Готово");
+  } catch (error) {
+    resetTrustedState();
+    if (error instanceof ApiClientError && error.status === 401) {
+      setAuthOverlayVisible(true);
+      setSaveStatus("error", "Войдите");
+      return;
+    }
+    showConfigBanner();
+    setAuthOverlayVisible(true, "Не удалось подключиться к backend. Попробуйте обновить страницу.");
+    setSaveStatus("error", "Backend недоступен");
+  }
 }
 
 function escapeHtml(value = "") {
@@ -197,6 +331,7 @@ function pushHistory() {
   if (history.length > 60) history.shift();
   historyIndex = history.length - 1;
   updateUndoRedoButtons();
+  scheduleBackendSave();
 }
 
 function restoreSnapshot(snapshot) {
@@ -282,18 +417,118 @@ function updateCostNote() {
   if (costValueEl) costValueEl.textContent = String(PRICE_PER_PAGE * pageCount);
 }
 
-function setLoading(isLoading, label = "Генерируем страницу...") {
+function getPrimaryStory() {
+  saveCurrentToContext();
+  return (pageContexts[0]?.story || storyInput?.value || "").trim();
+}
+
+function buildComicMetadata() {
+  return {
+    title: (projectTitleInput?.value || "").trim() || "Новый комикс",
+    story: getPrimaryStory() || null,
+    characters: buildCharactersTextFor(pageContexts[0]?.characters || characters) || null,
+    style: activeStyle || null,
+    tone: dialogueLanguage ? `dialogue:${dialogueLanguage}` : null,
+    selected_model: activeModel || null,
+    status: "draft",
+  };
+}
+
+function buildSceneRequests() {
+  saveCurrentToContext();
+  const primaryScenes = pageContexts[activePage]?.scenes || scenes;
+  return primaryScenes.map((scene, index) => ({
+    position: index + 1,
+    title: scene.title || null,
+    description: scene.description || null,
+    dialogue: scene.dialogue || null,
+    caption: scene.caption || null,
+  }));
+}
+
+function buildPageRequests() {
+  return pages.map((src, index) => {
+    const ctx = pageContexts[index] || {};
+    return {
+      page_number: index + 1,
+      status: ctx.generated ? "succeeded" : "pending",
+      model: activeModel,
+      coin_cost: ctx.generated ? PRICE_PER_PAGE : null,
+      image_url: src && !isPlaceholderImage(src) && !src.startsWith("data:") ? src : null,
+      scene_id: ctx.backendSceneId || null,
+    };
+  });
+}
+
+async function ensureCurrentComic() {
+  if (!currentAccount) {
+    throw new ApiClientError("Войдите, чтобы создавать комиксы.", { status: 401, code: "AUTH_REQUIRED" });
+  }
+  if (currentComicId) return currentComicId;
+
+  setSaveStatus("saving", "Сохраняем...");
+  const comic = await apiFetch("/api/v1/comics", {
+    method: "POST",
+    body: JSON.stringify(buildComicMetadata()),
+  });
+  currentComicId = comic.id;
+  setSaveStatus("saved", "Сохранено");
+  return currentComicId;
+}
+
+async function saveCurrentComic({ required = false, includePages = false } = {}) {
+  if (!currentAccount) {
+    if (required) {
+      throw new ApiClientError("Войдите, чтобы создавать комиксы.", { status: 401, code: "AUTH_REQUIRED" });
+    }
+    return null;
+  }
+
+  try {
+    const comicId = await ensureCurrentComic();
+    setSaveStatus("saving", "Сохраняем...");
+    await apiFetch(`/api/v1/comics/${comicId}`, {
+      method: "PATCH",
+      body: JSON.stringify(buildComicMetadata()),
+    });
+
+    const sceneResponses = await apiFetch(`/api/v1/comics/${comicId}/scenes`, {
+      method: "PUT",
+      body: JSON.stringify({ scenes: buildSceneRequests() }),
+    });
+    const targetScenes = pageContexts[activePage]?.scenes || scenes;
+    sceneResponses.forEach((scene, index) => {
+      if (targetScenes[index]) targetScenes[index].backendSceneId = scene.id;
+    });
+
+    if (includePages) {
+      await apiFetch(`/api/v1/comics/${comicId}/pages`, {
+        method: "PUT",
+        body: JSON.stringify({ pages: buildPageRequests() }),
+      });
+    }
+
+    setSaveStatus("saved", "Сохранено");
+    return comicId;
+  } catch (error) {
+    setSaveStatus("error", "Не сохранено");
+    if (required) throw error;
+    return null;
+  }
+}
+
+function scheduleBackendSave() {
+  if (!currentAccount || !currentComicId || isRestoring) return;
+  window.clearTimeout(saveTimer);
+  saveTimer = window.setTimeout(() => {
+    void saveCurrentComic();
+  }, 900);
+}
+
+function setLoading(isLoading, label = "Генерируем страницу/изображение...") {
   if (comicLoading) comicLoading.hidden = !isLoading;
   if (loadingLabel && label) loadingLabel.textContent = label;
-  if (generatePageButton) generatePageButton.disabled = isLoading;
-  if (regenerateSceneButton) regenerateSceneButton.disabled = isLoading;
-  if (continueButton) {
-    if (isLoading) {
-      continueButton.disabled = true;
-    } else {
-      refreshContinueButton();
-    }
-  }
+  if (!isLoading) refreshContinueButton();
 }
 
 function createPlaceholderDataUrl(pageNumber) {
@@ -755,26 +990,20 @@ async function callAiText(task, extra = {}) {
     story: storyInput?.value.trim() || "",
     characters: buildCharactersText(),
     style: activeStyle,
+    tone: dialogueLanguage,
     language: dialogueLanguage,
     pageCount,
     sceneTitle: scene.title,
     sceneDescription: scene.description,
+    selected_scene: [scene.title, scene.description].filter(Boolean).join(": "),
     dialogue: scene.dialogue,
     caption: scene.caption,
+    model_id: activeModel,
   };
-  const response = await fetch("/api/ai-text", {
+  return apiFetch("/api/v1/ai-text", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...basePayload, ...extra }),
   });
-
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const message = data?.error || "Сервис AI недоступен.";
-    if (data?.code === "MISSING_KEY") showConfigBanner();
-    throw new Error(message);
-  }
-  return data;
 }
 
 async function enhanceStory() {
@@ -917,12 +1146,22 @@ function hasMeaningfulScenes(list) {
 
 function mapAiScenes(aiScenes, existingScenes = []) {
   return (aiScenes || [])
-    .map((scene, index) => ({
-      title: scene?.title || `Сцена ${index + 1}`,
-      description: scene?.description || "",
-      dialogue: scene?.dialogue || existingScenes[index]?.dialogue || "",
-      caption: scene?.caption || existingScenes[index]?.caption || "",
-    }))
+    .map((scene, index) => {
+      if (typeof scene === "string") {
+        return {
+          title: `Сцена ${index + 1}`,
+          description: scene,
+          dialogue: existingScenes[index]?.dialogue || "",
+          caption: existingScenes[index]?.caption || "",
+        };
+      }
+      return {
+        title: scene?.title || `Сцена ${index + 1}`,
+        description: scene?.description || "",
+        dialogue: scene?.dialogue || existingScenes[index]?.dialogue || "",
+        caption: scene?.caption || existingScenes[index]?.caption || "",
+      };
+    })
     .filter((scene) =>
       scene.title.trim() ||
       scene.description.trim() ||
@@ -1120,6 +1359,33 @@ function buildScenePayload(pageIndex, options = {}) {
   };
 }
 
+function createIdempotencyKey(pageIndex) {
+  if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+  return `comicly-${Date.now()}-${pageIndex}-${Math.random().toString(16).slice(2)}`;
+}
+
+function buildGenerationPayload(pageIndex, options = {}) {
+  const snapshot = buildScenePayload(pageIndex, options);
+  const ctx = pageContexts[pageIndex] || pageContexts[activePage] || {};
+  const scene = pageIndex === activePage ? scenes[activeScene] : (ctx.scenes || [])[0];
+
+  return {
+    comic_id: currentComicId,
+    scene_id: scene?.backendSceneId || null,
+    page_number: Math.max(1, pageIndex + 1),
+    story: snapshot.story,
+    characters: snapshot.characters,
+    style: snapshot.style,
+    tone: dialogueLanguage,
+    selected_scene: snapshot.selectedScene ? String(snapshot.selectedScene) : null,
+    scenes: snapshot.scenes,
+    dialogue: snapshot.dialogue,
+    caption: snapshot.caption,
+    layout: snapshot.layout,
+    model_id: snapshot.model,
+  };
+}
+
 async function generateSinglePage(pageIndex, label, options = {}) {
   while (pages.length <= pageIndex) {
     pages.push(createPlaceholderDataUrl(pages.length + 1));
@@ -1142,32 +1408,38 @@ async function generateSinglePage(pageIndex, label, options = {}) {
     pageNumber: options.pageNumber,
     label: "Создаём сцены для страницы...",
   });
-  const payload = buildScenePayload(pageIndex, options);
+  await saveCurrentComic({ required: true });
+  const payload = buildGenerationPayload(pageIndex, options);
   setLoading(true, label);
 
-  const response = await fetch("/api/generate-comic-page", {
+  const data = await apiFetch("/api/v1/generations", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Idempotency-Key": createIdempotencyKey(pageIndex) },
     body: JSON.stringify(payload),
   });
 
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    if (data?.code === "MISSING_KEY") showConfigBanner();
-    throw new Error(data?.error || "Не удалось сгенерировать страницу.");
-  }
-  if (!data.imageUrl) {
-    throw new Error("OpenRouter не вернул изображение.");
+  const imageUrl = data.image_url || data.page?.image_url;
+  if (!imageUrl) {
+    throw new Error("Backend не вернул ссылку на изображение.");
   }
 
-  pages[pageIndex] = data.imageUrl;
-  if (pageContexts[pageIndex]) pageContexts[pageIndex].generated = true;
+  pages[pageIndex] = imageUrl;
+  if (pageContexts[pageIndex]) {
+    pageContexts[pageIndex].generated = true;
+    pageContexts[pageIndex].backendPageId = data.page?.id || pageContexts[pageIndex].backendPageId;
+    pageContexts[pageIndex].backendSceneId = data.page?.scene_id || pageContexts[pageIndex].backendSceneId;
+  }
+  if (typeof data.balance === "number") {
+    credits = data.balance;
+    updateCreditBalance();
+  }
 
   setPage(pageIndex, false);
   renderPageStrip();
-  if (comicOutput) comicOutput.src = data.imageUrl;
+  if (comicOutput) comicOutput.src = imageUrl;
   if (emptyState) emptyState.hidden = true;
   refreshContinueButton();
+  await saveCurrentComic({ includePages: true });
 
   return data;
 }
@@ -1213,7 +1485,7 @@ async function autoExtractCharactersIfNeeded() {
   }
 }
 
-async function generateComicPage() {
+async function generateComicPage(triggerButton = generatePageButton) {
   saveCurrentToContext();
   if (!storyInput?.value.trim()) {
     showToast("Добавьте описание истории перед генерацией.");
@@ -1221,18 +1493,15 @@ async function generateComicPage() {
   }
 
   const totalPages = Math.max(1, pageCount);
-  const totalCost = PRICE_PER_PAGE * totalPages;
-  if (credits < totalCost) {
-    showToast(`Недостаточно кредитов. Нужно ${totalCost}.`);
-    return;
-  }
-
-  await autoExtractCharactersIfNeeded();
-
   const startIndex = activePage;
   const sourceCtx = pageContexts[startIndex];
 
+  activeGenerationButton = triggerButton;
+  toggleBusy(activeGenerationButton, true);
   try {
+    await ensureCurrentComic();
+    await autoExtractCharactersIfNeeded();
+
     for (let i = 0; i < totalPages; i += 1) {
       const targetIndex = totalPages > 1 ? startIndex + i : startIndex;
       while (pages.length <= targetIndex) {
@@ -1259,17 +1528,20 @@ async function generateComicPage() {
       const targetIndex = totalPages > 1 ? startIndex + i : startIndex;
       const label = totalPages > 1
         ? `Генерируем страницу ${i + 1} из ${totalPages}...`
-        : "Генерируем страницу...";
+        : "Генерируем страницу/изображение...";
       await generateSinglePage(targetIndex, label, { pagesTotal: totalPages, pageNumber: i + 1 });
-      credits = Math.max(0, credits - PRICE_PER_PAGE);
-      updateCreditBalance();
       void generatePageSummary(targetIndex);
     }
     pushHistory();
     showToast(totalPages > 1 ? `Готово: ${totalPages} страниц.` : "Страница сгенерирована.");
   } catch (error) {
-    showToast(error.message);
+    if (error instanceof ApiClientError && error.status === 401) {
+      setAuthOverlayVisible(true);
+    }
+    showToast(error.message || "Не удалось сгенерировать страницу.");
   } finally {
+    toggleBusy(activeGenerationButton, false);
+    activeGenerationButton = null;
     setLoading(false);
   }
 }
@@ -1348,11 +1620,6 @@ async function continueStory() {
     return;
   }
 
-  if (credits < PRICE_PER_PAGE) {
-    showToast(`Недостаточно кредитов. Нужно ${PRICE_PER_PAGE}.`);
-    return;
-  }
-
   // Решаем: заполнить текущую пустую страницу ИЛИ создать новую после.
   const currentIsEmptyDraft =
     !ctx.generated &&
@@ -1367,6 +1634,7 @@ async function continueStory() {
   toggleBusy(continueButton, true);
   setLoading(true, "Придумываем продолжение...");
   try {
+    await ensureCurrentComic();
     const previousSummaries = summarySource
       .map((c) => (c?.summary || c?.story || "").trim())
       .filter(Boolean);
@@ -1409,13 +1677,14 @@ async function continueStory() {
 
     setLoading(true, "Генерируем страницу...");
     await generateSinglePage(targetIndex, "Генерируем страницу...", { pagesTotal: 1 });
-    credits = Math.max(0, credits - PRICE_PER_PAGE);
-    updateCreditBalance();
     void generatePageSummary(targetIndex);
 
     pushHistory();
     showToast("Продолжение готово.");
   } catch (error) {
+    if (error instanceof ApiClientError && error.status === 401) {
+      setAuthOverlayVisible(true);
+    }
     showToast(error.message || "Не удалось продолжить историю.");
   } finally {
     toggleBusy(continueButton, false);
@@ -1474,10 +1743,7 @@ function addPage() {
 }
 
 function addCredits() {
-  credits += 100;
-  updateCreditBalance();
-  pushHistory();
-  showToast("Добавлено 100 кредитов.");
+  showToast("Пополнение баланса появится после подключения платежей.");
 }
 
 function setZoom(value) {
@@ -1537,13 +1803,23 @@ function showConfigBanner() {
 
 async function checkHealth() {
   try {
-    const response = await fetch("/api/health");
-    const data = await response.json();
-    apiKeyReady = Boolean(data?.hasApiKey);
-    if (!apiKeyReady) showConfigBanner();
+    await apiFetch("/ready");
   } catch {
-    // Сервер может не поддерживать эндпоинт; считаем что ключ может быть.
+    showConfigBanner();
   }
+}
+
+async function logout() {
+  toggleProfileMenu(false);
+  try {
+    await apiFetch("/api/v1/me/logout", { method: "POST" });
+  } catch {
+    // Even if the request fails, local trusted state is cleared.
+  }
+  resetTrustedState();
+  setAuthOverlayVisible(true);
+  setSaveStatus("error", "Войдите");
+  showToast("Вы вышли из аккаунта.");
 }
 
 let storyInputTimer;
@@ -1581,8 +1857,8 @@ clearStoryButton?.addEventListener("click", () => {
 });
 
 enhanceStoryButton?.addEventListener("click", enhanceStory);
-generatePageButton?.addEventListener("click", generateComicPage);
-regenerateSceneButton?.addEventListener("click", generateComicPage);
+generatePageButton?.addEventListener("click", (event) => generateComicPage(event.currentTarget));
+regenerateSceneButton?.addEventListener("click", (event) => generateComicPage(event.currentTarget));
 suggestScenesButton?.addEventListener("click", suggestScenes);
 addSceneButton?.addEventListener("click", () => addScene());
 downloadButton?.addEventListener("click", () => { downloadCurrentPage(); toggleBurgerMenu(false); });
@@ -1607,10 +1883,13 @@ profileToggle?.addEventListener("click", () => toggleProfileMenu());
 
 profileActions.forEach((button) => {
   button.addEventListener("click", () => {
+    if (button.dataset.profileAction === "logout") {
+      void logout();
+      return;
+    }
     const labels = {
-      profile: "Профиль открыт.",
-      settings: "Настройки открыты.",
-      logout: "Вы вышли из демо-профиля.",
+      profile: "Профиль загружен из backend.",
+      settings: "Настройки профиля появятся позже.",
     };
     toggleProfileMenu(false);
     showToast(labels[button.dataset.profileAction] || "Действие выполнено.");
@@ -1663,4 +1942,4 @@ setModel(activeModel, false);
 setScene(activeScene, false);
 setZoom(zoomSelect?.value || "100%");
 pushHistory();
-checkHealth();
+bootstrapSession();

@@ -17,8 +17,8 @@
           <path d="M12 2l11 20H1L12 2zm0 7v6h-2v-6h2zm0 8v2h-2v-2h2z" />
         </svg>
         <div>
-          <strong>Ключ OpenRouter не настроен.</strong>
-          <p>Создайте файл <code>.env</code> по образцу <code>.env.example</code>, вставьте ключ с <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">openrouter.ai/keys</a> и перезапустите <code>npm start</code>.</p>
+          <strong>Backend недоступен.</strong>
+          <p>Проверьте, что FastAPI backend запущен и доступен для этого домена.</p>
         </div>
       </div>
 
@@ -28,8 +28,9 @@
         </a>
 
         <div class="project-title">
-          <input id="projectTitle" type="text" value="Последняя звездная искра" aria-label="Название комикса" />
+          <input id="projectTitle" type="text" value="Новый комикс" aria-label="Название комикса" />
           <span class="page-status" data-page-status>Страница 1 из 1</span>
+          <span class="save-status" data-save-status>Не сохранено</span>
         </div>
 
         <div class="account-bar">
@@ -37,17 +38,17 @@
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M13 2L4 14h7l-1 8 10-13h-7l1-7z" />
             </svg>
-            <span data-credit-balance>240 кредитов</span>
+            <span data-credit-balance>0 кредитов</span>
           </button>
 
           <div class="profile-wrap">
             <button class="avatar-button" type="button" data-profile-toggle aria-expanded="false" aria-label="Профиль">
-              <span class="avatar">A</span>
+              <span class="avatar" data-profile-avatar>?</span>
             </button>
             <div class="popover profile-menu" data-profile-menu hidden>
               <div class="popover-header">
-                <strong>Alex Mercer</strong>
-                <span>Автор</span>
+                <strong data-profile-name>Профиль</strong>
+                <span data-profile-email>Автор</span>
               </div>
               <button type="button" data-profile-action="profile">Профиль</button>
               <button type="button" data-profile-action="settings">Настройки</button>
@@ -169,7 +170,7 @@
           <div class="story-area">
             <label class="field-label" for="storyInput">Опишите сюжет</label>
             <div class="story-wrap">
-              <textarea id="storyInput" rows="10">В мире, где звезды погасли, одинокий странник находит древнюю силу под забытым городом. Чтобы вернуть свет, ему придется принять свое предназначение.</textarea>
+              <textarea id="storyInput" rows="10" placeholder="Кто герой, чего он хочет и что мешает ему добиться цели?"></textarea>
               <button class="story-enhance" type="button" data-enhance-story aria-label="Улучшить с AI" title="Улучшить с AI">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 2.5l2 5.4 5.5 2-5.5 2-2 5.6-2-5.6-5.5-2 5.5-2 2-5.4z" />
@@ -353,6 +354,23 @@
       </footer>
 
       <div class="toast" data-toast hidden></div>
+
+      <div class="auth-overlay" data-auth-overlay hidden>
+        <section class="auth-panel" aria-labelledby="creatorAuthTitle">
+          <div class="auth-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2.5l2 5.4 5.5 2-5.5 2-2 5.6-2-5.6-5.5-2 5.5-2 2-5.4z" />
+            </svg>
+          </div>
+          <h2 id="creatorAuthTitle">Войдите, чтобы создавать комиксы</h2>
+          <p>Ваш профиль, баланс и генерации теперь хранятся в backend.</p>
+          <div class="auth-actions">
+            <a class="auth-button" href="#" data-auth-login="google">Google</a>
+            <a class="auth-button" href="#" data-auth-login="yandex">Yandex</a>
+          </div>
+          <p class="auth-error" data-auth-error hidden></p>
+        </section>
+      </div>
     </div>
 
     <script src="scripts/creator.js"></script>

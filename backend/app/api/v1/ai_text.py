@@ -22,11 +22,17 @@ class AiTextRequest(BaseModel):
     characters: str | None = None
     style: str | None = None
     tone: str | None = None
+    language: str | None = None
+    page_count: int | None = None
+    pages_total: int | None = None
     selected_scene: str | None = None
+    scene_title: str | None = None
+    scene_description: str | None = None
     scenes: list[str] | None = None
     dialogue: str | None = None
     caption: str | None = None
     layout: str | None = None
+    previous_pages_context: list[str] | None = None
     model_id: str | None = None
 
     @model_validator(mode="before")
@@ -36,6 +42,24 @@ class AiTextRequest(BaseModel):
             normalized = dict(value)
             if "selectedScene" in normalized and "selected_scene" not in normalized:
                 normalized["selected_scene"] = normalized["selectedScene"]
+            if "sceneTitle" in normalized and "scene_title" not in normalized:
+                normalized["scene_title"] = normalized["sceneTitle"]
+            if (
+                "sceneDescription" in normalized
+                and "scene_description" not in normalized
+            ):
+                normalized["scene_description"] = normalized["sceneDescription"]
+            if "pageCount" in normalized and "page_count" not in normalized:
+                normalized["page_count"] = normalized["pageCount"]
+            if "pagesTotal" in normalized and "pages_total" not in normalized:
+                normalized["pages_total"] = normalized["pagesTotal"]
+            if (
+                "previousPagesContext" in normalized
+                and "previous_pages_context" not in normalized
+            ):
+                normalized["previous_pages_context"] = normalized[
+                    "previousPagesContext"
+                ]
             if "model" in normalized and "model_id" not in normalized:
                 normalized["model_id"] = normalized["model"]
             return normalized
@@ -47,11 +71,17 @@ class AiTextRequest(BaseModel):
             "characters": self.characters,
             "style": self.style,
             "tone": self.tone,
+            "language": self.language,
+            "page_count": self.page_count,
+            "pages_total": self.pages_total,
             "selected_scene": self.selected_scene,
+            "scene_title": self.scene_title,
+            "scene_description": self.scene_description,
             "scenes": self.scenes,
             "dialogue": self.dialogue,
             "caption": self.caption,
             "layout": self.layout,
+            "previous_pages_context": self.previous_pages_context,
         }
 
 
@@ -59,6 +89,8 @@ class AiTextResponse(BaseModel):
     text: str
     model: str
     scenes: list[str] | None = None
+    characters: list[dict[str, Any]] | None = None
+    pages: list[dict[str, Any]] | None = None
 
 
 def get_text_service(
@@ -78,19 +110,28 @@ async def create_ai_text(
         payload=payload.provider_payload(),
         model=payload.model_id,
     )
+    parsed = _parse_json_list(result.text)
     return AiTextResponse(
         text=result.text,
         model=result.model,
-        scenes=_parse_scenes(result.text) if payload.task == "scenes" else None,
+        scenes=_scene_strings(parsed) if payload.task == "scenes" else None,
+        characters=_dict_items(parsed) if payload.task == "characters" else None,
+        pages=_dict_items(parsed) if payload.task == "pagePlan" else None,
     )
 
 
-def _parse_scenes(text: str) -> list[str] | None:
+def _parse_json_list(text: str) -> list[Any] | None:
     try:
         parsed = json.loads(text)
     except json.JSONDecodeError:
         return None
     if not isinstance(parsed, list):
+        return None
+    return parsed
+
+
+def _scene_strings(parsed: list[Any] | None) -> list[str] | None:
+    if parsed is None:
         return None
     scenes: list[str] = []
     for item in parsed:
@@ -101,3 +142,10 @@ def _parse_scenes(text: str) -> list[str] | None:
             if value:
                 scenes.append(str(value))
     return scenes or None
+
+
+def _dict_items(parsed: list[Any] | None) -> list[dict[str, Any]] | None:
+    if parsed is None:
+        return None
+    items = [item for item in parsed if isinstance(item, dict)]
+    return items or None

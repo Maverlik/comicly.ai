@@ -343,6 +343,58 @@ def _text_task_config(task: str) -> dict[str, Any]:
                 f"{payload.get('story') or ''}"
             ),
         },
+        "pagePlan": {
+            "system": (
+                "You are a comic story editor. Return only a JSON array with exactly "
+                'one object per page: {"page": 1, "summary": "2-4 sentence page arc"}.'
+            ),
+            "instruction": lambda payload: (
+                "Split this story into "
+                f"{_page_total(payload)} "
+                "sequential comic pages. Do not repeat the same event across pages.\n\n"
+                f"Story: {payload.get('story') or ''}\n"
+                f"Characters: {payload.get('characters') or ''}\n"
+                f"Style: {payload.get('style') or 'Anime'}."
+            ),
+        },
+        "continue": {
+            "system": (
+                "You continue comic stories. Return one concise paragraph for the next "
+                "page only, without markdown."
+            ),
+            "instruction": lambda payload: (
+                f"Original story: {payload.get('story') or ''}\n"
+                f"Characters: {payload.get('characters') or ''}\n"
+                "Previous pages:\n"
+                + _previous_pages_block(payload.get("previous_pages_context"))
+                + f"\nLanguage: {payload.get('language') or 'ru'}."
+            ),
+        },
+        "summarize": {
+            "system": (
+                "You summarize one comic page in 1-2 factual sentences. Return plain "
+                "text only."
+            ),
+            "instruction": lambda payload: (
+                f"Page story: {payload.get('story') or ''}\n"
+                f"Characters: {payload.get('characters') or ''}\n"
+                f"Scenes: {payload.get('scene_description') or ''}\n"
+                f"Dialogue: {payload.get('dialogue') or ''}"
+            ),
+        },
+        "characters": {
+            "system": (
+                "You design comic characters. Return only a JSON array of 1-4 objects "
+                'like {"name": "", "description": "specific visual description"}. '
+                "Do not invent names when the story has no names."
+            ),
+            "instruction": lambda payload: (
+                f"Story: {payload.get('story') or ''}\n"
+                f"Style: {payload.get('style') or 'Anime'}.\n"
+                "Extract only the main characters that are actually present. "
+                "Make descriptions concrete enough for visual consistency."
+            ),
+        },
         "caption": {
             "system": (
                 "You write compact comic panel captions. Return one caption, "
@@ -361,6 +413,21 @@ def _text_task_config(task: str) -> dict[str, Any]:
             message="AI text task is invalid.",
         )
     return tasks[task]
+
+
+def _page_total(payload: dict[str, Any]) -> int:
+    try:
+        return max(1, int(payload.get("pages_total") or payload.get("page_count") or 1))
+    except (TypeError, ValueError):
+        return 1
+
+
+def _previous_pages_block(value: Any) -> str:
+    if not isinstance(value, list) or not value:
+        return "(none yet)"
+    return "\n".join(
+        f"Page {index}: {item}" for index, item in enumerate(value, start=1)
+    )
 
 
 def _nested_get(value: Any, path: list[str | int]) -> Any:

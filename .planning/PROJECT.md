@@ -19,6 +19,7 @@ Users can reliably create AI-generated comic pages under their own account, with
 - [x] Local Node server exists in `server.js` and serves static files plus JSON API routes.
 - [x] AI text generation exists through `POST /api/ai-text` for story enhancement, dialogue, captions, and scene suggestions.
 - [x] AI comic page generation exists through `POST /api/generate-comic-page` using server-side OpenRouter credentials.
+- [x] Creator frontend uses FastAPI backend auth/profile/balance/current-comic/generation/logout truth through `/api/v1/...` routes.
 - [x] Local health/config feedback exists through `GET /api/health` and the creator configuration banner.
 - [x] Phase 2 backend data/payment foundation exists: Alembic creates the production schema surface, runtime pricing is centralized, and active coin packages can be seeded and fetched from `/api/v1/coin-packages`.
 - [x] Phase 3 OAuth/session foundation exists: Google/Yandex OAuth route surfaces, DB-backed opaque sessions, `/api/v1/me`, display-name update, logout, and mocked provider tests.
@@ -69,7 +70,7 @@ The backend task spec in `backend/BACKEND_TZ.md` defines the intended production
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Treat the current app as brownfield, not greenfield | The creator UI and OpenRouter proxy already exist and should be preserved while production backend capabilities are added | Validated through Phase 5 backend-only changes |
+| Treat the current app as brownfield, not greenfield | The creator UI and OpenRouter proxy already exist and should be preserved while production backend capabilities are added | Validated through Phase 7 creator integration |
 | Make backend wallet state authoritative | Frontend credits are bypassable and cannot support paid or private generation | Validated in Phase 4 |
 | Use Google and Yandex OAuth for v1 auth | The backend spec explicitly requires both providers and no separate password flow | Pending |
 | Prepare payments without real provider integration | The data model must support future purchases, but actual acquiring/webhook work is out of current scope | Pending |
@@ -95,4 +96,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state.
 
 ---
-*Last updated: 2026-04-27 after Phase 5 verification*
+*Last updated: 2026-04-28 after Phase 7 verification*

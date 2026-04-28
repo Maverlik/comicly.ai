@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Wallet Ledger And Coin Safety** - Make balances authoritative through backend ledger operations, idempotency, and concurrency-safe debits.
 - [x] **Phase 5: Private Comic Persistence** - Persist user-owned comic drafts, scenes, pages, and owner-scoped history.
 - [x] **Phase 6: Production AI Generation Pipeline** - Connect protected OpenRouter generation to jobs, durable storage, page persistence, and updated balance responses.
-- [ ] **Phase 7: Creator Frontend Backend Integration** - Replace demo creator state with authenticated backend profile, balance, comic, and generation data.
+- [x] **Phase 7: Creator Frontend Backend Integration** - Replace demo creator state with authenticated backend profile, balance, comic, and generation data.
 - [ ] **Phase 8: Deployment And Operations** - Document and verify local and production operation, deployment configuration, and operational safety gates.
 
 ## Phase Details
@@ -134,10 +134,10 @@ Plans:
   4. Manual or automated smoke checks cover landing public access, creator auth entry, session/profile/balance loading, comic creation, generation success/error states, insufficient coins, and logout.
 **Plans**: 4 plans
 Plans:
-- [ ] 07-01-PLAN.md - Branch sync with `origin/main`, frontend API helper, session bootstrap, and creator auth overlay.
-- [ ] 07-02-PLAN.md - Current comic lifecycle and hybrid save without history UI.
-- [ ] 07-03-PLAN.md - FastAPI AI text/generation integration with idempotency, loading, results, balance, and errors.
-- [ ] 07-04-PLAN.md - Logout/demo-state cleanup, browser smoke, review, and verification.
+- [x] 07-01-PLAN.md - Branch sync with `origin/main`, frontend API helper, session bootstrap, and creator auth overlay.
+- [x] 07-02-PLAN.md - Current comic lifecycle and hybrid save without history UI.
+- [x] 07-03-PLAN.md - FastAPI AI text/generation integration with idempotency, loading, results, balance, and errors.
+- [x] 07-04-PLAN.md - Logout/demo-state cleanup, browser smoke, review, and verification.
 **UI hint**: yes
 
 ### Phase 8: Deployment And Operations
@@ -165,5 +165,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 4. Wallet Ledger And Coin Safety | 3/3 | Complete | 2026-04-27 |
 | 5. Private Comic Persistence | 4/4 | Complete | 2026-04-27 |
 | 6. Production AI Generation Pipeline | 5/5 | Complete | 2026-04-28 |
-| 7. Creator Frontend Backend Integration | 0/4 | Planned | - |
+| 7. Creator Frontend Backend Integration | 4/4 | Complete | 2026-04-28 |
 | 8. Deployment And Operations | 0/TBD | Not started | - |

@@ -46,7 +46,13 @@ class FakeTextService:
         if self.error is not None:
             raise self.error
         text = (
-            '["Panel one", "Panel two"]' if task == "scenes" else "Improved comic text."
+            '["Panel one", "Panel two"]'
+            if task == "scenes"
+            else '[{"page": 1, "summary": "Opening"}]'
+            if task == "pagePlan"
+            else '[{"name": "Mira", "description": "Pilot"}]'
+            if task == "characters"
+            else "Improved comic text."
         )
         return OpenRouterTextResult(
             text=text,
@@ -136,6 +142,8 @@ async def test_ai_text_returns_text_and_keeps_generation_tables_empty(
         "text": "Improved comic text.",
         "model": "text/model",
         "scenes": None,
+        "characters": None,
+        "pages": None,
     }
     assert job_count == 0
     assert tx_count == 0
@@ -155,6 +163,29 @@ async def test_ai_text_scenes_parses_json_array(
 
     assert response.status_code == 200
     assert response.json()["scenes"] == ["Panel one", "Panel two"]
+
+
+async def test_ai_text_page_plan_and_characters_parse_json_arrays(
+    app_client: AsyncClient,
+    session_maker: async_sessionmaker[AsyncSession],
+) -> None:
+    await seed_authenticated_user(session_maker)
+
+    page_plan = await app_client.post(
+        "/api/v1/ai-text",
+        json={"task": "pagePlan", "story": "Story", "pagesTotal": 1},
+        headers=auth_header(),
+    )
+    characters = await app_client.post(
+        "/api/v1/ai-text",
+        json={"task": "characters", "story": "Story"},
+        headers=auth_header(),
+    )
+
+    assert page_plan.status_code == 200
+    assert page_plan.json()["pages"] == [{"page": 1, "summary": "Opening"}]
+    assert characters.status_code == 200
+    assert characters.json()["characters"] == [{"name": "Mira", "description": "Pilot"}]
 
 
 async def test_ai_text_provider_errors_are_typed(
