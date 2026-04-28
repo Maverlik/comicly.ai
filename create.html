@@ -24,12 +24,12 @@
 
       <header class="app-bar">
         <a class="brand" href="index.html" aria-label="На главную comicly.ai">
-          <img class="brand-logo" src="assets/full_dark_logo.png?v=3" alt="" />
+          <img class="brand-logo" src="assets/blue_transparent_logo.png?v=1" alt="" />
         </a>
 
         <div class="project-title">
           <input id="projectTitle" type="text" value="Последняя звездная искра" aria-label="Название комикса" />
-          <span class="page-status" data-page-status>Страница 1 из 2</span>
+          <span class="page-status" data-page-status>Страница 1 из 1</span>
         </div>
 
         <div class="account-bar">
@@ -107,140 +107,83 @@
 
       <main class="workspace">
         <aside class="side-panel left-panel" aria-label="Настройки комикса">
-          <div class="side-tabs" role="tablist" aria-label="Настройки">
-            <button class="is-active" type="button" role="tab" aria-selected="true" data-side-tab="story">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M5 4h10l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm8 1.5V10h4.5L13 5.5z" />
-              </svg>
-              История
-            </button>
-            <button type="button" role="tab" aria-selected="false" data-side-tab="style">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 4h16v4H4V4zm0 6h16v10H4V10zm2 2v6h5v-6H6zm7 0v2h5v-2h-5zm0 4v2h5v-2h-5z" />
-              </svg>
-              Стиль
-            </button>
-            <button type="button" role="tab" aria-selected="false" data-side-tab="model">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 3l9 4v10l-9 4-9-4V7l9-4zm0 2.2L5.7 8 12 10.8 18.3 8 12 5.2zM5 9.5v6.9l6 2.7V12.2L5 9.5zm14 0l-6 2.7v6.9l6-2.7V9.5z" />
-              </svg>
-              Модель
-            </button>
-          </div>
-
-          <div class="side-content">
-            <section class="side-pane is-active" data-side-pane="story">
-              <label class="field-label" for="storyInput">Опишите сюжет</label>
-              <textarea id="storyInput" rows="9">В мире, где звезды погасли, одинокий странник находит древнюю силу под забытым городом. Чтобы вернуть свет, ему придется принять свое предназначение.</textarea>
-              <div class="counter-row">
-                <span data-story-counter>176 / 2000</span>
-                <button class="icon-action small" type="button" aria-label="Очистить историю" data-clear-story>
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M7 21a2 2 0 0 1-2-2V7H4V5h5V3h6v2h5v2h-1v12a2 2 0 0 1-2 2H7zm2-3h2V8H9v10zm4 0h2V8h-2v10z" />
-                  </svg>
-                </button>
-              </div>
-              <button class="button-gradient full ghost-gradient" type="button" data-enhance-story>
-                <span>Улучшить с AI</span>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 2.5l2 5.4 5.5 2-5.5 2-2 5.6-2-5.6-5.5-2 5.5-2 2-5.4zm6 12l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5z" />
-                </svg>
+          <div class="left-panel-head">
+            <div class="dropdown" data-dropdown="style">
+              <button class="dropdown-toggle" type="button" data-dropdown-toggle aria-expanded="false">
+                <span class="dropdown-label">Стиль</span>
+                <span class="dropdown-value" data-style-value>Аниме</span>
+                <svg class="dropdown-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z" /></svg>
               </button>
-              <details class="advanced-block">
-                <summary>Персонажи</summary>
-                <label class="field-label" for="charactersInput">Внешность и роли</label>
-                <textarea id="charactersInput" rows="5" placeholder="Арина: рыжие волосы, синий плащ, упрямая изобретательница&#10;Кай: высокий проводник с серебряной маской"></textarea>
-              </details>
-            </section>
-
-            <section class="side-pane" data-side-pane="style" hidden>
-              <label class="field-label" for="styleSelect">Визуальный стиль</label>
-              <select id="styleSelect">
-                <option>Аниме</option>
-                <option>Кинематографичный</option>
-                <option>Манга</option>
-                <option>Реализм</option>
-              </select>
-              <div class="style-swatches" role="radiogroup" aria-label="Варианты стиля">
-                <button class="style-swatch is-selected" type="button" data-style="Аниме">
-                  <img src="assets/comic-preview-fantasy.png" alt="" />
-                  <span>Аниме</span>
-                </button>
-                <button class="style-swatch" type="button" data-style="Реализм">
-                  <img src="assets/comic-preview-action.png" alt="" />
-                  <span>Реализм</span>
-                </button>
-                <button class="style-swatch" type="button" data-style="Манга">
-                  <img src="assets/comic-preview-japan.png" alt="" />
-                  <span>Манга</span>
-                </button>
-                <button class="style-swatch" type="button" data-style="Кинематографичный">
-                  <img src="assets/comicly-reference.png" alt="" />
-                  <span>Кино</span>
-                </button>
+              <div class="dropdown-menu" data-dropdown-menu hidden>
+                <button class="dropdown-item is-selected" type="button" data-style-option="Аниме">Аниме</button>
+                <button class="dropdown-item" type="button" data-style-option="Кинематографичный">Кинематографичный</button>
+                <button class="dropdown-item" type="button" data-style-option="Манга">Манга</button>
+                <button class="dropdown-item" type="button" data-style-option="Реализм">Реализм</button>
               </div>
+            </div>
 
-              <label class="field-label tone-label">Тональность</label>
-              <div class="segmented-control vertical" aria-label="Тон истории">
-                <button type="button" data-tone="funny">
-                  <strong>Веселый</strong>
-                  <span>Лёгкая динамика, яркие реплики</span>
-                </button>
-                <button class="is-active" type="button" data-tone="emotional">
-                  <strong>Эмоциональный</strong>
-                  <span>Драма и кинематографичные кадры</span>
-                </button>
-                <button type="button" data-tone="epic">
-                  <strong>Эпичный</strong>
-                  <span>Герой, ставки, большие планы</span>
-                </button>
-              </div>
-              <label class="field-label custom-tone-label" for="customToneInput">Свой тон</label>
-              <input id="customToneInput" type="text" placeholder="Например: нуар, тревожный, сатирический" />
-            </section>
-
-            <section class="side-pane" data-side-pane="model" hidden>
-              <label class="field-label">Модель генерации</label>
-              <div class="model-list" role="radiogroup" aria-label="Модель генерации">
-                <button class="model-card is-selected" type="button" role="radio" aria-checked="true" data-model-id="bytedance-seed/seedream-4.5">
-                  <header class="model-head">
+            <div class="dropdown" data-dropdown="model">
+              <button class="dropdown-toggle" type="button" data-dropdown-toggle aria-expanded="false">
+                <span class="dropdown-label">Модель</span>
+                <span class="dropdown-value" data-model-value>Seedream</span>
+                <svg class="dropdown-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z" /></svg>
+              </button>
+              <div class="dropdown-menu wide" data-dropdown-menu hidden>
+                <button class="model-option is-selected" type="button" data-model-id="bytedance-seed/seedream-4.5">
+                  <header class="model-option-head">
                     <strong>Seedream</strong>
                     <em>Bytedance</em>
                   </header>
                   <ul class="model-specs">
-                    <li><span>Скорость</span><span class="spec-value mid">средняя</span></li>
-                    <li><span>Качество</span><span class="spec-value bad">низкое</span></li>
-                    <li><span>Цена</span><span class="spec-value good">низкая</span></li>
+                    <li><span>Скорость</span><span class="spec-bar mid level-2" aria-label="средняя"><i></i><i></i><i></i></span></li>
+                    <li><span>Качество</span><span class="spec-bar bad level-1" aria-label="низкое"><i></i><i></i><i></i></span></li>
+                    <li><span>Цена</span><span class="spec-empty" aria-hidden="true"></span></li>
                   </ul>
-                  <p class="model-summary">Быстрый черновик за минимум кредитов.</p>
                 </button>
-                <button class="model-card" type="button" role="radio" aria-checked="false" data-model-id="google/gemini-3-pro-image-preview">
-                  <header class="model-head">
+                <button class="model-option" type="button" data-model-id="google/gemini-3-pro-image-preview">
+                  <header class="model-option-head">
                     <strong>Nano Banana Pro</strong>
                     <em>Google</em>
                   </header>
                   <ul class="model-specs">
-                    <li><span>Скорость</span><span class="spec-value good">высокая</span></li>
-                    <li><span>Качество</span><span class="spec-value mid">среднее</span></li>
-                    <li><span>Цена</span><span class="spec-value bad">высокая</span></li>
+                    <li><span>Скорость</span><span class="spec-bar good level-3" aria-label="высокая"><i></i><i></i><i></i></span></li>
+                    <li><span>Качество</span><span class="spec-bar mid level-2" aria-label="среднее"><i></i><i></i><i></i></span></li>
+                    <li><span>Цена</span><span class="spec-empty" aria-hidden="true"></span></li>
                   </ul>
-                  <p class="model-summary">Скоростная генерация с высоким ценником.</p>
                 </button>
-                <button class="model-card" type="button" role="radio" aria-checked="false" data-model-id="openai/gpt-5.4-image-2">
-                  <header class="model-head">
+                <button class="model-option" type="button" data-model-id="openai/gpt-5.4-image-2">
+                  <header class="model-option-head">
                     <strong>GPT Image 2</strong>
                     <em>OpenAI</em>
                   </header>
                   <ul class="model-specs">
-                    <li><span>Скорость</span><span class="spec-value bad">низкая</span></li>
-                    <li><span>Качество</span><span class="spec-value good">высокое</span></li>
-                    <li><span>Цена</span><span class="spec-value bad">высокая</span></li>
+                    <li><span>Скорость</span><span class="spec-bar bad level-1" aria-label="низкая"><i></i><i></i><i></i></span></li>
+                    <li><span>Качество</span><span class="spec-bar good level-3" aria-label="высокое"><i></i><i></i><i></i></span></li>
+                    <li><span>Цена</span><span class="spec-empty" aria-hidden="true"></span></li>
                   </ul>
-                  <p class="model-summary">Максимальное качество, готово к публикации.</p>
                 </button>
               </div>
-            </section>
+            </div>
+          </div>
 
+          <div class="story-area">
+            <label class="field-label" for="storyInput">Опишите сюжет</label>
+            <div class="story-wrap">
+              <textarea id="storyInput" rows="10">В мире, где звезды погасли, одинокий странник находит древнюю силу под забытым городом. Чтобы вернуть свет, ему придется принять свое предназначение.</textarea>
+              <button class="story-enhance" type="button" data-enhance-story aria-label="Улучшить с AI" title="Улучшить с AI">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2.5l2 5.4 5.5 2-5.5 2-2 5.6-2-5.6-5.5-2 5.5-2 2-5.4z" />
+                </svg>
+              </button>
+            </div>
+            <div class="counter-row">
+              <span data-story-counter>176 / 2000</span>
+              <button class="icon-action small" type="button" aria-label="Очистить историю" data-clear-story>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M7 21a2 2 0 0 1-2-2V7H4V5h5V3h6v2h5v2h-1v12a2 2 0 0 1-2 2H7zm2-3h2V8H9v10zm4 0h2V8h-2v10z" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div class="cta-footer">
@@ -250,7 +193,13 @@
                 <path d="M12 2.5l2 5.4 5.5 2-5.5 2-2 5.6-2-5.6-5.5-2 5.5-2 2-5.4z" />
               </svg>
             </button>
-            <p class="cost-note">Стоимость: 20 кредитов</p>
+            <button class="continue-button" type="button" data-continue-story disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M13 5l7 7-7 7v-4H4v-6h9V5z" />
+              </svg>
+              <span>Продолжить историю</span>
+            </button>
+            <p class="cost-note">Стоимость: <span data-cost>20</span> кредитов</p>
           </div>
         </aside>
 
@@ -268,74 +217,116 @@
               <p>Опишите историю и нажмите «Сгенерировать страницу».</p>
             </div>
           </div>
-
         </section>
 
         <div class="right-stack">
-          <aside class="side-panel right-panel" aria-label="Сцены и диалоги">
-          <div class="tabs" role="tablist" aria-label="Редактор сцен">
-            <button class="is-active" type="button" role="tab" aria-selected="true" data-tab="scenes">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 4h16v4H4V4zm0 6h16v10H4V10zm2 2v6h5v-6H6zm7 0v2h5v-2h-5zm0 4v2h5v-2h-5z" />
-              </svg>
-              Сцены
-            </button>
-            <button type="button" role="tab" aria-selected="false" data-tab="dialogue">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 5h16v10H8l-4 4V5z" />
-              </svg>
-              Диалоги
-            </button>
-          </div>
+          <aside class="side-panel right-panel" aria-label="Расширенные настройки">
+            <header class="right-panel-head">
+              <h2>Расширенные настройки</h2>
+            </header>
 
-          <div class="tab-content is-active" data-tab-content="scenes">
-            <div class="scene-toolbar">
-              <button class="tool-button ghost full-width" type="button" data-suggest-scenes>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 2.5l2 5.4 5.5 2-5.5 2-2 5.6-2-5.6-5.5-2 5.5-2 2-5.4z" />
-                </svg>
-                <span>AI раскадровка</span>
-              </button>
-              <button class="tool-button ghost full-width" type="button" data-add-scene>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5z" />
-                </svg>
-                <span>Добавить сцену</span>
-              </button>
+            <div class="accordion-list">
+              <details class="accordion">
+                <summary>
+                  <span>Сцены</span>
+                  <svg class="accordion-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z" /></svg>
+                </summary>
+                <div class="accordion-body">
+                  <div class="scene-toolbar">
+                    <button class="tool-button ghost full-width" type="button" data-suggest-scenes>
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2.5l2 5.4 5.5 2-5.5 2-2 5.6-2-5.6-5.5-2 5.5-2 2-5.4z" />
+                      </svg>
+                      <span>AI раскадровка</span>
+                    </button>
+                    <button class="tool-button ghost full-width" type="button" data-add-scene>
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5z" />
+                      </svg>
+                      <span>Добавить сцену</span>
+                    </button>
+                  </div>
+                  <div class="scene-list" data-scene-list></div>
+
+                  <section class="selected-scene" data-selected-scene hidden>
+                    <header>
+                      <h3 data-selected-scene-title>Выбранная сцена</h3>
+                      <span data-scene-counter>1 из 1</span>
+                    </header>
+                    <label for="sceneTitleInput">Название сцены</label>
+                    <input id="sceneTitleInput" type="text" placeholder="Сцена 1" />
+                    <label for="sceneDescriptionInput">Описание сцены</label>
+                    <textarea id="sceneDescriptionInput" rows="3" placeholder="Что должно происходить в кадре"></textarea>
+                    <label for="dialogueInput">Диалог</label>
+                    <div class="inline-field">
+                      <textarea id="dialogueInput" rows="4" placeholder="Арина: Мы успеем до рассвета?&#10;Кай: Только если город нас отпустит."></textarea>
+                      <button class="tool-button" type="button" data-regenerate-dialogue>Обновить</button>
+                    </div>
+                    <label for="captionInput">Подпись кадра <span>необязательно</span></label>
+                    <div class="inline-field">
+                      <input id="captionInput" type="text" placeholder="Короткая авторская подпись" />
+                      <button class="tool-button" type="button" data-generate-caption>Создать</button>
+                    </div>
+                    <button class="button-gradient full" type="button" data-regenerate-scene>
+                      <span>Перегенерировать сцену</span>
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2.5l2 5.4 5.5 2-5.5 2-2 5.6-2-5.6-5.5-2 5.5-2 2-5.4z" />
+                      </svg>
+                    </button>
+                  </section>
+                </div>
+              </details>
+
+              <details class="accordion">
+                <summary>
+                  <span>Персонажи</span>
+                  <svg class="accordion-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z" /></svg>
+                </summary>
+                <div class="accordion-body">
+                  <div class="character-list" data-character-list></div>
+                  <button class="tool-button ghost full-width" type="button" data-add-character>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5z" />
+                    </svg>
+                    <span>Добавить персонажа</span>
+                  </button>
+                </div>
+              </details>
+
+              <details class="accordion">
+                <summary>
+                  <span>Количество страниц</span>
+                  <svg class="accordion-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z" /></svg>
+                </summary>
+                <div class="accordion-body">
+                  <p class="hint">AI растянет ваш сюжет на выбранное число страниц и сгенерирует их по очереди. Стоимость умножается на количество.</p>
+                  <div class="page-count-control">
+                    <button class="step-btn" type="button" data-page-count-step="-1" aria-label="Меньше">−</button>
+                    <input id="pageCountInput" type="number" min="1" max="10" value="1" />
+                    <button class="step-btn" type="button" data-page-count-step="1" aria-label="Больше">+</button>
+                  </div>
+                </div>
+              </details>
+
+              <details class="accordion">
+                <summary>
+                  <span>Язык диалогов</span>
+                  <svg class="accordion-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z" /></svg>
+                </summary>
+                <div class="accordion-body">
+                  <select id="dialogueLanguage">
+                    <option value="ru" selected>Русский</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="ja">日本語</option>
+                    <option value="zh">中文</option>
+                    <option value="ko">한국어</option>
+                  </select>
+                </div>
+              </details>
             </div>
-            <div class="scene-list" data-scene-list></div>
-          </div>
-
-          <div class="tab-content" data-tab-content="dialogue" hidden>
-            <section class="selected-scene">
-              <header>
-                <h2 data-selected-scene-title>Выбранная сцена</h2>
-                <span data-scene-counter>1 из 1</span>
-              </header>
-              <label for="sceneTitleInput">Название сцены</label>
-              <input id="sceneTitleInput" type="text" placeholder="Сцена 1" />
-              <label for="sceneDescriptionInput">Описание сцены</label>
-              <textarea id="sceneDescriptionInput" rows="3" placeholder="Что должно происходить в кадре"></textarea>
-              <label for="dialogueInput">Диалог</label>
-              <div class="inline-field">
-                <textarea id="dialogueInput" rows="5" placeholder="Арина: Мы успеем до рассвета?&#10;Кай: Только если город нас отпустит."></textarea>
-                <button class="tool-button" type="button" data-regenerate-dialogue>Обновить</button>
-              </div>
-              <label for="captionInput">Подпись кадра <span>необязательно</span></label>
-              <div class="inline-field">
-                <input id="captionInput" type="text" placeholder="Короткая авторская подпись" />
-                <button class="tool-button" type="button" data-generate-caption>Создать</button>
-              </div>
-              <button class="button-gradient full" type="button" data-regenerate-scene>
-                <span>Перегенерировать сцену</span>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 2.5l2 5.4 5.5 2-5.5 2-2 5.6-2-5.6-5.5-2 5.5-2 2-5.4z" />
-                </svg>
-              </button>
-              <p class="cost-note">Стоимость: 4 кредита</p>
-            </section>
-          </div>
-
           </aside>
 
           <div class="page-strip" id="pages" aria-label="Страницы комикса">
@@ -347,6 +338,19 @@
           </div>
         </div>
       </main>
+
+      <footer class="creator-footer">
+        <nav class="footer-links" aria-label="Информация о сервисе">
+          <a href="contacts.html">Реквизиты</a>
+          <span aria-hidden="true">•</span>
+          <a href="pricing.html">Цены</a>
+          <span aria-hidden="true">•</span>
+          <a href="offer.html">Условия использования</a>
+          <span aria-hidden="true">•</span>
+          <a href="privacy.html">Политика конфиденциальности</a>
+        </nav>
+        <p class="footer-copy">© 2026 Comicly</p>
+      </footer>
 
       <div class="toast" data-toast hidden></div>
     </div>

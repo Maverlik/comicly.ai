@@ -7,13 +7,9 @@ const generatePageButton = document.querySelector("[data-generate-page]");
 const regenerateSceneButton = document.querySelector("[data-regenerate-scene]");
 const suggestScenesButton = document.querySelector("[data-suggest-scenes]");
 const addSceneButton = document.querySelector("[data-add-scene]");
-const styleSelect = document.querySelector("#styleSelect");
-const styleSwatches = Array.from(document.querySelectorAll("[data-style]"));
-const toneButtons = Array.from(document.querySelectorAll("[data-tone]"));
-const customToneInput = document.querySelector("#customToneInput");
-const modelCards = Array.from(document.querySelectorAll("[data-model-id]"));
 const sceneList = document.querySelector("[data-scene-list]");
 const sceneCounter = document.querySelector("[data-scene-counter]");
+const selectedSceneBlock = document.querySelector("[data-selected-scene]");
 const pageStrip = document.querySelector(".page-strip");
 let pageThumbs = Array.from(document.querySelectorAll("[data-page-thumb]"));
 const pageStatus = document.querySelector("[data-page-status]");
@@ -26,7 +22,6 @@ const toast = document.querySelector("[data-toast]");
 const downloadButton = document.querySelector("[data-download-page]");
 const shareButton = document.querySelector("[data-share-project]");
 const addPageButton = document.querySelector("[data-add-page]");
-const charactersInput = document.querySelector("#charactersInput");
 const sceneTitleInput = document.querySelector("#sceneTitleInput");
 const sceneDescriptionInput = document.querySelector("#sceneDescriptionInput");
 const dialogueInput = document.querySelector("#dialogueInput");
@@ -45,14 +40,32 @@ const undoButton = document.querySelector("[data-undo]");
 const redoButton = document.querySelector("[data-redo]");
 const zoomSelect = document.querySelector("#zoomSelect");
 const zoomLabel = document.querySelector("[data-zoom-label]");
-const tabButtons = Array.from(document.querySelectorAll("[data-tab]"));
-const tabContents = Array.from(document.querySelectorAll("[data-tab-content]"));
-const sideTabButtons = Array.from(document.querySelectorAll("[data-side-tab]"));
-const sidePanes = Array.from(document.querySelectorAll("[data-side-pane]"));
 const burgerToggle = document.querySelector("[data-burger-toggle]");
 const burgerMenu = document.querySelector("[data-burger-menu]");
 const configBanner = document.querySelector("[data-config-banner]");
 const selectedSceneTitle = document.querySelector("[data-selected-scene-title]");
+const styleValueLabel = document.querySelector("[data-style-value]");
+const styleOptionButtons = Array.from(document.querySelectorAll("[data-style-option]"));
+const modelValueLabel = document.querySelector("[data-model-value]");
+const modelOptionButtons = Array.from(document.querySelectorAll("[data-model-id]"));
+const dropdowns = Array.from(document.querySelectorAll("[data-dropdown]"));
+const characterListEl = document.querySelector("[data-character-list]");
+const addCharacterButton = document.querySelector("[data-add-character]");
+const pageCountInput = document.querySelector("#pageCountInput");
+const pageCountSteps = Array.from(document.querySelectorAll("[data-page-count-step]"));
+const dialogueLanguageSelect = document.querySelector("#dialogueLanguage");
+const costValueEl = document.querySelector("[data-cost]");
+const continueButton = document.querySelector("[data-continue-story]");
+
+const DEFAULT_MODEL_ID = "bytedance-seed/seedream-4.5";
+const PRICE_PER_PAGE = 20;
+const MAX_PAGE_COUNT = 10;
+
+const MODEL_LABELS = {
+  "bytedance-seed/seedream-4.5": "Seedream",
+  "google/gemini-3-pro-image-preview": "Nano Banana Pro",
+  "openai/gpt-5.4-image-2": "GPT Image 2",
+};
 
 const PLACEHOLDER_IMAGES = [
   "assets/comic-preview-fantasy.png",
@@ -61,20 +74,67 @@ const PLACEHOLDER_IMAGES = [
   "assets/comicly-reference.png",
 ];
 
-let pages = [createPlaceholderDataUrl(1), createPlaceholderDataUrl(2)];
-let pageImages = ["assets/comic-preview-fantasy.png", "assets/comic-preview-japan.png"];
-let scenes = [];
-const DEFAULT_MODEL_ID = "bytedance-seed/seedream-4.5";
+function createDefaultPageContext(overrides = {}) {
+  return {
+    story: "",
+    pageOutline: "",
+    scenes: [],
+    characters: [],
+    pageCount: 1,
+    summary: "",
+    generated: false,
+    ...overrides,
+  };
+}
+
+const initialStoryValue = (typeof storyInput?.value === "string" ? storyInput.value : "") || "";
+let pageContexts = [createDefaultPageContext({ story: initialStoryValue })];
+let pages = [createPlaceholderDataUrl(1)];
+let pageImages = ["assets/comic-preview-fantasy.png"];
+let scenes = pageContexts[0].scenes;
+let characters = pageContexts[0].characters;
+
+let activeStyle = "Аниме";
+let activeModel = DEFAULT_MODEL_ID;
+let pageCount = 1;
+let dialogueLanguage = "ru";
 
 let activePage = 0;
-let activeTone = "emotional";
-let activeModel = DEFAULT_MODEL_ID;
 let activeScene = 0;
 let credits = 240;
 let apiKeyReady = false;
 let isRestoring = false;
 let historyIndex = -1;
 let history = [];
+
+function isPlaceholderImage(src) {
+  return typeof src === "string" && src.startsWith("data:image/svg+xml");
+}
+
+function saveCurrentToContext() {
+  const ctx = pageContexts[activePage];
+  if (!ctx) return;
+  ctx.story = storyInput?.value || "";
+  ctx.pageCount = pageCount;
+}
+
+function loadActivePageContext() {
+  let ctx = pageContexts[activePage];
+  if (!ctx) {
+    ctx = createDefaultPageContext();
+    pageContexts[activePage] = ctx;
+  }
+  if (storyInput) storyInput.value = ctx.story || "";
+  scenes = ctx.scenes;
+  characters = ctx.characters;
+  pageCount = ctx.pageCount || 1;
+  if (pageCountInput) pageCountInput.value = String(pageCount);
+  activeScene = 0;
+  renderCharacters();
+  renderScenes();
+  updateStoryCounter();
+  updateCostNote();
+}
 
 function showToast(message) {
   if (!toast) return;
@@ -97,23 +157,25 @@ function escapeHtml(value = "") {
   })[char]);
 }
 
-function getToneValue() {
-  return customToneInput?.value.trim() || activeTone;
-}
-
 function getSnapshot() {
+  saveCurrentToContext();
   return {
     title: projectTitleInput?.value || "",
-    story: storyInput?.value || "",
-    characters: charactersInput?.value || "",
-    style: styleSelect?.value || "Аниме",
-    tone: activeTone,
-    customTone: customToneInput?.value || "",
+    style: activeStyle,
     model: activeModel,
+    dialogueLanguage,
     activePage,
     activeScene,
     pages: [...pages],
-    scenes: scenes.map((scene) => ({ ...scene })),
+    pageContexts: pageContexts.map((c) => ({
+      story: c.story || "",
+      pageOutline: c.pageOutline || "",
+      scenes: (c.scenes || []).map((s) => ({ ...s })),
+      characters: (c.characters || []).map((ch) => ({ ...ch })),
+      pageCount: c.pageCount || 1,
+      summary: c.summary || "",
+      generated: Boolean(c.generated),
+    })),
     credits,
   };
 }
@@ -140,24 +202,54 @@ function pushHistory() {
 function restoreSnapshot(snapshot) {
   isRestoring = true;
 
-  if (projectTitleInput) projectTitleInput.value = snapshot.title;
-  if (storyInput) storyInput.value = snapshot.story;
-  if (charactersInput) charactersInput.value = snapshot.characters || "";
-  if (customToneInput) customToneInput.value = snapshot.customTone || "";
-  pages = [...snapshot.pages];
-  scenes = snapshot.scenes.map((scene) => ({ ...scene }));
-  credits = snapshot.credits;
+  if (projectTitleInput) projectTitleInput.value = snapshot.title || "";
+  pages = Array.isArray(snapshot.pages) && snapshot.pages.length
+    ? [...snapshot.pages]
+    : [createPlaceholderDataUrl(1)];
+
+  const restoredContexts = Array.isArray(snapshot.pageContexts) ? snapshot.pageContexts : [];
+  pageContexts = restoredContexts.map((c) => ({
+    story: c.story || "",
+    pageOutline: c.pageOutline || "",
+    scenes: (c.scenes || []).map((s) => ({ ...s })),
+    characters: (c.characters || []).map((ch) => ({ ...ch })),
+    pageCount: c.pageCount || 1,
+    summary: c.summary || "",
+    generated: Boolean(c.generated),
+  }));
+  while (pageContexts.length < pages.length) pageContexts.push(createDefaultPageContext());
+  if (pageContexts.length > pages.length) pageContexts.length = pages.length;
+
+  credits = typeof snapshot.credits === "number" ? snapshot.credits : credits;
+  dialogueLanguage = snapshot.dialogueLanguage || "ru";
+  if (dialogueLanguageSelect) dialogueLanguageSelect.value = dialogueLanguage;
+
+  activePage = Math.min(Math.max(0, Number(snapshot.activePage) || 0), pages.length - 1);
+  loadActivePageContext();
+  if (scenes.length) {
+    activeScene = Math.min(Math.max(0, Number(snapshot.activeScene) || 0), scenes.length - 1);
+  } else {
+    activeScene = 0;
+  }
 
   renderPageStrip();
-  renderScenes();
-  updateStoryCounter();
   updateCreditBalance();
   setStyle(snapshot.style, false);
-  setTone(snapshot.tone, false, false);
   setModel(snapshot.model || DEFAULT_MODEL_ID, false);
-  if (scenes.length) setScene(Math.min(snapshot.activeScene, scenes.length - 1), false);
+
+  if (scenes.length) setScene(activeScene, false);
   else refreshSceneSelection();
-  setPage(Math.min(snapshot.activePage, pages.length - 1), false);
+
+  if (comicOutput) {
+    comicOutput.src = pages[activePage];
+    comicOutput.hidden = false;
+  }
+  if (emptyState) emptyState.hidden = true;
+  pageThumbs.forEach((thumb) => {
+    thumb.classList.toggle("is-active", Number(thumb.dataset.pageThumb) === activePage);
+  });
+  if (pageStatus) pageStatus.textContent = `Страница ${activePage + 1} из ${pages.length}`;
+  refreshContinueButton();
 
   isRestoring = false;
   updateUndoRedoButtons();
@@ -186,21 +278,32 @@ function updateCreditBalance() {
   if (creditBalance) creditBalance.textContent = `${credits} кредитов`;
 }
 
+function updateCostNote() {
+  if (costValueEl) costValueEl.textContent = String(PRICE_PER_PAGE * pageCount);
+}
+
 function setLoading(isLoading, label = "Генерируем страницу...") {
   if (comicLoading) comicLoading.hidden = !isLoading;
   if (loadingLabel && label) loadingLabel.textContent = label;
   if (generatePageButton) generatePageButton.disabled = isLoading;
   if (regenerateSceneButton) regenerateSceneButton.disabled = isLoading;
+  if (continueButton) {
+    if (isLoading) {
+      continueButton.disabled = true;
+    } else {
+      refreshContinueButton();
+    }
+  }
 }
 
 function createPlaceholderDataUrl(pageNumber) {
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">
       <rect width="900" height="1200" fill="#060917"/>
-      <rect x="34" y="34" width="832" height="1132" rx="28" fill="#0b1025" stroke="#7e55ff" stroke-width="4"/>
-      <path d="M450 360l44 112 112 42-112 43-44 112-44-112-112-43 112-42 44-112z" fill="#a77bff"/>
-      <text x="450" y="760" text-anchor="middle" fill="#f5f6ff" font-family="Arial, sans-serif" font-size="48" font-weight="700">Страница ${pageNumber}</text>
-      <text x="450" y="820" text-anchor="middle" fill="#aeb3c7" font-family="Arial, sans-serif" font-size="28">Нажмите «Сгенерировать страницу»</text>
+      <rect x="34" y="34" width="832" height="1132" rx="28" fill="#0b1428" stroke="#1874d9" stroke-width="4"/>
+      <path d="M450 360l44 112 112 42-112 43-44 112-44-112-112-43 112-42 44-112z" fill="#56a7ff"/>
+      <text x="450" y="760" text-anchor="middle" fill="#f7fbff" font-family="Arial, sans-serif" font-size="48" font-weight="700">Страница ${pageNumber}</text>
+      <text x="450" y="820" text-anchor="middle" fill="#8bc2ff" font-family="Arial, sans-serif" font-size="28">Нажмите «Сгенерировать страницу»</text>
     </svg>`;
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
@@ -208,15 +311,34 @@ function createPlaceholderDataUrl(pageNumber) {
 function renderPageStrip() {
   if (!pageStrip || !addPageButton) return;
 
-  pageThumbs.forEach((thumb) => thumb.remove());
+  Array.from(pageStrip.querySelectorAll(".page-thumb-cell")).forEach((cell) => cell.remove());
   pageThumbs = pages.map((src, index) => {
+    const cell = document.createElement("div");
+    cell.className = "page-thumb-cell";
+    cell.dataset.pageThumbCell = String(index);
+
     const button = document.createElement("button");
     button.className = "page-thumb";
     button.type = "button";
     button.dataset.pageThumb = String(index);
     button.innerHTML = `<img src="${src}" alt="Страница ${index + 1}" /><span>${index + 1}</span>`;
     button.addEventListener("click", () => setPage(index));
-    pageStrip.insertBefore(button, addPageButton);
+    cell.appendChild(button);
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "page-thumb-remove";
+    removeBtn.type = "button";
+    removeBtn.dataset.pageRemove = String(index);
+    removeBtn.setAttribute("aria-label", `Удалить страницу ${index + 1}`);
+    removeBtn.title = "Удалить страницу";
+    removeBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 21a2 2 0 0 1-2-2V7H4V5h5V3h6v2h5v2h-1v12a2 2 0 0 1-2 2H7zm2-3h2V8H9v10zm4 0h2V8h-2v10z" /></svg>';
+    removeBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      removePage(index);
+    });
+    cell.appendChild(removeBtn);
+
+    pageStrip.insertBefore(cell, addPageButton);
     return button;
   });
   pageThumbs.forEach((thumb) => {
@@ -225,9 +347,57 @@ function renderPageStrip() {
   if (pageStatus) pageStatus.textContent = `Страница ${activePage + 1} из ${pages.length}`;
 }
 
+function removePage(index) {
+  if (typeof index !== "number" || index < 0 || index >= pages.length) return;
+
+  saveCurrentToContext();
+
+  if (pages.length <= 1) {
+    pages[0] = createPlaceholderDataUrl(1);
+    pageContexts[0] = createDefaultPageContext();
+    activePage = 0;
+    activeScene = 0;
+    renderPageStrip();
+    setPage(0, false);
+    pushHistory();
+    showToast("Страница очищена.");
+    return;
+  }
+
+  pages.splice(index, 1);
+  pageContexts.splice(index, 1);
+
+  pages.forEach((src, i) => {
+    if (isPlaceholderImage(src)) pages[i] = createPlaceholderDataUrl(i + 1);
+  });
+
+  let nextActive;
+  if (activePage === index) {
+    nextActive = Math.max(0, index - 1);
+  } else if (activePage > index) {
+    nextActive = activePage - 1;
+  } else {
+    nextActive = activePage;
+  }
+  nextActive = Math.min(nextActive, pages.length - 1);
+  activePage = nextActive;
+  activeScene = 0;
+
+  renderPageStrip();
+  setPage(activePage, false);
+  pushHistory();
+  showToast(`Страница удалена. Осталось страниц: ${pages.length}.`);
+}
+
 function setPage(index, save = true) {
   if (!pages[index]) return;
+  if (!isRestoring && index !== activePage) {
+    saveCurrentToContext();
+  }
   activePage = index;
+  if (!isRestoring) {
+    loadActivePageContext();
+  }
 
   pageThumbs.forEach((thumb) => {
     thumb.classList.toggle("is-active", Number(thumb.dataset.pageThumb) === index);
@@ -239,48 +409,79 @@ function setPage(index, save = true) {
     comicOutput.hidden = false;
   }
   if (emptyState) emptyState.hidden = true;
+  refreshContinueButton();
   if (save) pushHistory();
 }
 
+/* ───────── Стиль (выпадающий список) ───────── */
 function setStyle(style, save = true) {
-  if (styleSelect) styleSelect.value = style;
-
-  styleSwatches.forEach((swatch) => {
-    swatch.classList.toggle("is-selected", swatch.dataset.style === style);
+  activeStyle = style || "Аниме";
+  if (styleValueLabel) styleValueLabel.textContent = activeStyle;
+  styleOptionButtons.forEach((btn) => {
+    btn.classList.toggle("is-selected", btn.dataset.styleOption === activeStyle);
   });
-
   if (save) pushHistory();
 }
 
-function updateToneButtons() {
-  const hasCustomTone = Boolean(customToneInput?.value.trim());
-  toneButtons.forEach((button) => {
-    button.classList.toggle("is-active", !hasCustomTone && button.dataset.tone === activeTone);
-  });
-}
-
-function setTone(tone, save = true, clearCustom = true) {
-  activeTone = tone || "emotional";
-  if (clearCustom && customToneInput) customToneInput.value = "";
-
-  updateToneButtons();
-
-  if (save) pushHistory();
-}
-
+/* ───────── Модель (выпадающий список) ───────── */
 function setModel(modelId, save = true) {
-  const exists = modelCards.some((card) => card.dataset.modelId === modelId);
+  const exists = modelOptionButtons.some((btn) => btn.dataset.modelId === modelId);
   activeModel = exists ? modelId : DEFAULT_MODEL_ID;
 
-  modelCards.forEach((card) => {
-    const isSelected = card.dataset.modelId === activeModel;
-    card.classList.toggle("is-selected", isSelected);
-    card.setAttribute("aria-checked", String(isSelected));
+  if (modelValueLabel) modelValueLabel.textContent = MODEL_LABELS[activeModel] || activeModel;
+  modelOptionButtons.forEach((btn) => {
+    btn.classList.toggle("is-selected", btn.dataset.modelId === activeModel);
   });
 
   if (save) pushHistory();
 }
 
+/* ───────── Универсальный dropdown ───────── */
+function closeAllDropdowns(except) {
+  dropdowns.forEach((wrap) => {
+    if (wrap === except) return;
+    const toggle = wrap.querySelector("[data-dropdown-toggle]");
+    const menu = wrap.querySelector("[data-dropdown-menu]");
+    if (toggle) toggle.setAttribute("aria-expanded", "false");
+    if (menu) menu.hidden = true;
+  });
+}
+
+function toggleDropdown(wrap, force) {
+  const toggle = wrap.querySelector("[data-dropdown-toggle]");
+  const menu = wrap.querySelector("[data-dropdown-menu]");
+  if (!toggle || !menu) return;
+  const shouldOpen = typeof force === "boolean" ? force : menu.hidden;
+  closeAllDropdowns(shouldOpen ? wrap : null);
+  menu.hidden = !shouldOpen;
+  toggle.setAttribute("aria-expanded", String(shouldOpen));
+}
+
+dropdowns.forEach((wrap) => {
+  const toggle = wrap.querySelector("[data-dropdown-toggle]");
+  toggle?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    toggleDropdown(wrap);
+  });
+});
+
+styleOptionButtons.forEach((btn) => {
+  btn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setStyle(btn.dataset.styleOption);
+    closeAllDropdowns();
+  });
+});
+
+modelOptionButtons.forEach((btn) => {
+  btn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setModel(btn.dataset.modelId);
+    closeAllDropdowns();
+  });
+});
+
+/* ───────── Сцены ───────── */
 function renderScenes() {
   if (!sceneList) return;
   sceneList.innerHTML = "";
@@ -328,6 +529,9 @@ function renderScenes() {
 function updateSelectedSceneForm() {
   const scene = scenes[activeScene];
   const hasScene = Boolean(scene);
+
+  if (selectedSceneBlock) selectedSceneBlock.hidden = !hasScene;
+
   const fields = [
     sceneTitleInput,
     sceneDescriptionInput,
@@ -392,22 +596,176 @@ function syncSceneFromInputs() {
   refreshSceneSelection();
 }
 
-async function callAiText(task) {
+/* ───────── Персонажи ───────── */
+function buildCharactersText() {
+  return characters
+    .map((c) => {
+      const name = (c.name || "").trim();
+      const desc = (c.description || "").trim();
+      const hasReference = Boolean(c.referenceImage);
+      const referenceNote = hasReference ? "есть фото-референс" : "";
+      if (!name && !desc && !hasReference) return "";
+      if (name && desc && referenceNote) return `${name}: ${desc} (${referenceNote})`;
+      if (name && desc) return `${name}: ${desc}`;
+      if (name && referenceNote) return `${name}: ${referenceNote}`;
+      if (desc && referenceNote) return `${desc} (${referenceNote})`;
+      return name || desc || referenceNote;
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
+function renderCharacters() {
+  if (!characterListEl) return;
+  characterListEl.innerHTML = "";
+
+  characters.forEach((character, index) => {
+    const hasReference = Boolean(character.referenceImage);
+    const card = document.createElement("div");
+    card.className = "character-card";
+    card.dataset.characterIndex = String(index);
+    card.innerHTML = `
+      <div class="character-card-head">
+        <input type="text" data-character-name placeholder="Имя персонажа" value="${escapeHtml(character.name || "")}" />
+        <button class="character-remove" type="button" aria-label="Удалить персонажа" data-character-remove>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 21a2 2 0 0 1-2-2V7H4V5h5V3h6v2h5v2h-1v12a2 2 0 0 1-2 2H7zm2-3h2V8H9v10zm4 0h2V8h-2v10z" /></svg>
+        </button>
+      </div>
+      <div class="character-reference">
+        <div class="character-reference-preview ${hasReference ? "" : "is-empty"}">
+          ${hasReference
+            ? `<img src="${escapeHtml(character.referenceImage)}" alt="Референс персонажа" />`
+            : `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 10c4.4 0 8 2.2 8 5v1H4v-1c0-2.8 3.6-5 8-5z" /></svg>`}
+        </div>
+        <label class="character-reference-upload">
+          <input type="file" accept="image/*" data-character-reference />
+          <span>${hasReference ? "Заменить фото" : "Добавить фото"}</span>
+        </label>
+        <button class="character-reference-clear" type="button" data-character-reference-clear ${hasReference ? "" : "hidden"}>Убрать</button>
+      </div>
+      <textarea data-character-description placeholder="Внешность, характер, роль">${escapeHtml(character.description || "")}</textarea>
+    `;
+
+    const nameInput = card.querySelector("[data-character-name]");
+    const descInput = card.querySelector("[data-character-description]");
+    const removeBtn = card.querySelector("[data-character-remove]");
+    const referenceInput = card.querySelector("[data-character-reference]");
+    const referenceClear = card.querySelector("[data-character-reference-clear]");
+
+    let nameTimer;
+    let descTimer;
+    nameInput.addEventListener("input", () => {
+      characters[index].name = nameInput.value;
+      window.clearTimeout(nameTimer);
+      nameTimer = window.setTimeout(pushHistory, 600);
+    });
+    descInput.addEventListener("input", () => {
+      characters[index].description = descInput.value;
+      window.clearTimeout(descTimer);
+      descTimer = window.setTimeout(pushHistory, 600);
+    });
+    referenceInput?.addEventListener("change", async () => {
+      const file = referenceInput.files?.[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")) {
+        showToast("Выберите файл изображения.");
+        referenceInput.value = "";
+        return;
+      }
+      characters[index].referenceImage = await readImageFileAsDataUrl(file);
+      renderCharacters();
+      pushHistory();
+      showToast("Фото персонажа добавлено как референс.");
+    });
+    referenceClear?.addEventListener("click", () => {
+      delete characters[index].referenceImage;
+      renderCharacters();
+      pushHistory();
+      showToast("Фото персонажа убрано.");
+    });
+    removeBtn.addEventListener("click", () => removeCharacter(index));
+
+    characterListEl.appendChild(card);
+  });
+}
+
+function readImageFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const maxSide = 1024;
+        const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Не удалось обработать изображение."));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.85));
+      };
+      img.onerror = () => reject(new Error("Не удалось загрузить изображение."));
+      img.src = String(reader.result || "");
+    };
+    reader.onerror = () => reject(reader.error || new Error("Не удалось прочитать изображение."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function addCharacter() {
+  characters.push({ name: "", description: "" });
+  renderCharacters();
+  pushHistory();
+  const inputs = characterListEl?.querySelectorAll("[data-character-name]");
+  inputs?.[inputs.length - 1]?.focus();
+}
+
+function removeCharacter(index) {
+  characters.splice(index, 1);
+  renderCharacters();
+  pushHistory();
+  showToast("Персонаж удален.");
+}
+
+/* ───────── Кол-во страниц ───────── */
+function setPageCount(value) {
+  const next = Math.max(1, Math.min(MAX_PAGE_COUNT, Math.round(Number(value) || 1)));
+  pageCount = next;
+  if (pageCountInput) pageCountInput.value = String(next);
+  updateCostNote();
+  pushHistory();
+}
+
+/* ───────── Язык диалогов ───────── */
+function setDialogueLanguage(value, save = true) {
+  dialogueLanguage = value || "ru";
+  if (dialogueLanguageSelect) dialogueLanguageSelect.value = dialogueLanguage;
+  if (save) pushHistory();
+}
+
+/* ───────── AI вызовы ───────── */
+async function callAiText(task, extra = {}) {
   const scene = scenes[activeScene] || {};
+  const basePayload = {
+    task,
+    story: storyInput?.value.trim() || "",
+    characters: buildCharactersText(),
+    style: activeStyle,
+    language: dialogueLanguage,
+    pageCount,
+    sceneTitle: scene.title,
+    sceneDescription: scene.description,
+    dialogue: scene.dialogue,
+    caption: scene.caption,
+  };
   const response = await fetch("/api/ai-text", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      task,
-      story: storyInput?.value.trim() || "",
-      characters: charactersInput?.value.trim() || "",
-      style: styleSelect?.value || "Аниме",
-      tone: getToneValue(),
-      sceneTitle: scene.title,
-      sceneDescription: scene.description,
-      dialogue: scene.dialogue,
-      caption: scene.caption,
-    }),
+    body: JSON.stringify({ ...basePayload, ...extra }),
   });
 
   const data = await response.json().catch(() => ({}));
@@ -501,16 +859,22 @@ async function suggestScenes() {
   }
   toggleBusy(suggestScenesButton, true);
   try {
-    const { scenes: aiScenes } = await callAiText("scenes");
+    saveCurrentToContext();
+    const ctx = pageContexts[activePage];
+    const { scenes: aiScenes } = await callAiText("scenes", {
+      story: (ctx?.pageOutline || ctx?.story || storyInput?.value || "").trim(),
+      page: activePage + 1,
+      pagesTotal: Math.max(1, pageCount),
+    });
     if (!Array.isArray(aiScenes) || !aiScenes.length) {
       throw new Error("Модель не вернула сцены.");
     }
-    scenes = aiScenes.map((scene, index) => ({
-      title: scene.title || `Сцена ${index + 1}`,
-      description: scene.description || "",
-      dialogue: scene.dialogue || scenes[index]?.dialogue || "",
-      caption: scene.caption || scenes[index]?.caption || "",
-    }));
+    const mapped = mapAiScenes(aiScenes, scenes);
+    if (!mapped.length) {
+      throw new Error("Модель не вернула подходящие сцены.");
+    }
+    scenes.length = 0;
+    mapped.forEach((s) => scenes.push(s));
     activeScene = 0;
     renderScenes();
     setScene(0);
@@ -534,9 +898,143 @@ function addScene(save = true) {
   activeScene = scenes.length - 1;
   renderScenes();
   setScene(activeScene, false);
-  setTab("dialogue");
   if (save) pushHistory();
   showToast("Сцена добавлена.");
+}
+
+function hasMeaningfulScenes(list) {
+  return (list || []).some((scene) => {
+    const title = (scene?.title || "").trim();
+    const defaultTitle = /^\u0421\u0446\u0435\u043d\u0430\s+\d+$/i.test(title);
+    return (
+      (title && !defaultTitle) ||
+      (scene?.description || "").trim() ||
+      (scene?.dialogue || "").trim() ||
+      (scene?.caption || "").trim()
+    );
+  });
+}
+
+function mapAiScenes(aiScenes, existingScenes = []) {
+  return (aiScenes || [])
+    .map((scene, index) => ({
+      title: scene?.title || `Сцена ${index + 1}`,
+      description: scene?.description || "",
+      dialogue: scene?.dialogue || existingScenes[index]?.dialogue || "",
+      caption: scene?.caption || existingScenes[index]?.caption || "",
+    }))
+    .filter((scene) =>
+      scene.title.trim() ||
+      scene.description.trim() ||
+      scene.dialogue.trim() ||
+      scene.caption.trim()
+    );
+}
+
+function buildPagePlanContext(ctx) {
+  const outline = (ctx?.pageOutline || "").trim();
+  if (outline) return outline;
+
+  const summary = (ctx?.summary || "").trim();
+  if (summary) return summary;
+
+  const pageScenes = (ctx?.scenes || [])
+    .map((scene, index) => {
+      const title = (scene.title || `Сцена ${index + 1}`).trim();
+      const description = (scene.description || "").trim();
+      const dialogue = (scene.dialogue || "").trim();
+      const caption = (scene.caption || "").trim();
+      return [title, description, dialogue, caption].filter(Boolean).join("; ");
+    })
+    .filter(Boolean)
+    .join(" | ");
+
+  return pageScenes || (ctx?.story || "").trim();
+}
+
+async function autoGenerateScenesIfNeeded(pageIndex, options = {}) {
+  const ctx = pageContexts[pageIndex];
+  if (ctx && !Array.isArray(ctx.scenes)) ctx.scenes = [];
+  if (!ctx || hasMeaningfulScenes(ctx.scenes)) return;
+
+  const story = (ctx.pageOutline || ctx.story || pageContexts[0]?.story || storyInput?.value || "").trim();
+  if (!story) return;
+
+  const totalPages = Math.max(1, Number(options.pagesTotal) || pageCount || 1);
+  const previousPagesContext = pageContexts
+    .slice(0, pageIndex)
+    .map(buildPagePlanContext)
+    .filter(Boolean);
+
+  setLoading(true, options.label || "Создаём сцены для страницы...");
+  const { scenes: aiScenes } = await callAiText("scenes", {
+    story,
+    characters: buildCharactersTextFor(ctx.characters),
+    pageCount: totalPages,
+    pagesTotal: totalPages,
+    page: Math.max(1, Number(options.pageNumber) || pageIndex + 1),
+    previousPagesContext,
+  });
+
+  if (!Array.isArray(aiScenes) || !aiScenes.length) {
+    throw new Error("Модель не вернула сцены.");
+  }
+
+  const mapped = mapAiScenes(aiScenes, ctx.scenes);
+  if (!mapped.length) {
+    throw new Error("Модель не вернула подходящие сцены.");
+  }
+
+  ctx.scenes.length = 0;
+  mapped.forEach((scene) => ctx.scenes.push(scene));
+
+  if (pageIndex === activePage) {
+    scenes = ctx.scenes;
+    activeScene = 0;
+    renderScenes();
+    setScene(0, false);
+  }
+}
+
+function mapPageOutlines(aiPages, totalPages) {
+  const byPage = new Map();
+  (aiPages || []).forEach((item, index) => {
+    const page = Math.max(1, Number(item?.page) || index + 1);
+    const outline = String(item?.summary || item?.story || item?.outline || "").trim();
+    if (outline && page <= totalPages) byPage.set(page, outline);
+  });
+  return Array.from({ length: totalPages }, (_, index) => byPage.get(index + 1) || "");
+}
+
+async function ensurePageOutlinesForGeneration(startIndex, totalPages, sourceCtx) {
+  if (totalPages <= 1) return;
+
+  const needsOutline = Array.from({ length: totalPages }, (_, i) => {
+    const ctx = pageContexts[startIndex + i];
+    return !(ctx?.pageOutline || "").trim();
+  }).some(Boolean);
+  if (!needsOutline) return;
+
+  const story = (sourceCtx?.story || storyInput?.value || "").trim();
+  if (!story) return;
+
+  setLoading(true, "Планируем сюжет по страницам...");
+  const { pages: aiPages } = await callAiText("pagePlan", {
+    story,
+    characters: buildCharactersTextFor(sourceCtx?.characters || characters),
+    pageCount: totalPages,
+    pagesTotal: totalPages,
+  });
+
+  const outlines = mapPageOutlines(aiPages, totalPages);
+  if (outlines.filter(Boolean).length !== totalPages) {
+    throw new Error("Модель не смогла разложить сюжет по страницам.");
+  }
+
+  outlines.forEach((outline, i) => {
+    const ctx = pageContexts[startIndex + i];
+    if (ctx) ctx.pageOutline = outline;
+  });
 }
 
 function toggleBusy(button, isBusy) {
@@ -545,8 +1043,40 @@ function toggleBusy(button, isBusy) {
   button.classList.toggle("is-busy", isBusy);
 }
 
-function buildScenePayload() {
-  const scenePrompts = scenes
+function buildCharactersTextFor(list) {
+  return (list || [])
+    .map((c) => {
+      const name = (c.name || "").trim();
+      const desc = (c.description || "").trim();
+      const hasReference = Boolean(c.referenceImage);
+      const referenceNote = hasReference ? "есть фото-референс" : "";
+      if (!name && !desc && !hasReference) return "";
+      if (name && desc && referenceNote) return `${name}: ${desc} (${referenceNote})`;
+      if (name && desc) return `${name}: ${desc}`;
+      if (name && referenceNote) return `${name}: ${referenceNote}`;
+      if (desc && referenceNote) return `${desc} (${referenceNote})`;
+      return name || desc || referenceNote;
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
+function buildCharacterImageRefsFor(list) {
+  return (list || [])
+    .map((c, index) => ({
+      name: (c.name || `Character ${index + 1}`).trim() || `Character ${index + 1}`,
+      imageUrl: c.referenceImage || "",
+    }))
+    .filter((c) => c.imageUrl);
+}
+
+function buildScenePayload(pageIndex, options = {}) {
+  saveCurrentToContext();
+  const ctx = pageContexts[pageIndex] || pageContexts[activePage] || createDefaultPageContext();
+  const ctxScenes = ctx.scenes || [];
+  const ctxStory = (ctx.pageOutline || ctx.story || "").trim();
+
+  const scenePrompts = ctxScenes
     .map((scene, index) => {
       const parts = [
         scene.title || `Сцена ${index + 1}`,
@@ -560,64 +1090,337 @@ function buildScenePayload() {
     })
     .filter(Boolean);
 
+  const isActivePage = pageIndex === activePage;
+  const focusScene = isActivePage ? ctxScenes[activeScene] : null;
+
+  const previousPagesContext = pageContexts
+    .slice(0, pageIndex)
+    .map((c) => (c?.summary || c?.story || "").trim())
+    .filter(Boolean);
+
+  const resolvedPagesTotal = typeof options.pagesTotal === "number"
+    ? Math.max(1, options.pagesTotal)
+    : (ctx.pageCount && isActivePage ? ctx.pageCount : 1);
+
   return {
-    story: storyInput?.value.trim() || "",
-    characters: charactersInput?.value.trim() || "",
-    style: styleSelect?.value || "Аниме",
-    tone: getToneValue(),
+    story: ctxStory,
+    characters: buildCharactersTextFor(ctx.characters),
+    characterImages: buildCharacterImageRefsFor(ctx.characters),
+    style: activeStyle,
+    language: dialogueLanguage,
     model: activeModel,
-    page: activePage + 1,
-    selectedScene: scenes.length ? activeScene + 1 : null,
+    page: Math.max(1, Number(options.pageNumber) || pageIndex + 1),
+    pagesTotal: resolvedPagesTotal,
+    selectedScene: ctxScenes.length && isActivePage ? activeScene + 1 : null,
     scenes: scenePrompts,
-    dialogue: dialogueInput?.value.trim() || "",
-    caption: captionInput?.value.trim() || "",
+    dialogue: focusScene?.dialogue || (isActivePage ? (dialogueInput?.value.trim() || "") : ""),
+    caption: focusScene?.caption || (isActivePage ? (captionInput?.value.trim() || "") : ""),
     layout: "single full comic page, cinematic panel layout, readable speech bubbles, high contrast",
+    previousPagesContext,
   };
 }
 
-async function generateComicPage() {
-  const payload = buildScenePayload();
+async function generateSinglePage(pageIndex, label, options = {}) {
+  while (pages.length <= pageIndex) {
+    pages.push(createPlaceholderDataUrl(pages.length + 1));
+  }
+  while (pageContexts.length <= pageIndex) {
+    const inheritFrom = pageContexts[activePage] || pageContexts[0];
+    pageContexts.push(createDefaultPageContext({
+      story: inheritFrom?.story || "",
+      characters: (inheritFrom?.characters || []).map((c) => ({ ...c })),
+    }));
+  }
+  const ctx = pageContexts[pageIndex];
+  const inheritFrom = pageContexts[activePage] || pageContexts[0];
+  if (ctx && !(ctx.story || "").trim()) ctx.story = inheritFrom?.story || "";
+  if (ctx && !(ctx.characters || []).length) {
+    ctx.characters = (inheritFrom?.characters || []).map((c) => ({ ...c }));
+  }
+  await autoGenerateScenesIfNeeded(pageIndex, {
+    pagesTotal: options.pagesTotal,
+    pageNumber: options.pageNumber,
+    label: "Создаём сцены для страницы...",
+  });
+  const payload = buildScenePayload(pageIndex, options);
+  setLoading(true, label);
 
-  if (!payload.story) {
+  const response = await fetch("/api/generate-comic-page", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    if (data?.code === "MISSING_KEY") showConfigBanner();
+    throw new Error(data?.error || "Не удалось сгенерировать страницу.");
+  }
+  if (!data.imageUrl) {
+    throw new Error("OpenRouter не вернул изображение.");
+  }
+
+  pages[pageIndex] = data.imageUrl;
+  if (pageContexts[pageIndex]) pageContexts[pageIndex].generated = true;
+
+  setPage(pageIndex, false);
+  renderPageStrip();
+  if (comicOutput) comicOutput.src = data.imageUrl;
+  if (emptyState) emptyState.hidden = true;
+  refreshContinueButton();
+
+  return data;
+}
+
+function hasMeaningfulCharacters(list) {
+  return (list || []).some((c) =>
+    (c?.name || "").trim() || (c?.description || "").trim() || c?.referenceImage
+  );
+}
+
+function isFirstGeneration() {
+  return !pageContexts.some((c) => c?.generated);
+}
+
+async function autoExtractCharactersIfNeeded() {
+  const ctx = pageContexts[activePage];
+  if (!ctx) return;
+  if (!isFirstGeneration()) return;
+  if (hasMeaningfulCharacters(ctx.characters)) return;
+
+  const story = (ctx.story || storyInput?.value || "").trim();
+  if (!story) return;
+
+  setLoading(true, "Создаём персонажей по истории...");
+  try {
+    const { characters: aiChars } = await callAiText("characters");
+    if (!Array.isArray(aiChars) || !aiChars.length) return;
+    const mapped = aiChars
+      .map((c) => ({
+        name: typeof c?.name === "string" ? c.name.trim() : "",
+        description: typeof c?.description === "string" ? c.description.trim() : "",
+      }))
+      .filter((c) => c.name || c.description);
+    if (!mapped.length) return;
+
+    ctx.characters.length = 0;
+    mapped.forEach((c) => ctx.characters.push(c));
+    // characters — это ссылка на ctx.characters, поэтому достаточно перерисовать
+    renderCharacters();
+    showToast(`AI создал ${mapped.length} персонажей по истории — можете отредактировать в «Расширенных настройках».`);
+  } catch {
+    // best-effort — даже без авто-персонажей продолжаем основную генерацию
+  }
+}
+
+async function generateComicPage() {
+  saveCurrentToContext();
+  if (!storyInput?.value.trim()) {
     showToast("Добавьте описание истории перед генерацией.");
     return;
   }
 
-  setLoading(true, "Генерируем страницу...");
+  const totalPages = Math.max(1, pageCount);
+  const totalCost = PRICE_PER_PAGE * totalPages;
+  if (credits < totalCost) {
+    showToast(`Недостаточно кредитов. Нужно ${totalCost}.`);
+    return;
+  }
+
+  await autoExtractCharactersIfNeeded();
+
+  const startIndex = activePage;
+  const sourceCtx = pageContexts[startIndex];
 
   try {
-    const response = await fetch("/api/generate-comic-page", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      if (data?.code === "MISSING_KEY") showConfigBanner();
-      throw new Error(data?.error || "Не удалось сгенерировать страницу.");
+    for (let i = 0; i < totalPages; i += 1) {
+      const targetIndex = totalPages > 1 ? startIndex + i : startIndex;
+      while (pages.length <= targetIndex) {
+        pages.push(createPlaceholderDataUrl(pages.length + 1));
+      }
+      while (pageContexts.length <= targetIndex) {
+        pageContexts.push(createDefaultPageContext({
+          story: sourceCtx?.story || "",
+          characters: (sourceCtx?.characters || []).map((c) => ({ ...c })),
+        }));
+      }
+      const targetCtx = pageContexts[targetIndex];
+      if (targetCtx && !(targetCtx.story || "").trim()) {
+        targetCtx.story = sourceCtx?.story || "";
+      }
+      if (targetCtx && !(targetCtx.characters || []).length) {
+        targetCtx.characters = (sourceCtx?.characters || []).map((c) => ({ ...c }));
+      }
     }
 
-    if (!data.imageUrl) {
-      throw new Error("OpenRouter не вернул изображение.");
+    await ensurePageOutlinesForGeneration(startIndex, totalPages, sourceCtx);
+
+    for (let i = 0; i < totalPages; i += 1) {
+      const targetIndex = totalPages > 1 ? startIndex + i : startIndex;
+      const label = totalPages > 1
+        ? `Генерируем страницу ${i + 1} из ${totalPages}...`
+        : "Генерируем страницу...";
+      await generateSinglePage(targetIndex, label, { pagesTotal: totalPages, pageNumber: i + 1 });
+      credits = Math.max(0, credits - PRICE_PER_PAGE);
+      updateCreditBalance();
+      void generatePageSummary(targetIndex);
     }
-
-    pages[activePage] = data.imageUrl;
-    if (comicOutput) comicOutput.src = data.imageUrl;
-
-    const activeThumb = pageThumbs.find((thumb) => Number(thumb.dataset.pageThumb) === activePage);
-    const thumbImage = activeThumb?.querySelector("img");
-    if (thumbImage) thumbImage.src = data.imageUrl;
-
-    if (emptyState) emptyState.hidden = true;
-    credits = Math.max(0, credits - 20);
-    updateCreditBalance();
     pushHistory();
-    showToast("Страница сгенерирована.");
+    showToast(totalPages > 1 ? `Готово: ${totalPages} страниц.` : "Страница сгенерирована.");
   } catch (error) {
     showToast(error.message);
   } finally {
     setLoading(false);
+  }
+}
+
+async function generatePageSummary(pageIndex) {
+  const ctx = pageContexts[pageIndex];
+  if (!ctx) return;
+  const baseStory = (ctx.pageOutline || ctx.story || "").trim();
+  if (!baseStory) return;
+
+  const sceneDescription = (ctx.scenes || [])
+    .map((s) => {
+      const t = (s.title || "").trim();
+      const d = (s.description || "").trim();
+      if (!t && !d) return "";
+      if (t && d) return `${t}: ${d}`;
+      return t || d;
+    })
+    .filter(Boolean)
+    .join("; ");
+  const dialogue = (ctx.scenes || [])
+    .map((s) => (s.dialogue || "").trim())
+    .filter(Boolean)
+    .join("\n");
+  const charsText = buildCharactersTextFor(ctx.characters);
+
+  try {
+    const { text } = await callAiText("summarize", {
+      story: baseStory,
+      characters: charsText,
+      sceneDescription,
+      dialogue,
+    });
+    if (text && pageContexts[pageIndex]) {
+      pageContexts[pageIndex].summary = text.trim();
+    }
+  } catch {
+    // Резюме — best-effort, без него продолжение работает по основному сюжету.
+  }
+}
+
+function findLastGeneratedIndex() {
+  for (let i = pageContexts.length - 1; i >= 0; i -= 1) {
+    if (pageContexts[i]?.generated) return i;
+  }
+  for (let i = pages.length - 1; i >= 0; i -= 1) {
+    if (typeof pages[i] === "string" && !isPlaceholderImage(pages[i])) return i;
+  }
+  return -1;
+}
+
+function refreshContinueButton() {
+  if (!continueButton) return;
+  const hasAnyGenerated = findLastGeneratedIndex() >= 0;
+  continueButton.disabled = !hasAnyGenerated;
+  continueButton.title = hasAnyGenerated
+    ? "AI продолжит сюжет на основе уже сгенерированных страниц"
+    : "Сначала сгенерируйте хотя бы одну страницу — потом её можно будет продолжать";
+}
+
+async function continueStory() {
+  saveCurrentToContext();
+
+  const ctx = pageContexts[activePage];
+  if (!ctx) return;
+
+  const lastGenerated = findLastGeneratedIndex();
+  if (lastGenerated < 0) {
+    showToast("Сначала сгенерируйте хотя бы одну страницу — потом я смогу её продолжить.");
+    return;
+  }
+
+  const baseStory = (pageContexts[0]?.story || ctx.story || "").trim();
+  if (!baseStory) {
+    showToast("Опишите историю в сюжете, чтобы я знал, что продолжать.");
+    return;
+  }
+
+  if (credits < PRICE_PER_PAGE) {
+    showToast(`Недостаточно кредитов. Нужно ${PRICE_PER_PAGE}.`);
+    return;
+  }
+
+  // Решаем: заполнить текущую пустую страницу ИЛИ создать новую после.
+  const currentIsEmptyDraft =
+    !ctx.generated &&
+    !(ctx.story || "").trim() &&
+    !(ctx.scenes || []).length;
+  // Самый нижний контекст для продолжения — последняя сгенерированная страница до текущего слота.
+  const refIndex = currentIsEmptyDraft
+    ? Math.min(lastGenerated, activePage - 1)
+    : lastGenerated;
+  const summarySource = pageContexts.slice(0, refIndex + 1);
+
+  toggleBusy(continueButton, true);
+  setLoading(true, "Придумываем продолжение...");
+  try {
+    const previousSummaries = summarySource
+      .map((c) => (c?.summary || c?.story || "").trim())
+      .filter(Boolean);
+
+    const charsMap = new Map();
+    summarySource.forEach((c) => {
+      (c?.characters || []).forEach((ch) => {
+        const key = (ch.name || "").trim().toLowerCase() || `__anon_${charsMap.size}`;
+        if (!charsMap.has(key)) charsMap.set(key, ch);
+      });
+    });
+    const allCharsText = buildCharactersTextFor(Array.from(charsMap.values()));
+
+    const { text } = await callAiText("continue", {
+      story: baseStory,
+      characters: allCharsText,
+      previousPagesContext: previousSummaries,
+    });
+    const continuationText = (text || "").trim();
+    if (!continuationText) throw new Error("Модель не вернула продолжение.");
+
+    let targetIndex;
+    if (currentIsEmptyDraft) {
+      targetIndex = activePage;
+      ctx.story = continuationText;
+      if (!(ctx.characters || []).length && pageContexts[refIndex]) {
+        ctx.characters = (pageContexts[refIndex].characters || []).map((c) => ({ ...c }));
+      }
+      loadActivePageContext();
+    } else {
+      targetIndex = activePage + 1;
+      pages.splice(targetIndex, 0, createPlaceholderDataUrl(targetIndex + 1));
+      pageContexts.splice(targetIndex, 0, createDefaultPageContext({
+        story: continuationText,
+        characters: (ctx.characters || pageContexts[refIndex]?.characters || []).map((c) => ({ ...c })),
+      }));
+      renderPageStrip();
+      setPage(targetIndex, false);
+    }
+
+    setLoading(true, "Генерируем страницу...");
+    await generateSinglePage(targetIndex, "Генерируем страницу...", { pagesTotal: 1 });
+    credits = Math.max(0, credits - PRICE_PER_PAGE);
+    updateCreditBalance();
+    void generatePageSummary(targetIndex);
+
+    pushHistory();
+    showToast("Продолжение готово.");
+  } catch (error) {
+    showToast(error.message || "Не удалось продолжить историю.");
+  } finally {
+    toggleBusy(continueButton, false);
+    setLoading(false);
+    refreshContinueButton();
   }
 }
 
@@ -658,11 +1461,16 @@ async function shareProject() {
 }
 
 function addPage() {
+  saveCurrentToContext();
+  const inheritFrom = pageContexts[activePage];
   pages.push(createPlaceholderDataUrl(pages.length + 1));
+  pageContexts.push(createDefaultPageContext({
+    characters: (inheritFrom?.characters || []).map((c) => ({ ...c })),
+  }));
   renderPageStrip();
   setPage(pages.length - 1);
   pushHistory();
-  showToast("Новая страница добавлена. Нажмите «Сгенерировать страницу».");
+  showToast("Новая страница добавлена. Опишите её сюжет или нажмите «Продолжить историю».");
 }
 
 function addCredits() {
@@ -688,32 +1496,6 @@ function toggleProfileMenu(force) {
     burgerMenu.hidden = true;
     burgerToggle?.setAttribute("aria-expanded", "false");
   }
-}
-
-function setTab(tab) {
-  tabButtons.forEach((button) => {
-    const isActive = button.dataset.tab === tab;
-    button.classList.toggle("is-active", isActive);
-    button.setAttribute("aria-selected", String(isActive));
-  });
-  tabContents.forEach((content) => {
-    const isActive = content.dataset.tabContent === tab;
-    content.classList.toggle("is-active", isActive);
-    content.hidden = !isActive;
-  });
-}
-
-function setSideTab(tab) {
-  sideTabButtons.forEach((button) => {
-    const isActive = button.dataset.sideTab === tab;
-    button.classList.toggle("is-active", isActive);
-    button.setAttribute("aria-selected", String(isActive));
-  });
-  sidePanes.forEach((pane) => {
-    const isActive = pane.dataset.sidePane === tab;
-    pane.classList.toggle("is-active", isActive);
-    pane.hidden = !isActive;
-  });
 }
 
 function toggleBurgerMenu(force) {
@@ -765,24 +1547,11 @@ async function checkHealth() {
 }
 
 let storyInputTimer;
-let characterInputTimer;
-let customToneTimer;
 
 storyInput?.addEventListener("input", () => {
   updateStoryCounter();
   window.clearTimeout(storyInputTimer);
   storyInputTimer = window.setTimeout(pushHistory, 700);
-});
-
-charactersInput?.addEventListener("input", () => {
-  window.clearTimeout(characterInputTimer);
-  characterInputTimer = window.setTimeout(pushHistory, 700);
-});
-
-customToneInput?.addEventListener("input", () => {
-  updateToneButtons();
-  window.clearTimeout(customToneTimer);
-  customToneTimer = window.setTimeout(pushHistory, 500);
 });
 
 projectTitleInput?.addEventListener("change", pushHistory);
@@ -819,11 +1588,12 @@ addSceneButton?.addEventListener("click", () => addScene());
 downloadButton?.addEventListener("click", () => { downloadCurrentPage(); toggleBurgerMenu(false); });
 shareButton?.addEventListener("click", () => { shareProject(); toggleBurgerMenu(false); });
 addPageButton?.addEventListener("click", addPage);
+continueButton?.addEventListener("click", continueStory);
 regenerateDialogueButton?.addEventListener("click", regenerateDialogue);
 generateCaptionButton?.addEventListener("click", generateCaption);
-creditInfoButton?.addEventListener("click", () =>
-  showToast(`Доступно ${credits} кредитов. Генерация страницы стоит 20.`)
-);
+creditInfoButton?.addEventListener("click", () => {
+  window.location.href = "pricing.html";
+});
 addCreditsButton?.addEventListener("click", addCredits);
 notificationsButton?.addEventListener("click", () => showToast("Новых уведомлений нет."));
 renameButton?.addEventListener("click", () => {
@@ -847,28 +1617,23 @@ profileActions.forEach((button) => {
   });
 });
 
-tabButtons.forEach((button) => {
-  button.addEventListener("click", () => setTab(button.dataset.tab));
-});
-
-sideTabButtons.forEach((button) => {
-  button.addEventListener("click", () => setSideTab(button.dataset.sideTab));
-});
-
 burgerToggle?.addEventListener("click", () => toggleBurgerMenu());
 
-styleSwatches.forEach((swatch) => {
-  swatch.addEventListener("click", () => setStyle(swatch.dataset.style));
+addCharacterButton?.addEventListener("click", addCharacter);
+
+pageCountSteps.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const delta = Number(btn.dataset.pageCountStep) || 0;
+    setPageCount(pageCount + delta);
+  });
 });
 
-styleSelect?.addEventListener("change", () => setStyle(styleSelect.value));
-
-toneButtons.forEach((button) => {
-  button.addEventListener("click", () => setTone(button.dataset.tone));
+pageCountInput?.addEventListener("input", () => {
+  setPageCount(pageCountInput.value);
 });
 
-modelCards.forEach((card) => {
-  card.addEventListener("click", () => setModel(card.dataset.modelId));
+dialogueLanguageSelect?.addEventListener("change", () => {
+  setDialogueLanguage(dialogueLanguageSelect.value);
 });
 
 document.addEventListener("click", (event) => {
@@ -882,19 +1647,20 @@ document.addEventListener("click", (event) => {
       toggleBurgerMenu(false);
     }
   }
+  const insideDropdown = dropdowns.some((wrap) => wrap.contains(event.target));
+  if (!insideDropdown) closeAllDropdowns();
 });
 
+renderCharacters();
 renderPageStrip();
 renderScenes();
 updateStoryCounter();
 updateCreditBalance();
+updateCostNote();
 setPage(activePage, false);
-setStyle(styleSelect?.value || "Аниме", false);
-setTone(activeTone, false);
+setStyle(activeStyle, false);
 setModel(activeModel, false);
 setScene(activeScene, false);
 setZoom(zoomSelect?.value || "100%");
-setTab("scenes");
-setSideTab("story");
 pushHistory();
 checkHealth();
