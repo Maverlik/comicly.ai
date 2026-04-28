@@ -1,7 +1,16 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import (
+    JSON,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -9,6 +18,12 @@ from app.db.base import Base
 
 class GenerationJob(Base):
     __tablename__ = "generation_jobs"
+    __table_args__ = (
+        UniqueConstraint(
+            "idempotency_key",
+            name="uq_generation_jobs_idempotency_key",
+        ),
+    )
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
@@ -17,6 +32,7 @@ class GenerationJob(Base):
     page_id: Mapped[UUID | None] = mapped_column(ForeignKey("comic_pages.id"))
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="queued")
     job_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    idempotency_key: Mapped[str | None] = mapped_column(String(180))
     prompt: Mapped[str] = mapped_column(Text, nullable=False)
     model: Mapped[str | None] = mapped_column(String(160))
     provider: Mapped[str | None] = mapped_column(String(80))

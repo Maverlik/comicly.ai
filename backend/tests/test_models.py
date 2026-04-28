@@ -31,9 +31,13 @@ def test_identity_wallet_generation_and_payment_columns_exist() -> None:
     assert {"amount", "balance_after", "idempotency_key"}.issubset(
         tables["wallet_transactions"].columns.keys()
     )
-    assert {"status", "job_type", "coin_cost", "request_payload"}.issubset(
-        tables["generation_jobs"].columns.keys()
-    )
+    assert {
+        "status",
+        "job_type",
+        "idempotency_key",
+        "coin_cost",
+        "request_payload",
+    }.issubset(tables["generation_jobs"].columns.keys())
     assert {"code", "coin_amount", "amount", "currency", "active"}.issubset(
         tables["coin_packages"].columns.keys()
     )
@@ -91,7 +95,11 @@ def test_representative_constraints_are_present() -> None:
     package_constraints = {
         constraint.name for constraint in tables["coin_packages"].constraints
     }
+    generation_constraints = {
+        constraint.name for constraint in tables["generation_jobs"].constraints
+    }
 
     assert "uq_provider_identities_provider_user" in provider_constraints
     assert "ck_wallets_balance_non_negative" in wallet_constraints
     assert "ck_coin_packages_coin_amount_positive" in package_constraints
+    assert "uq_generation_jobs_idempotency_key" in generation_constraints

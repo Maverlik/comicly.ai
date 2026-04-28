@@ -31,6 +31,11 @@ def test_settings_have_safe_defaults_without_future_env_vars(
     assert settings.starter_coins == 100
     assert settings.cors_origins == ""
     assert settings.cors_origin_list == []
+    assert settings.openrouter_api_key is None
+    assert settings.openrouter_default_image_model in (
+        settings.openrouter_allowed_image_model_set
+    )
+    assert settings.blob_read_write_token is None
 
 
 def test_settings_support_phase2_env_overrides(monkeypatch) -> None:
@@ -103,16 +108,54 @@ def test_runtime_engine_uses_runtime_database_url_not_direct_url(monkeypatch) ->
     )
 
 
-def test_settings_ignore_later_phase_secret_env_vars(monkeypatch) -> None:
-    monkeypatch.setenv("OPENROUTER_API_KEY", "not-used-in-phase-1")
+def test_settings_support_phase6_generation_env_overrides(monkeypatch) -> None:
+    monkeypatch.setenv("OPENROUTER_API_KEY", "phase-6-secret")
+    monkeypatch.setenv("OPENROUTER_SITE_URL", "https://comicly.ai")
+    monkeypatch.setenv("OPENROUTER_APP_NAME", "Comicly")
+    monkeypatch.setenv("OPENROUTER_DEFAULT_IMAGE_MODEL", "allowed/model-a")
+    monkeypatch.setenv("OPENROUTER_DEFAULT_TEXT_MODEL", "text/model")
+    monkeypatch.setenv(
+        "OPENROUTER_ALLOWED_IMAGE_MODELS",
+        " allowed/model-a,allowed/model-b ,, ",
+    )
+    monkeypatch.setenv("OPENROUTER_IMAGE_ASPECT_RATIO", "16:9")
+    monkeypatch.setenv("OPENROUTER_REQUEST_TIMEOUT_SECONDS", "45")
+    monkeypatch.setenv("BLOB_READ_WRITE_TOKEN", "blob-secret")
     monkeypatch.setenv("GOOGLE_CLIENT_SECRET", "phase-3-secret")
     monkeypatch.setenv("STORAGE_SECRET_ACCESS_KEY", "not-used-in-phase-1")
 
     settings = Settings(_env_file=None)
 
-    assert not hasattr(settings, "openrouter_api_key")
+    assert settings.openrouter_api_key == "phase-6-secret"
+    assert settings.openrouter_site_url == "https://comicly.ai"
+    assert settings.openrouter_app_name == "Comicly"
+    assert settings.openrouter_default_image_model == "allowed/model-a"
+    assert settings.openrouter_default_text_model == "text/model"
+    assert settings.openrouter_allowed_image_model_list == [
+        "allowed/model-a",
+        "allowed/model-b",
+    ]
+    assert settings.openrouter_allowed_image_model_set == {
+        "allowed/model-a",
+        "allowed/model-b",
+    }
+    assert settings.openrouter_image_aspect_ratio == "16:9"
+    assert settings.openrouter_request_timeout_seconds == 45
+    assert settings.blob_read_write_token == "blob-secret"
     assert settings.google_client_secret == "phase-3-secret"
     assert not hasattr(settings, "storage_secret_access_key")
+
+
+def test_default_image_model_must_be_allowed(monkeypatch) -> None:
+    monkeypatch.setenv("OPENROUTER_DEFAULT_IMAGE_MODEL", "blocked/model")
+    monkeypatch.setenv("OPENROUTER_ALLOWED_IMAGE_MODELS", "allowed/model")
+
+    try:
+        Settings(_env_file=None)
+    except ValueError as exc:
+        assert "OPENROUTER_DEFAULT_IMAGE_MODEL" in str(exc)
+    else:
+        raise AssertionError("expected invalid model config to fail")
 
 
 def test_create_app_starts_without_later_phase_env_vars(monkeypatch) -> None:

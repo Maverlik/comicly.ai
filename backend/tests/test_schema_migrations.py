@@ -78,3 +78,13 @@ def test_phase5_migration_mentions_comic_persistence_fields() -> None:
         assert f'"{field_name}"' in migration
 
     assert "ck_comic_pages_coin_cost_non_negative" in migration
+
+
+def test_phase6_migration_mentions_generation_idempotency() -> None:
+    migration = Path(
+        "alembic/versions/0003_phase6_generation_idempotency.py"
+    ).read_text(encoding="utf-8")
+
+    assert '"generation_jobs"' in migration
+    assert '"idempotency_key"' in migration
+    assert "uq_generation_jobs_idempotency_key" in migration
