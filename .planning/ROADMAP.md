@@ -124,15 +124,20 @@ Plans:
 - [x] 06-05-PLAN.md - Generation docs, full backend gates, review, and backend-only boundary check.
 
 ### Phase 7: Creator Frontend Backend Integration
-**Goal**: The existing static creator visibly uses authenticated backend truth for profile, balance, comic history, and generation results instead of demo-only browser state.
+**Goal**: The existing static creator visibly uses authenticated backend truth for profile, balance, current comic state, and generation results instead of demo-only browser state.
 **Depends on**: Phase 6
 **Requirements**: PROF-04, TEST-06
 **Success Criteria** (what must be TRUE):
   1. User opening the creator shell sees authenticated backend account/profile data and wallet balance instead of demo profile data and hardcoded credits.
-  2. User can list, open, reload, and continue persisted comics through the existing static creator experience.
+  2. User can create and update the current persisted comic through the existing static creator experience without a history, archive, drawer, or reopen UI.
   3. Generation UI consumes backend responses for updated balance and persisted page/comic data, with demo-only credit, profile, and logout paths removed or replaced.
-  4. Manual or automated smoke checks cover sign-in, profile display, balance display, comic creation, page generation, reload/reopen, and logout.
-**Plans**: TBD
+  4. Manual or automated smoke checks cover landing public access, creator auth entry, session/profile/balance loading, comic creation, generation success/error states, insufficient coins, and logout.
+**Plans**: 4 plans
+Plans:
+- [ ] 07-01-PLAN.md - Branch sync with `origin/main`, frontend API helper, session bootstrap, and creator auth overlay.
+- [ ] 07-02-PLAN.md - Current comic lifecycle and hybrid save without history UI.
+- [ ] 07-03-PLAN.md - FastAPI AI text/generation integration with idempotency, loading, results, balance, and errors.
+- [ ] 07-04-PLAN.md - Logout/demo-state cleanup, browser smoke, review, and verification.
 **UI hint**: yes
 
 ### Phase 8: Deployment And Operations
@@ -160,5 +165,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 4. Wallet Ledger And Coin Safety | 3/3 | Complete | 2026-04-27 |
 | 5. Private Comic Persistence | 4/4 | Complete | 2026-04-27 |
 | 6. Production AI Generation Pipeline | 5/5 | Complete | 2026-04-28 |
-| 7. Creator Frontend Backend Integration | 0/TBD | Not started | - |
+| 7. Creator Frontend Backend Integration | 0/4 | Planned | - |
 | 8. Deployment And Operations | 0/TBD | Not started | - |
