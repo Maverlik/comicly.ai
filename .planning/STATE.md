@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready_for_discussion
-stopped_at: Phase 5 complete; ready to discuss Phase 6
-last_updated: "2026-04-27T21:05:58+03:00"
-last_activity: 2026-04-27 -- Phase 5 verification complete
+status: ready_to_plan
+stopped_at: Phase 6 context gathered; ready to plan
+last_updated: "2026-04-28T08:59:11+03:00"
+last_activity: 2026-04-28 -- Phase 6 context gathered
 progress:
   total_phases: 8
   completed_phases: 5
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 ## Current Position
 
-Phase: 6 (Production AI Generation Pipeline) - READY TO DISCUSS
+Phase: 6 (Production AI Generation Pipeline) - READY TO PLAN
 Plan: 0 of TBD
-Status: Phase 5 complete; ready to discuss Phase 6
-Last activity: 2026-04-27 -- Phase 5 verification complete
+Status: Phase 6 context gathered; ready to plan
+Last activity: 2026-04-28 -- Phase 6 context gathered
 
 Progress: [##########] 100%
 
@@ -81,6 +81,7 @@ Recent decisions affecting current work:
 - [Phase 4 Verification]: Wallet ledger service, authenticated wallet API, insufficient funds, idempotency, refund primitives, and concurrent debit protection are implemented and covered by automated tests.
 - [Phase 5 Discussion]: Private comic persistence should be backend API-only with explicit CRUD, first-class comic metadata columns, structured scenes, persistence-only page APIs, soft archive, compact list plus full detail, last-write-wins, and strict owner scoping.
 - [Phase 5 Verification]: Private comic schema fields, service layer, authenticated `/api/v1/comics` CRUD/archive APIs, structured scenes/pages persistence, and two-user owner-scoping tests are implemented; full backend gates pass.
+- [Phase 6 Discussion]: MVP generation should use a new authenticated v1 generation API, synchronous request/response within Vercel limits, `generation_jobs` audit/status records, Vercel Blob image persistence, debit-before-generation with idempotent refunds, protected free AI text assistance, and model allow-list validation with `MODEL_NOT_ALLOWED`.
 
 ### Pending Todos
 
@@ -104,6 +105,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-27T21:05:58+03:00
-Stopped at: Phase 5 complete; ready to discuss Phase 6
-Resume file: .planning/phases/05-private-comic-persistence/05-VERIFICATION.md
+Last session: 2026-04-28T08:59:11+03:00
+Stopped at: Phase 6 context gathered; ready to plan
+Resume file: .planning/phases/06-production-ai-generation-pipeline/06-CONTEXT.md
