@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: ready_to_plan
-stopped_at: Phase 6 complete; ready to discuss Phase 7
-last_updated: "2026-04-28T12:00:00+03:00"
-last_activity: 2026-04-28 -- Phase 6 execution complete
+stopped_at: Phase 7 context gathered; ready to plan
+last_updated: "2026-04-28T12:20:00+03:00"
+last_activity: 2026-04-28 -- Phase 7 context gathered
 progress:
   total_phases: 8
   completed_phases: 6
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-25)
 
 ## Current Position
 
-Phase: 7 (Creator Frontend Backend Integration) - NEEDS DISCUSSION
+Phase: 7 (Creator Frontend Backend Integration) - READY TO PLAN
 Plan: 0 of TBD
-Status: Phase 6 complete; ready to discuss Phase 7
-Last activity: 2026-04-28 -- Phase 6 execution complete
+Status: Phase 7 context gathered; ready to plan
+Last activity: 2026-04-28 -- Phase 7 context gathered
 
 Progress: [#######---] 75%
 
@@ -84,6 +84,7 @@ Recent decisions affecting current work:
 - [Phase 6 Discussion]: MVP generation should use a new authenticated v1 generation API, synchronous request/response within Vercel limits, `generation_jobs` audit/status records, Vercel Blob image persistence, debit-before-generation with idempotent refunds, protected free AI text assistance, and model allow-list validation with `MODEL_NOT_ALLOWED`.
 - [Phase 6 Planning]: Phase 6 is split into five sequential plans: settings/schema, provider/storage adapters, generation orchestration service, API routes, and docs/gates.
 - [Phase 6 Verification]: Authenticated `/api/v1/generations`, protected `/api/v1/ai-text`, OpenRouter/Blob adapters, generation job idempotency, wallet debit/refund safety, Blob URL-only responses, fixture-backed tests, and full backend gates are complete.
+- [Phase 7 Discussion]: Creator page should show a soft login overlay for unauthenticated users, landing remains public, post-login state is a blank new creator, comic history UI is deferred, generation blocks only the active generation action and uses click-time payload snapshots, production frontend uses strict backend truth, and execution must sync `origin/main` before any frontend/root/static creator edits.
 
 ### Pending Todos
 
@@ -107,6 +108,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-28T12:00:00+03:00
-Stopped at: Phase 6 complete; ready to discuss Phase 7
-Resume file: .planning/phases/06-production-ai-generation-pipeline/06-VERIFICATION.md
+Last session: 2026-04-28T12:20:00+03:00
+Stopped at: Phase 7 context gathered; ready to plan
+Resume file: .planning/phases/07-creator-frontend-backend-integration/07-CONTEXT.md
