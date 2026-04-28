@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: OAuth Sessions And Profile Bootstrap** - Let users sign in with Google/Yandex, manage profile basics, and receive secure server-side sessions.
 - [x] **Phase 4: Wallet Ledger And Coin Safety** - Make balances authoritative through backend ledger operations, idempotency, and concurrency-safe debits.
 - [x] **Phase 5: Private Comic Persistence** - Persist user-owned comic drafts, scenes, pages, and owner-scoped history.
-- [ ] **Phase 6: Production AI Generation Pipeline** - Connect protected OpenRouter generation to jobs, durable storage, page persistence, and updated balance responses.
+- [x] **Phase 6: Production AI Generation Pipeline** - Connect protected OpenRouter generation to jobs, durable storage, page persistence, and updated balance responses.
 - [ ] **Phase 7: Creator Frontend Backend Integration** - Replace demo creator state with authenticated backend profile, balance, comic, and generation data.
 - [ ] **Phase 8: Deployment And Operations** - Document and verify local and production operation, deployment configuration, and operational safety gates.
 
@@ -117,11 +117,11 @@ Plans:
   5. Generation responses return updated balance plus persisted page/comic data needed by the frontend, and tests cover OpenRouter parsing and failure modes with fixtures.
 **Plans**: 5 plans
 Plans:
-- [ ] 06-01-PLAN.md - Generation settings, Vercel Blob dependency, and job idempotency schema.
-- [ ] 06-02-PLAN.md - OpenRouter and Vercel Blob service adapters with fixture-backed parsing tests.
-- [ ] 06-03-PLAN.md - Synchronous generation orchestration service with wallet debit/refund and page persistence.
-- [ ] 06-04-PLAN.md - Authenticated generation and AI text API routes.
-- [ ] 06-05-PLAN.md - Generation docs, full backend gates, review, and backend-only boundary check.
+- [x] 06-01-PLAN.md - Generation settings, Vercel Blob dependency, and job idempotency schema.
+- [x] 06-02-PLAN.md - OpenRouter and Vercel Blob service adapters with fixture-backed parsing tests.
+- [x] 06-03-PLAN.md - Synchronous generation orchestration service with wallet debit/refund and page persistence.
+- [x] 06-04-PLAN.md - Authenticated generation and AI text API routes.
+- [x] 06-05-PLAN.md - Generation docs, full backend gates, review, and backend-only boundary check.
 
 ### Phase 7: Creator Frontend Backend Integration
 **Goal**: The existing static creator visibly uses authenticated backend truth for profile, balance, comic history, and generation results instead of demo-only browser state.
@@ -159,6 +159,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 3. OAuth Sessions And Profile Bootstrap | 4/4 | Complete | 2026-04-27 |
 | 4. Wallet Ledger And Coin Safety | 3/3 | Complete | 2026-04-27 |
 | 5. Private Comic Persistence | 4/4 | Complete | 2026-04-27 |
-| 6. Production AI Generation Pipeline | 0/5 | Planned | - |
+| 6. Production AI Generation Pipeline | 5/5 | Complete | 2026-04-28 |
 | 7. Creator Frontend Backend Integration | 0/TBD | Not started | - |
 | 8. Deployment And Operations | 0/TBD | Not started | - |

@@ -61,13 +61,13 @@ Requirements for the initial production backend milestone. Each maps to one road
 
 ### AI Generation
 
-- [ ] **GEN-01**: Authenticated user can generate a comic page through the backend using the existing creator payload shape or a documented migration-compatible replacement.
-- [ ] **GEN-02**: Successful page generation stores durable page metadata and image location before returning the result to the frontend.
-- [ ] **GEN-03**: Generated images are copied to controlled object storage or an equivalent durable storage layer rather than relying only on provider URLs or browser memory.
-- [ ] **GEN-04**: Generation failure leaves a persisted failure status and does not incorrectly spend coins.
-- [ ] **GEN-05**: OpenRouter calls have timeout, retry/error handling, model allow-list validation, and fixture-backed response parsing.
-- [ ] **GEN-06**: AI text assistance remains available through backend routes with validation, auth/rate-limit protection, and no provider secrets in client code.
-- [ ] **GEN-07**: Generation responses return updated balance and persisted page/comic data needed by the frontend.
+- [x] **GEN-01**: Authenticated user can generate a comic page through the backend using the existing creator payload shape or a documented migration-compatible replacement.
+- [x] **GEN-02**: Successful page generation stores durable page metadata and image location before returning the result to the frontend.
+- [x] **GEN-03**: Generated images are copied to controlled object storage or an equivalent durable storage layer rather than relying only on provider URLs or browser memory.
+- [x] **GEN-04**: Generation failure leaves a persisted failure status and does not incorrectly spend coins.
+- [x] **GEN-05**: OpenRouter calls have timeout, retry/error handling, model allow-list validation, and fixture-backed response parsing.
+- [x] **GEN-06**: AI text assistance remains available through backend routes with validation, auth/rate-limit protection, and no provider secrets in client code.
+- [x] **GEN-07**: Generation responses return updated balance and persisted page/comic data needed by the frontend.
 
 ### Payment Preparation
 
@@ -90,7 +90,7 @@ Requirements for the initial production backend milestone. Each maps to one road
 - [x] **TEST-02**: Automated tests cover OAuth/session behavior using mocked providers or callback fixtures.
 - [x] **TEST-03**: Automated tests cover wallet ledger correctness, insufficient balance, idempotency, refunds/no-debit on failure, and concurrent debit protection.
 - [x] **TEST-04**: Automated tests cover comic ownership boundaries with at least two users.
-- [ ] **TEST-05**: Automated tests cover OpenRouter response parsing and generation failure modes using fixtures.
+- [x] **TEST-05**: Automated tests cover OpenRouter response parsing and generation failure modes using fixtures.
 - [ ] **TEST-06**: Manual or automated smoke checks cover sign-in, profile display, balance display, comic creation, page generation, reload/reopen, and logout.
 
 ## v2 Requirements
@@ -172,13 +172,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COMIC-04 | Phase 5 | Complete in 05-03 |
 | COMIC-05 | Phase 5 | Complete in 05-03 |
 | COMIC-06 | Phase 5 | Complete in 05-03 |
-| GEN-01 | Phase 6 | Pending |
-| GEN-02 | Phase 6 | Pending |
-| GEN-03 | Phase 6 | Pending |
-| GEN-04 | Phase 6 | Pending |
-| GEN-05 | Phase 6 | Pending |
-| GEN-06 | Phase 6 | Pending |
-| GEN-07 | Phase 6 | Pending |
+| GEN-01 | Phase 6 | Complete in 06-04 |
+| GEN-02 | Phase 6 | Complete in 06-03/06-04 |
+| GEN-03 | Phase 6 | Complete in 06-02/06-03 |
+| GEN-04 | Phase 6 | Complete in 06-03 |
+| GEN-05 | Phase 6 | Complete in 06-02 |
+| GEN-06 | Phase 6 | Complete in 06-04 |
+| GEN-07 | Phase 6 | Complete in 06-04 |
 | PAY-01 | Phase 2 | Complete in 02-03 |
 | PAY-02 | Phase 2 | Complete in 02-02 |
 | PAY-03 | Phase 2 | Complete in 02-02 |
@@ -192,7 +192,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TEST-02 | Phase 3 | Complete in 03-04 |
 | TEST-03 | Phase 4 | Complete in 04-03 |
 | TEST-04 | Phase 5 | Complete in 05-04 |
-| TEST-05 | Phase 6 | Pending |
+| TEST-05 | Phase 6 | Complete in 06-05 |
 | TEST-06 | Phase 7 | Pending |
 
 **Coverage:**
@@ -203,4 +203,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-25*
-*Last updated: 2026-04-27 after Phase 5 verification*
+*Last updated: 2026-04-28 after Phase 6 verification*

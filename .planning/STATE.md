@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready_to_execute
-stopped_at: Phase 6 planned; ready to execute
-last_updated: "2026-04-28T09:05:53+03:00"
-last_activity: 2026-04-28 -- Phase 6 planning complete
+status: ready_to_plan
+stopped_at: Phase 6 complete; ready to discuss Phase 7
+last_updated: "2026-04-28T12:00:00+03:00"
+last_activity: 2026-04-28 -- Phase 6 execution complete
 progress:
   total_phases: 8
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 22
-  completed_plans: 17
-  percent: 77
+  completed_plans: 22
+  percent: 75
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-25)
 
 **Core value:** Users can reliably create AI-generated comic pages under their own account, with durable comic history and trustworthy server-side coin accounting.
-**Current focus:** Phase 6 - Production AI Generation Pipeline
+**Current focus:** Phase 7 - Creator Frontend Backend Integration
 
 ## Current Position
 
-Phase: 6 (Production AI Generation Pipeline) - READY TO EXECUTE
-Plan: 0 of 5
-Status: Phase 6 planned; ready to execute
-Last activity: 2026-04-28 -- Phase 6 planning complete
+Phase: 7 (Creator Frontend Backend Integration) - NEEDS DISCUSSION
+Plan: 0 of TBD
+Status: Phase 6 complete; ready to discuss Phase 7
+Last activity: 2026-04-28 -- Phase 6 execution complete
 
-Progress: [----------] 0%
+Progress: [#######---] 75%
 
 ## Performance Metrics
 
@@ -83,6 +83,7 @@ Recent decisions affecting current work:
 - [Phase 5 Verification]: Private comic schema fields, service layer, authenticated `/api/v1/comics` CRUD/archive APIs, structured scenes/pages persistence, and two-user owner-scoping tests are implemented; full backend gates pass.
 - [Phase 6 Discussion]: MVP generation should use a new authenticated v1 generation API, synchronous request/response within Vercel limits, `generation_jobs` audit/status records, Vercel Blob image persistence, debit-before-generation with idempotent refunds, protected free AI text assistance, and model allow-list validation with `MODEL_NOT_ALLOWED`.
 - [Phase 6 Planning]: Phase 6 is split into five sequential plans: settings/schema, provider/storage adapters, generation orchestration service, API routes, and docs/gates.
+- [Phase 6 Verification]: Authenticated `/api/v1/generations`, protected `/api/v1/ai-text`, OpenRouter/Blob adapters, generation job idempotency, wallet debit/refund safety, Blob URL-only responses, fixture-backed tests, and full backend gates are complete.
 
 ### Pending Todos
 
@@ -90,7 +91,7 @@ None yet.
 
 ### Blockers/Concerns
 
-- Object storage provider remains open and should be decided before Phase 6/8 implementation details are locked.
+- Object storage provider is Vercel Blob for the MVP generation pipeline.
 - Production deployment target is Vercel-first, but backend portability should be preserved for Render/Railway/Fly fallback if Vercel limitations become critical.
 - Starter coin amount should remain configurable until product value is confirmed.
 
@@ -106,6 +107,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-04-28T09:05:53+03:00
-Stopped at: Phase 6 planned; ready to execute
-Resume file: .planning/phases/06-production-ai-generation-pipeline/06-01-PLAN.md
+Last session: 2026-04-28T12:00:00+03:00
+Stopped at: Phase 6 complete; ready to discuss Phase 7
+Resume file: .planning/phases/06-production-ai-generation-pipeline/06-VERIFICATION.md

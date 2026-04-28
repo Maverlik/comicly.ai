@@ -58,6 +58,17 @@ Phase 5 adds authenticated private comic persistence:
 
 Comic APIs require the product session cookie. They are owner-scoped: users can only list, open, update, archive, and replace scenes/pages for their own comics.
 
+Phase 6 adds authenticated generation APIs:
+
+- `POST /api/v1/generations`
+- `POST /api/v1/ai-text`
+
+`POST /api/v1/generations` is the synchronous MVP path for full comic page generation. It requires the product session cookie and an `Idempotency-Key` header. The request accepts creator-compatible fields such as `story`, `characters`, `style`, `tone`, `selectedScene`, `scenes`, `dialogue`, `caption`, `layout`, plus backend persistence fields `comic_id`, optional `scene_id`, `page_number`, and optional `model_id`.
+
+The generation response contains only durable metadata: job, page, updated balance, and `image_url`. It must not return provider base64 image data. Generated images are copied to Vercel Blob before success is returned.
+
+`POST /api/v1/ai-text` is authenticated and free for the MVP. It supports `enhance`, `dialogue`, `caption`, and `scenes` tasks through the server-side OpenRouter service. It does not create generation jobs or wallet transactions.
+
 ## Docker
 
 Postgres and the backend app are managed by the backend Docker Compose file:
@@ -85,9 +96,9 @@ Copy `backend/.env.example` to `backend/.env` for local overrides.
 | `MIGRATION_DATABASE_URL` | Optional direct database URL for Alembic migrations | unset |
 | `DATABASE_DIRECT_URL` | Optional direct database URL fallback for Alembic migrations | unset |
 | `CORS_ORIGINS` | Comma-separated future frontend origins | unset |
-| `FULL_PAGE_GENERATION_COST` | Future full page generation coin cost | `20` |
-| `SCENE_REGENERATION_COST` | Future scene regeneration coin cost | `4` |
-| `STARTER_COINS` | Future starter wallet coin amount | `100` |
+| `FULL_PAGE_GENERATION_COST` | Full page generation coin cost | `20` |
+| `SCENE_REGENERATION_COST` | Scene regeneration coin cost | `4` |
+| `STARTER_COINS` | Starter wallet coin amount | `100` |
 | `SESSION_SECRET` | Signing secret for temporary OAuth state cookie | local placeholder |
 | `FRONTEND_CREATOR_URL` | Post-login redirect target | `https://comicly.ai/create.html` |
 | `SESSION_COOKIE_NAME` | DB-backed product session cookie name | `comicly_session` |
@@ -99,12 +110,21 @@ Copy `backend/.env.example` to `backend/.env` for local overrides.
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | unset |
 | `YANDEX_CLIENT_ID` | Yandex OAuth client id | unset |
 | `YANDEX_CLIENT_SECRET` | Yandex OAuth client secret | unset |
+| `OPENROUTER_API_KEY` | Server-side OpenRouter API key for generation/text | unset |
+| `OPENROUTER_SITE_URL` | Referer sent to OpenRouter | `https://comicly.ai` |
+| `OPENROUTER_APP_NAME` | App title sent to OpenRouter | `comicly.ai` |
+| `OPENROUTER_DEFAULT_IMAGE_MODEL` | Default image model when request omits `model_id` | `bytedance-seed/seedream-4.5` |
+| `OPENROUTER_DEFAULT_TEXT_MODEL` | Default AI text model | `google/gemini-2.5-flash` |
+| `OPENROUTER_ALLOWED_IMAGE_MODELS` | Comma-separated image model allow-list | configured list |
+| `OPENROUTER_IMAGE_ASPECT_RATIO` | Image aspect ratio sent to OpenRouter | `1:1` |
+| `OPENROUTER_REQUEST_TIMEOUT_SECONDS` | OpenRouter request timeout | `60` |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob read-write token | unset |
 
 For Vercel/Neon production:
 
 - `DATABASE_URL` should be the Neon pooled connection URL converted to the async SQLAlchemy driver form, for example `postgresql+asyncpg://...`.
 - `MIGRATION_DATABASE_URL` should be the Neon direct non-pooled URL for Alembic when available.
-- `SESSION_SECRET`, OAuth secrets, `OPENROUTER_API_KEY`, and storage credentials should be configured through environment variables, not committed files.
+- `SESSION_SECRET`, OAuth secrets, `OPENROUTER_API_KEY`, and `BLOB_READ_WRITE_TOKEN` should be configured through environment variables, not committed files.
 - `SESSION_COOKIE_SECURE=true` should be used for production HTTPS.
 - `SESSION_COOKIE_DOMAIN=.comicly.ai` is suitable when frontend is `comicly.ai`/`www.comicly.ai` and the backend API is `api.comicly.ai`.
 
@@ -127,7 +147,7 @@ OAuth uses two different cookie concepts:
 
 Avatar file upload is not implemented in Phase 3. The backend stores the provider-supplied `avatar_url` from OAuth and leaves real upload/storage for the later storage decision.
 
-Later-phase variables such as OpenRouter keys and storage settings are documented in `.env.example` as references only. They are intentionally not required for startup yet.
+OpenRouter and Blob secrets are intentionally optional at import/startup time so health checks, tests, and non-generation APIs can run without live provider credentials. Live generation and AI text calls require `OPENROUTER_API_KEY`; live image persistence requires `BLOB_READ_WRITE_TOKEN`.
 
 ## Wallet Ledger
 
@@ -151,7 +171,25 @@ Server-controlled generation costs are:
 - full page generation: `FULL_PAGE_GENERATION_COST`, default `20`;
 - scene regeneration: `SCENE_REGENERATION_COST`, default `4`.
 
-If a user cannot cover a debit, the service returns `INSUFFICIENT_COINS` with HTTP status `409` and does not create a debit row. If a future OpenRouter generation fails after a debit, the caller should create one idempotent refund transaction rather than silently editing the original debit.
+If a user cannot cover a debit, the service returns `INSUFFICIENT_COINS` with HTTP status `409` and does not create a debit row. If OpenRouter generation or Blob persistence fails after a debit, the generation service marks the job/page failed and records one idempotent refund transaction rather than silently editing the original debit.
+
+## Generation Pipeline
+
+Phase 6 generation is backend-owned and API-only. The static frontend is not changed until Phase 7.
+
+The synchronous MVP flow is:
+
+1. Authenticated client sends `POST /api/v1/generations` with `Idempotency-Key`.
+2. Backend validates `model_id` against `OPENROUTER_ALLOWED_IMAGE_MODELS`; disallowed models return `MODEL_NOT_ALLOWED`.
+3. Backend creates a `generation_jobs` audit record and prepares an owned comic page.
+4. Backend debits `FULL_PAGE_GENERATION_COST` through the wallet ledger.
+5. Backend calls OpenRouter with server-side credentials.
+6. Backend uploads the generated image to Vercel Blob.
+7. Backend marks the job/page `succeeded` and returns job, page, updated balance, and Blob `image_url`.
+
+If OpenRouter or Blob fails after debit, the backend marks the job/page `failed` and records one idempotent refund. Repeating the same `Idempotency-Key` replays the completed job result and does not double-charge or re-call external services.
+
+This phase deliberately does not add a queue, worker, webhook, or polling endpoint. If generation regularly exceeds Vercel Function limits, the existing `generation_jobs` table is ready to support a later async polling/queue implementation.
 
 ## Private Comic Persistence
 
