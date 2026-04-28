@@ -1,0 +1,21 @@
+{
+  "choices": [
+    {
+      "message": {
+        "images": [
+          {
+            "image_url": {
+              "url": "https://example.com/generated.png"
+            }
+          }
+        ],
+        "content": [
+          {
+            "type": "text",
+            "text": "Image generated."
+          }
+        ]
+      }
+    }
+  ]
+}
