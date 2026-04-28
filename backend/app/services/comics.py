@@ -334,6 +334,51 @@ async def replace_pages(
     return [_page_summary(page) for page in created]
 
 
+async def prepare_generation_page(
+    session: AsyncSession,
+    *,
+    user_id: UUID,
+    comic_id: UUID,
+    page_number: int,
+    scene_id: UUID | None = None,
+) -> ComicPage:
+    comic = await get_owned_comic(session, user_id=user_id, comic_id=comic_id)
+    if page_number < 1:
+        raise ApiError(
+            status_code=400,
+            code="COMIC_VALIDATION_ERROR",
+            message="page_number must be greater than zero.",
+        )
+    if scene_id is not None:
+        await _validate_scene_ids(
+            session,
+            comic_id=comic.id,
+            pages=[PageInput(page_number=page_number, scene_id=scene_id)],
+        )
+
+    result = await session.execute(
+        select(ComicPage).where(
+            ComicPage.comic_id == comic.id,
+            ComicPage.page_number == page_number,
+        )
+    )
+    page = result.scalar_one_or_none()
+    if page is None:
+        page = ComicPage(
+            comic_id=comic.id,
+            page_number=page_number,
+            scene_id=scene_id,
+            status=PAGE_STATUS_PENDING,
+        )
+        session.add(page)
+    else:
+        page.scene_id = scene_id
+        page.status = PAGE_STATUS_PENDING
+        page.generated_at = None
+    await session.flush()
+    return page
+
+
 async def get_owned_comic(
     session: AsyncSession,
     *,
