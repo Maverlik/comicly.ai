@@ -115,7 +115,13 @@ Plans:
   3. Generation failure leaves a persisted failed status and does not incorrectly spend coins.
   4. OpenRouter calls use timeout handling, safe retry/error mapping, model allow-list validation, and fixture-backed response parsing; AI text assistance remains available with validation, auth/rate-limit protection, and no client-side provider secrets.
   5. Generation responses return updated balance plus persisted page/comic data needed by the frontend, and tests cover OpenRouter parsing and failure modes with fixtures.
-**Plans**: TBD
+**Plans**: 5 plans
+Plans:
+- [ ] 06-01-PLAN.md - Generation settings, Vercel Blob dependency, and job idempotency schema.
+- [ ] 06-02-PLAN.md - OpenRouter and Vercel Blob service adapters with fixture-backed parsing tests.
+- [ ] 06-03-PLAN.md - Synchronous generation orchestration service with wallet debit/refund and page persistence.
+- [ ] 06-04-PLAN.md - Authenticated generation and AI text API routes.
+- [ ] 06-05-PLAN.md - Generation docs, full backend gates, review, and backend-only boundary check.
 
 ### Phase 7: Creator Frontend Backend Integration
 **Goal**: The existing static creator visibly uses authenticated backend truth for profile, balance, comic history, and generation results instead of demo-only browser state.
@@ -153,6 +159,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 3. OAuth Sessions And Profile Bootstrap | 4/4 | Complete | 2026-04-27 |
 | 4. Wallet Ledger And Coin Safety | 3/3 | Complete | 2026-04-27 |
 | 5. Private Comic Persistence | 4/4 | Complete | 2026-04-27 |
-| 6. Production AI Generation Pipeline | 0/TBD | Not started | - |
+| 6. Production AI Generation Pipeline | 0/5 | Planned | - |
 | 7. Creator Frontend Backend Integration | 0/TBD | Not started | - |
 | 8. Deployment And Operations | 0/TBD | Not started | - |
