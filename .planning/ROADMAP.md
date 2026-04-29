@@ -150,7 +150,12 @@ Plans:
   3. Developer can follow production deployment instructions covering database, storage, OAuth callback, cookie, and environment configuration.
   4. Production deployment serves the app, connects to production database/storage, and supports Google/Yandex OAuth on the production domain.
   5. Auth, generation, profile writes, and other sensitive endpoints have basic rate limiting and security headers in the production deployment.
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 08-01-PLAN.md - Vercel deployment config and static safety.
+- [ ] 08-02-PLAN.md - Backend security headers and rate limiting.
+- [ ] 08-03-PLAN.md - Environment docs, operations runbook, and smoke tooling.
+- [ ] 08-04-PLAN.md - Deployment attempt, smoke checks, review, and verification.
 
 ## Progress
 
@@ -166,4 +171,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 5. Private Comic Persistence | 4/4 | Complete | 2026-04-27 |
 | 6. Production AI Generation Pipeline | 5/5 | Complete | 2026-04-28 |
 | 7. Creator Frontend Backend Integration | 4/4 | Complete | 2026-04-28 |
-| 8. Deployment And Operations | 0/TBD | Not started | - |
+| 8. Deployment And Operations | 0/4 | Planned | - |
