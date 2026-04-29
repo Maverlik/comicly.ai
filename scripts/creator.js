@@ -138,6 +138,9 @@ function resolveApiBaseUrl() {
   if (hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1") {
     return "http://localhost:8000";
   }
+  if (hostname.endsWith(".vercel.app")) {
+    return "https://comicly-backend.vercel.app";
+  }
   return "https://api.comicly.ai";
 }
 
@@ -998,7 +1001,6 @@ async function callAiText(task, extra = {}) {
     selected_scene: [scene.title, scene.description].filter(Boolean).join(": "),
     dialogue: scene.dialogue,
     caption: scene.caption,
-    model_id: activeModel,
   };
   return apiFetch("/api/v1/ai-text", {
     method: "POST",

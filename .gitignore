@@ -10,3 +10,4 @@ yarn-error.log*
 Thumbs.db
 .chrome-shot/
 .edge-shot/
+.vercel

@@ -123,7 +123,7 @@ async def test_ai_text_returns_text_and_keeps_generation_tables_empty(
         json={
             "task": "enhance",
             "story": "Story",
-            "model_id": "text/model",
+            "model_id": "openai/gpt-5.4-image-2",
             "selectedScene": "Launch",
         },
         headers=auth_header(),
@@ -140,13 +140,42 @@ async def test_ai_text_returns_text_and_keeps_generation_tables_empty(
     assert response.status_code == 200
     assert response.json() == {
         "text": "Improved comic text.",
-        "model": "text/model",
+        "model": "google/gemini-2.5-flash",
         "scenes": None,
         "characters": None,
         "pages": None,
     }
     assert job_count == 0
     assert tx_count == 0
+
+
+async def test_ai_text_ignores_creator_image_model_override(
+    session_maker: async_sessionmaker[AsyncSession],
+) -> None:
+    service = FakeTextService()
+    app = create_app()
+
+    async def override_session() -> AsyncIterator[AsyncSession]:
+        async with session_maker() as session:
+            yield session
+
+    app.dependency_overrides[get_async_session] = override_session
+    app.dependency_overrides[get_text_service] = lambda: service
+    await seed_authenticated_user(session_maker)
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://testserver") as client:
+        response = await client.post(
+            "/api/v1/ai-text",
+            json={
+                "task": "enhance",
+                "story": "Story",
+                "model_id": "openai/gpt-5.4-image-2",
+            },
+            headers=auth_header(),
+        )
+
+    assert response.status_code == 200
+    assert service.calls[0]["model"] is None
 
 
 async def test_ai_text_scenes_parses_json_array(

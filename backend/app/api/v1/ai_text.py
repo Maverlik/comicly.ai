@@ -108,7 +108,7 @@ async def create_ai_text(
     result = await service.generate_text(
         task=payload.task,
         payload=payload.provider_payload(),
-        model=payload.model_id,
+        model=None,
     )
     parsed = _parse_json_list(result.text)
     return AiTextResponse(

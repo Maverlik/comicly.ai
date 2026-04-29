@@ -127,11 +127,14 @@ Backend project:
 
 - Root directory: `backend`
 - Runtime: Python 3.12
-- Entry point: `index.py`, which imports the FastAPI app from `app/main.py`
+- Entry point: `api/index.py`, which imports the FastAPI app from `app/main.py`
+- `backend/vercel.json` rewrites all paths to `/api/index.py` so unprefixed routes like `/health` and `/ready` are handled by FastAPI.
 - Domain: `api.comicly.ai`
 - Functions max duration: set to 300 seconds in the Vercel project settings/dashboard where supported
 
 Vercel Python runtime is Beta. Keep the backend portable so it can move to Render, Railway, Fly.io, or a container service without rewriting business logic.
+
+If a backend deployment is `READY` but `/health` returns Vercel `NOT_FOUND`, check that the project has the `api/index.py` function entrypoint and the rewrite rule above. A generic static/Other project can otherwise deploy successfully without creating a Python function.
 
 Preview deployments may be protected by Vercel Authentication. If a direct browser or smoke helper request returns the Vercel "Authentication Required" HTML page, use the authenticated CLI path instead:
 
