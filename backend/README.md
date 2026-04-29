@@ -132,6 +132,10 @@ Copy `backend/.env.example` to `backend/.env` for local overrides.
 | `OPENROUTER_IMAGE_ASPECT_RATIO` | Image aspect ratio sent to OpenRouter | `1:1` |
 | `OPENROUTER_REQUEST_TIMEOUT_SECONDS` | OpenRouter request timeout | `60` |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob read-write token | unset |
+| `SECURITY_HEADERS_ENABLED` | Enable baseline API security headers | `true` |
+| `RATE_LIMIT_ENABLED` | Enable in-process sensitive-route rate limiting | `true` |
+| `RATE_LIMIT_WINDOW_SECONDS` | Rate-limit window size in seconds | `60` |
+| `RATE_LIMIT_MAX_REQUESTS` | Max sensitive requests per client/window | `60` |
 
 For Vercel/Neon production:
 
@@ -161,6 +165,26 @@ OAuth uses two different cookie concepts:
 Avatar file upload is not implemented in Phase 3. The backend stores the provider-supplied `avatar_url` from OAuth and leaves real upload/storage for the later storage decision.
 
 OpenRouter and Blob secrets are intentionally optional at import/startup time so health checks, tests, and non-generation APIs can run without live provider credentials. Live generation and AI text calls require `OPENROUTER_API_KEY`; live image persistence requires `BLOB_READ_WRITE_TOKEN`.
+
+## Security Controls
+
+The backend adds baseline security headers to API responses:
+
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `X-Frame-Options: DENY`
+- `Permissions-Policy` disabling camera, microphone, geolocation, and payment APIs
+- `Strict-Transport-Security` only when running in production with secure cookies enabled
+
+Sensitive routes also have simple in-process rate limiting:
+
+- OAuth routes under `/api/v1/auth/...`
+- profile writes and logout under `/api/v1/me`
+- `POST /api/v1/ai-text`
+- `POST /api/v1/generations`
+- write operations under `/api/v1/comics...`
+
+Exceeded limits return HTTP `429` with error code `RATE_LIMITED`. The limiter is portable and requires no Redis or Vercel-only service, but it is best-effort in serverless because each function instance has its own memory. Use Vercel Firewall or another shared rate-limit layer later if abuse patterns require global enforcement.
 
 ## Wallet Ledger
 

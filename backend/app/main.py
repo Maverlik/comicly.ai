@@ -4,8 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.api import health, v1
-from app.core.config import get_settings
+from app.core.config import Settings, get_settings
 from app.core.errors import ApiError, error_response
+from app.core.security import RateLimitMiddleware, SecurityHeadersMiddleware
 
 try:
     from starlette.middleware.sessions import SessionMiddleware
@@ -38,8 +39,8 @@ except ModuleNotFoundError:  # pragma: no cover - runtime requirements install t
             return await call_next(request)
 
 
-def create_app() -> FastAPI:
-    settings = get_settings()
+def create_app(settings: Settings | None = None) -> FastAPI:
+    settings = settings or get_settings()
     app = FastAPI(title=settings.app_name, debug=settings.app_debug)
     app.state.settings = settings
 
@@ -68,6 +69,8 @@ def create_app() -> FastAPI:
         session_cookie="comicly_oauth_state",
         max_age=600,
     )
+    app.add_middleware(RateLimitMiddleware, settings=settings)
+    app.add_middleware(SecurityHeadersMiddleware, settings=settings)
 
     @app.exception_handler(ApiError)
     async def api_error_handler(_request: Request, exc: ApiError):

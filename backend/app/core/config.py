@@ -55,6 +55,10 @@ class Settings(BaseSettings):
     openrouter_image_aspect_ratio: str = "1:1"
     openrouter_request_timeout_seconds: float = 60.0
     blob_read_write_token: str | None = None
+    security_headers_enabled: bool = True
+    rate_limit_enabled: bool = True
+    rate_limit_window_seconds: int = 60
+    rate_limit_max_requests: int = 60
 
     @model_validator(mode="after")
     def validate_coin_settings(self) -> Self:
@@ -78,6 +82,10 @@ class Settings(BaseSettings):
             raise ValueError(
                 "OPENROUTER_REQUEST_TIMEOUT_SECONDS must be greater than zero"
             )
+        if self.rate_limit_window_seconds <= 0:
+            raise ValueError("RATE_LIMIT_WINDOW_SECONDS must be greater than zero")
+        if self.rate_limit_max_requests <= 0:
+            raise ValueError("RATE_LIMIT_MAX_REQUESTS must be greater than zero")
         if not self.openrouter_allowed_image_model_list:
             raise ValueError("OPENROUTER_ALLOWED_IMAGE_MODELS must not be empty")
         if (
