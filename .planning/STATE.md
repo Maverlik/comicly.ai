@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 8 planned; ready to execute
-last_updated: "2026-04-29T04:04:55.611Z"
-last_activity: 2026-04-29 -- Phase 8 planning complete
+last_updated: "2026-04-29T04:07:35.871Z"
+last_activity: 2026-04-29 -- Phase 8 execution started
 progress:
   total_phases: 8
   completed_phases: 7
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-25)
 
 **Core value:** Users can reliably create AI-generated comic pages under their own account, with durable comic history and trustworthy server-side coin accounting.
-**Current focus:** Phase 8 - Deployment And Operations
+**Current focus:** Phase 8 — Deployment And Operations
 
 ## Current Position
 
-Phase: 8 (Deployment And Operations) - READY TO EXECUTE
-Plan: 0 of 4
-Status: Ready to execute
-Last activity: 2026-04-29 -- Phase 8 planning complete
+Phase: 8 (Deployment And Operations) — EXECUTING
+Plan: 1 of 4
+Status: Executing Phase 8
+Last activity: 2026-04-29 -- Phase 8 execution started
 
 Progress: [#########-] 87%
 

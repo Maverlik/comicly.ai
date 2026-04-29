@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "test:phase7": "node --test tests/phase7-static-contract.test.mjs"
+    "build:frontend": "node scripts/build-frontend.mjs",
+    "test:phase7": "node --test tests/phase7-static-contract.test.mjs",
+    "test:phase8": "node --test tests/phase8-deploy-config.test.mjs"
   },
   "engines": {
     "node": ">=22"

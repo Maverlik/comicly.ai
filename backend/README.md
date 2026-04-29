@@ -83,6 +83,19 @@ The Docker image installs the lean runtime dependency set from `requirements-run
 
 Docker Compose is local-only. Production deployment should use a managed Postgres database such as Neon through Vercel Marketplace or equivalent provider integration.
 
+## Vercel Deployment Boundary
+
+Production MVP deployment uses two separate Vercel projects from the same repository:
+
+- frontend project rooted at the repository root, serving `comicly.ai` and `www.comicly.ai`;
+- backend project rooted at `backend/`, serving the API on `api.comicly.ai`.
+
+The root frontend project builds an explicit static output directory from an allow-list of public files. Do not deploy the repository root as a raw static directory, because root-level files such as `.env`, `.planning/`, `backend/`, and package metadata are not public assets.
+
+The backend project is a standalone FastAPI service. Vercel Python runtime support is currently Beta, so keep business logic portable and isolated from Vercel-only features. Docker Compose remains local-only and must not be used as the production deployment mechanism on Vercel.
+
+Synchronous generation is acceptable for the MVP while OpenRouter requests fit within Vercel Hobby function duration. If generation regularly times out or approaches platform limits, use the existing `generation_jobs` structure as the migration path to a future async polling/queue/worker phase instead of adding deployment-specific business logic.
+
 ## Environment
 
 Copy `backend/.env.example` to `backend/.env` for local overrides.
