@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterator
+from decimal import Decimal
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -45,17 +46,51 @@ async def test_seed_default_coin_packages_is_idempotent(
         active_packages = await list_active_coin_packages(session)
 
     assert [package.code for package in first] == [
-        "coins_100",
-        "coins_500",
-        "coins_1000",
+        "coins_rub_450",
+        "coins_rub_1200",
+        "coins_rub_2600",
     ]
     assert [package.code for package in second] == [
-        "coins_100",
-        "coins_500",
-        "coins_1000",
+        "coins_rub_450",
+        "coins_rub_1200",
+        "coins_rub_2600",
     ]
     assert len(active_packages) == 3
-    assert [package.coin_amount for package in active_packages] == [100, 500, 1000]
+    assert [package.coin_amount for package in active_packages] == [450, 1200, 2600]
+
+
+async def test_seed_default_coin_packages_deactivates_legacy_defaults(
+    session_maker: async_sessionmaker[AsyncSession],
+) -> None:
+    async with session_maker() as session:
+        session.add_all(
+            [
+                CoinPackage(
+                    code="coins_100",
+                    name="100 coins",
+                    coin_amount=100,
+                    amount=Decimal("4.99"),
+                    currency="USD",
+                    active=True,
+                    sort_order=100,
+                ),
+                CoinPackage(
+                    code="custom_pack",
+                    name="Custom",
+                    coin_amount=777,
+                    amount=Decimal("777.00"),
+                    currency="RUB",
+                    active=True,
+                    sort_order=900,
+                ),
+            ]
+        )
+        await seed_default_coin_packages(session)
+        active_packages = await list_active_coin_packages(session)
+
+    active_codes = [package.code for package in active_packages]
+    assert "coins_100" not in active_codes
+    assert "custom_pack" in active_codes
 
 
 async def test_coin_package_catalog_returns_only_active_packages(
@@ -91,9 +126,9 @@ async def test_coin_package_catalog_returns_only_active_packages(
     assert response.status_code == 200
     payload = response.json()
     assert [item["code"] for item in payload] == [
-        "coins_100",
-        "coins_500",
-        "coins_1000",
+        "coins_rub_450",
+        "coins_rub_1200",
+        "coins_rub_2600",
     ]
-    assert [item["coin_amount"] for item in payload] == [100, 500, 1000]
+    assert [item["coin_amount"] for item in payload] == [450, 1200, 2600]
     assert all(item["active"] is True for item in payload)

@@ -25,6 +25,8 @@ def is_sensitive_path(path: str, method: str) -> bool:
         return True
     if path.startswith("/api/v1/comics") and method in WRITE_METHODS:
         return True
+    if path == "/api/v1/payments" and method == "POST":
+        return True
     return False
 
 

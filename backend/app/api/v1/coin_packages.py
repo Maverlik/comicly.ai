@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_async_session
-from app.services.coin_packages import list_active_coin_packages
+from app.services.coin_packages import ensure_default_coin_packages
 
 router = APIRouter(prefix="/coin-packages", tags=["coin-packages"])
 SessionDep = Annotated[AsyncSession, Depends(get_async_session)]
@@ -29,4 +29,6 @@ class CoinPackageResponse(BaseModel):
 async def get_coin_packages(
     session: SessionDep,
 ) -> list[CoinPackageResponse]:
-    return await list_active_coin_packages(session)
+    packages = await ensure_default_coin_packages(session)
+    await session.commit()
+    return packages

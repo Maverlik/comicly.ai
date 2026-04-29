@@ -78,9 +78,10 @@ test("backend Vercel config targets FastAPI app without Docker Compose", async (
   const entrypoint = await readText("backend/index.py");
 
   assert.equal(pythonVersion, "3.12");
+  assert.equal(backendConfig.buildCommand, null);
   assert.equal(
     backendConfig.installCommand,
-    "python -m pip install -r requirements-runtime.txt",
+    "python -m pip install --break-system-packages -r requirements-runtime.txt",
   );
   assert.doesNotMatch(JSON.stringify(backendConfig), /docker|compose/i);
   assert.match(entrypoint, /from app\.main import app/);
@@ -97,6 +98,7 @@ test("committed env examples do not contain real secret values", async () => {
     assert.doesNotMatch(content, /BLOB_READ_WRITE_TOKEN=.*[A-Za-z0-9_-]{20,}/);
     assert.doesNotMatch(content, /GOOGLE_CLIENT_SECRET=.*[A-Za-z0-9_-]{20,}/);
     assert.doesNotMatch(content, /YANDEX_CLIENT_SECRET=.*[A-Za-z0-9_-]{20,}/);
+    assert.doesNotMatch(content, /YOOKASSA_API_KEY=.*[A-Za-z0-9_-]{20,}/);
   }
 });
 
@@ -115,6 +117,10 @@ test("backend env example names production deployment variables", async () => {
     "YANDEX_CLIENT_SECRET",
     "OPENROUTER_API_KEY",
     "BLOB_READ_WRITE_TOKEN",
+    "YOOKASSA_SHOP_ID",
+    "YOOKASSA_API_KEY",
+    "YOOKASSA_RETURN_URL",
+    "YOOKASSA_WEBHOOK_IP_CHECK_ENABLED",
   ];
 
   for (const name of requiredNames) {
@@ -130,6 +136,8 @@ test("deployment runbook documents production domains and manual live checks", a
   assert.match(runbook, /DATABASE_URL/);
   assert.match(runbook, /MIGRATION_DATABASE_URL/);
   assert.match(runbook, /BLOB_READ_WRITE_TOKEN/);
+  assert.match(runbook, /YOOKASSA_SHOP_ID/);
+  assert.match(runbook, /api\/v1\/payments\/webhook/);
   assert.match(runbook, /api\/v1\/auth\/google\/callback/);
   assert.match(runbook, /api\/v1\/auth\/yandex\/callback/);
   assert.match(runbook, /Manual production checks/);

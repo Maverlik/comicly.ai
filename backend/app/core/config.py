@@ -59,6 +59,21 @@ class Settings(BaseSettings):
     rate_limit_enabled: bool = True
     rate_limit_window_seconds: int = 60
     rate_limit_max_requests: int = 60
+    yookassa_shop_id: str | None = None
+    yookassa_api_key: str | None = None
+    yookassa_api_url: str = "https://api.yookassa.ru/v3"
+    yookassa_request_timeout_seconds: float = 20.0
+    yookassa_return_url: str = "https://comicly.ai/pricing.html?payment=return"
+    yookassa_webhook_ip_allowlist: str = (
+        "185.71.76.0/27,"
+        "185.71.77.0/27,"
+        "77.75.153.0/25,"
+        "77.75.156.11,"
+        "77.75.156.35,"
+        "77.75.154.128/25,"
+        "2a02:5180::/32"
+    )
+    yookassa_webhook_ip_check_enabled: bool = True
 
     @model_validator(mode="after")
     def validate_coin_settings(self) -> Self:
@@ -86,6 +101,10 @@ class Settings(BaseSettings):
             raise ValueError("RATE_LIMIT_WINDOW_SECONDS must be greater than zero")
         if self.rate_limit_max_requests <= 0:
             raise ValueError("RATE_LIMIT_MAX_REQUESTS must be greater than zero")
+        if self.yookassa_request_timeout_seconds <= 0:
+            raise ValueError(
+                "YOOKASSA_REQUEST_TIMEOUT_SECONDS must be greater than zero"
+            )
         if not self.openrouter_allowed_image_model_list:
             raise ValueError("OPENROUTER_ALLOWED_IMAGE_MODELS must not be empty")
         if (
@@ -131,6 +150,14 @@ class Settings(BaseSettings):
     @property
     def openrouter_allowed_image_model_set(self) -> set[str]:
         return set(self.openrouter_allowed_image_model_list)
+
+    @property
+    def yookassa_webhook_ip_allowlist_entries(self) -> list[str]:
+        return [
+            entry.strip()
+            for entry in self.yookassa_webhook_ip_allowlist.split(",")
+            if entry.strip()
+        ]
 
     @property
     def is_production(self) -> bool:

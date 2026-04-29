@@ -72,10 +72,14 @@ Backend production variables:
 - `OPENROUTER_SITE_URL=https://comicly.ai`
 - `OPENROUTER_APP_NAME=comicly.ai`
 - `BLOB_READ_WRITE_TOKEN`
+- `YOOKASSA_SHOP_ID`
+- `YOOKASSA_API_KEY`
+- `YOOKASSA_RETURN_URL=https://comicly.ai/pricing.html?payment=return`
 - `SECURITY_HEADERS_ENABLED=true`
 - `RATE_LIMIT_ENABLED=true`
 
 Generation pricing and model variables may keep the defaults from `backend/.env.example` unless product pricing changes.
+Payment packages are seeded through `python scripts/seed_coin_packages.py`; rerun it after deploying payment pricing changes so the production database has the active RUB packages.
 
 ## Database
 
@@ -113,6 +117,16 @@ Local callback URLs:
 
 After login, both providers should redirect back to `https://comicly.ai/create.html` through `FRONTEND_CREATOR_URL`.
 
+## YooKassa
+
+In YooKassa, configure the payment notification URL:
+
+```text
+https://api.comicly.ai/api/v1/payments/webhook
+```
+
+The backend verifies webhook source IP ranges in production by default and then fetches the payment from YooKassa before granting coins. Keep `YOOKASSA_WEBHOOK_IP_CHECK_ENABLED=true` in production unless an upstream trusted proxy enforces the same allow-list.
+
 ## Vercel Projects
 
 Frontend project:
@@ -128,7 +142,7 @@ Backend project:
 - Root directory: `backend`
 - Runtime: Python 3.12
 - Entry point: `api/index.py`, which imports the FastAPI app from `app/main.py`
-- `backend/vercel.json` rewrites all paths to `/api/index.py` so unprefixed routes like `/health` and `/ready` are handled by FastAPI.
+- `backend/vercel.json` rewrites all paths to `/api/index` so unprefixed routes like `/health` and `/ready` are handled by FastAPI.
 - Domain: `api.comicly.ai`
 - Functions max duration: set to 300 seconds in the Vercel project settings/dashboard where supported
 

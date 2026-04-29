@@ -17,13 +17,43 @@ class CoinPackageSeed(NamedTuple):
 
 
 DEFAULT_COIN_PACKAGES = (
-    CoinPackageSeed("coins_100", "100 coins", 100, Decimal("4.99"), "USD", 100),
-    CoinPackageSeed("coins_500", "500 coins", 500, Decimal("19.99"), "USD", 500),
-    CoinPackageSeed("coins_1000", "1000 coins", 1000, Decimal("34.99"), "USD", 1000),
+    CoinPackageSeed("coins_rub_450", "Старт", 450, Decimal("199.00"), "RUB", 100),
+    CoinPackageSeed(
+        "coins_rub_1200", "Оптимальный", 1200, Decimal("499.00"), "RUB", 200
+    ),
+    CoinPackageSeed(
+        "coins_rub_2600", "Продвинутый", 2600, Decimal("999.00"), "RUB", 300
+    ),
 )
+DEFAULT_COIN_PACKAGE_CODES = {package.code for package in DEFAULT_COIN_PACKAGES}
+LEGACY_DEFAULT_COIN_PACKAGE_CODES = {"coins_100", "coins_500", "coins_1000"}
+
+
+async def ensure_default_coin_packages(session: AsyncSession) -> list[CoinPackage]:
+    result = await session.execute(
+        select(CoinPackage)
+        .where(
+            CoinPackage.code.in_(
+                DEFAULT_COIN_PACKAGE_CODES | LEGACY_DEFAULT_COIN_PACKAGE_CODES
+            )
+        )
+        .where(CoinPackage.active.is_(True))
+    )
+    active_codes = {package.code for package in result.scalars()}
+    if active_codes == DEFAULT_COIN_PACKAGE_CODES:
+        return await list_active_coin_packages(session)
+    return await seed_default_coin_packages(session)
 
 
 async def seed_default_coin_packages(session: AsyncSession) -> list[CoinPackage]:
+    legacy_result = await session.execute(
+        select(CoinPackage).where(
+            CoinPackage.code.in_(LEGACY_DEFAULT_COIN_PACKAGE_CODES)
+        )
+    )
+    for legacy_package in legacy_result.scalars():
+        legacy_package.active = False
+
     for package in DEFAULT_COIN_PACKAGES:
         result = await session.execute(
             select(CoinPackage).where(CoinPackage.code == package.code)
