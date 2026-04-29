@@ -117,6 +117,7 @@ After login, both providers should redirect back to `https://comicly.ai/create.h
 
 Frontend project:
 
+- Vercel project name: `comicly-frontend`
 - Root directory: repository root
 - Build command: `npm run build:frontend`
 - Output directory: `dist`
@@ -138,7 +139,37 @@ Preview deployments may be protected by Vercel Authentication. If a direct brows
 npx vercel curl /health --deployment <backend-preview-url> --cwd backend
 ```
 
-The root frontend project must be a normal static Vercel project using `vercel.json` with `buildCommand` and `outputDirectory`. If the dashboard-linked project is in Vercel Services mode, `vercel deploy` can fail with `No services configured. Add experimentalServices to vercel.json.` Fix this in the Vercel dashboard by recreating or reconfiguring the frontend project as a standard static project, then redeploy from the repository root.
+The root frontend project must be a normal static Vercel project using `vercel.json` with `buildCommand` and `outputDirectory`. The first project named `comicly.ai` was accidentally created with Vercel's Services framework preset and fails with `No services configured. Add experimentalServices to vercel.json.` Do not use that project for the static frontend.
+
+The working frontend deployment uses a separate Vercel project named `comicly-frontend`.
+
+### Repeat Frontend Deploy
+
+From the repository root:
+
+```powershell
+npx vercel link --yes --project comicly-frontend --scope d1sneys-projects
+npm run build:frontend
+npx vercel deploy --prod --yes --no-color
+```
+
+Successful deployment evidence from 2026-04-29:
+
+- Project: `comicly-frontend`
+- Production alias: `https://comicly-frontend.vercel.app`
+- Deployment URL: `https://comicly-frontend-m3kf92a6s-d1sneys-projects.vercel.app`
+- Inspect URL: `https://vercel.com/d1sneys-projects/comicly-frontend/8CdNwe7N2sQamiGa1KVgbGFLC2TX`
+
+After deploy, verify:
+
+```powershell
+curl.exe -L -I https://comicly-frontend.vercel.app/
+curl.exe -L -I https://comicly-frontend.vercel.app/create.html
+```
+
+`/create.html` may redirect to `/create` with HTTP 308 because Vercel clean URLs are enabled for static output; the final response should be HTTP 200.
+
+To launch the real domain, attach `comicly.ai` and `www.comicly.ai` to the `comicly-frontend` project in the Vercel dashboard and remove those domains from the old Services-mode `comicly.ai` project if necessary.
 
 ## Smoke Checks
 

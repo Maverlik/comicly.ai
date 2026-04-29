@@ -2,7 +2,7 @@
 phase: 08-deployment-and-operations
 plan: 04
 subsystem: deployment-verification
-status: complete-with-external-blockers
+status: complete-with-domain-and-secret-blockers
 key-files:
   created:
     - .planning/phases/08-deployment-and-operations/08-REVIEW.md
@@ -22,7 +22,7 @@ key-files:
     - tests/phase8-deploy-config.test.mjs
 metrics:
   local_gates_passed: 7
-  vercel_deploy_attempts: 4
+  vercel_deploy_attempts: 7
 ---
 
 # Plan 08-04 Summary - Deploy Attempt, Smoke Checks, Review, Verification
@@ -31,7 +31,12 @@ metrics:
 
 - Ran local static, frontend build, Docker config, backend pytest, backend ruff lint, backend ruff format, and local smoke gates.
 - Confirmed Vercel CLI authentication as user `d1sney`.
-- Attempted root frontend deploy. The linked Vercel project exists but is currently blocked by Vercel Services-mode project configuration, not by the static bundle.
+- Attempted root frontend deploy against the original `comicly.ai` Vercel project. That project is blocked by Vercel Services-mode configuration, not by the static bundle.
+- Created and linked a corrected static frontend project named `comicly-frontend`.
+- Deployed the corrected frontend project successfully:
+  - Production alias: `https://comicly-frontend.vercel.app`
+  - Deployment URL: `https://comicly-frontend-m3kf92a6s-d1sneys-projects.vercel.app`
+  - Inspect: `https://vercel.com/d1sneys-projects/comicly-frontend/8CdNwe7N2sQamiGa1KVgbGFLC2TX`
 - Deployed backend preview successfully from `backend/`:
   - Preview: `https://backend-eywrx87ki-d1sneys-projects.vercel.app`
   - Inspect: `https://vercel.com/d1sneys-projects/backend/Caygjo6xntFsiCf7YCweb9HMQuUe`
@@ -50,6 +55,9 @@ metrics:
 | `python -m ruff check .` from `backend/` | passed |
 | `python -m ruff format --check .` from `backend/` | passed |
 | Local smoke helper against `localhost:3000` and `localhost:8000` | passed with `/ready` skipped |
+| Corrected frontend Vercel production deploy | READY |
+| Corrected frontend `/` | HTTP 200 |
+| Corrected frontend `/create.html` | HTTP 308 clean URL redirect, then HTTP 200 |
 | Backend Vercel preview deploy | READY |
 | Backend preview `/health` via `vercel curl` | passed |
 | Backend preview `/ready` without production DB env | expected `DATABASE_UNAVAILABLE` |
@@ -57,11 +65,11 @@ metrics:
 
 ## External Blockers
 
-- Frontend Vercel project `comicly.ai` is linked but currently configured in Services mode. Redeploying root static output fails with `No services configured. Add experimentalServices to vercel.json.` The fix is dashboard-side: recreate or reconfigure the frontend as a standard static Vercel project.
-- Production domains `comicly.ai`, `www.comicly.ai`, and `api.comicly.ai` are not bound in this thread.
+- Original frontend Vercel project `comicly.ai` is configured in Services mode and should not be used for the static frontend.
+- Corrected frontend project `comicly-frontend` works; production domains `comicly.ai`, `www.comicly.ai`, and `api.comicly.ai` are not bound in this thread.
 - Production env values are not configured in this thread: Neon runtime/migration URLs, Vercel Blob token, OAuth client secrets, session/cookie settings, and OpenRouter key.
 - Live Google/Yandex OAuth and live OpenRouter generation were not run because production provider secrets/domains are required.
 
 ## Self-Check
 
-PASSED WITH EXTERNAL BLOCKERS. Phase 8 code, docs, local gates, and backend preview readiness are complete. Full public production smoke remains blocked by Vercel dashboard project mode, domains, and production secrets.
+PASSED WITH DOMAIN AND SECRET BLOCKERS. Phase 8 code, docs, local gates, frontend Vercel deployment, and backend preview readiness are complete. Full public production smoke remains blocked by domain binding and production secrets.
