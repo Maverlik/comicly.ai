@@ -307,12 +307,69 @@
           if (paymentPlaceholder) paymentPlaceholder.hidden = true;
         });
 
+        async function pollPaymentStatus(paymentId) {
+          showNotice(
+            "Проверяем оплату…",
+            "Уточняем у платёжного шлюза, пришёл ли платёж.",
+          );
+          const attempts = 6;
+          const delayMs = 2500;
+          for (let i = 0; i < attempts; i += 1) {
+            try {
+              const result = await apiFetch(`/api/v1/payments/${paymentId}/refresh`, {
+                method: "POST",
+              });
+              if (result && result.credited) {
+                showNotice(
+                  "Оплата получена!",
+                  `Начислено ${result.coin_amount} монет. Можно возвращаться к созданию комикса.`,
+                );
+                return;
+              }
+              if (result && result.status === "canceled") {
+                showNotice(
+                  "Платёж отменён",
+                  "Списания не было. Если это ошибка, попробуйте оплатить ещё раз.",
+                );
+                return;
+              }
+            } catch (error) {
+              if (error.status === 401) {
+                showNotice(
+                  "Войдите, чтобы увидеть статус",
+                  "Авторизуйтесь, чтобы мы могли проверить статус вашей оплаты.",
+                );
+                return;
+              }
+              if (error.status === 404) {
+                showNotice(
+                  "Платёж не найден",
+                  "Похоже, ссылка устарела. Если списание было, монеты придут после подтверждения.",
+                );
+                return;
+              }
+            }
+            if (i < attempts - 1) {
+              await new Promise((resolve) => setTimeout(resolve, delayMs));
+            }
+          }
+          showNotice(
+            "Ждём подтверждения от банка",
+            "Это может занять до нескольких минут. Монеты появятся на балансе автоматически.",
+          );
+        }
+
         const params = new URLSearchParams(window.location.search);
         if (params.get("payment") === "return") {
-          showNotice(
-            "Спасибо! Платёж в обработке",
-            "Если оплата прошла успешно, монеты появятся на балансе в течение нескольких минут.",
-          );
+          const paymentId = params.get("payment_id");
+          if (paymentId) {
+            pollPaymentStatus(paymentId);
+          } else {
+            showNotice(
+              "Спасибо! Платёж в обработке",
+              "Если оплата прошла успешно, монеты появятся на балансе в течение нескольких минут.",
+            );
+          }
         }
       })();
     </script>

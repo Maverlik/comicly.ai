@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal
+from urllib.parse import urlencode, urlparse, urlunparse
 from uuid import UUID, uuid4
 
 from sqlalchemy import select
@@ -12,7 +13,11 @@ from app.core.config import Settings
 from app.core.errors import ApiError
 from app.models.payment import CoinPackage, Payment
 from app.services.wallets import WalletTransactionReason, grant_coins
-from app.services.yookassa import YooKassaService, parse_webhook_payload
+from app.services.yookassa import (
+    YooKassaPaymentResult,
+    YooKassaService,
+    parse_webhook_payload,
+)
 
 PROVIDER_NAME = "yookassa"
 
@@ -34,6 +39,14 @@ class CheckoutSession:
     payment_id: UUID
     confirmation_url: str
     status: str
+
+
+@dataclass(frozen=True)
+class PaymentStatusView:
+    payment_id: UUID
+    status: str
+    coin_amount: int
+    credited: bool
 
 
 async def start_yookassa_checkout(
@@ -66,6 +79,9 @@ async def start_yookassa_checkout(
     payment_internal_id = payment.id
 
     description = f"comicly.ai • {package.name} • {package.coin_amount} монет"
+    return_url = _augment_return_url(
+        settings.yookassa_return_url, payment_id=payment_internal_id
+    )
 
     try:
         result = await yookassa.create_payment(
@@ -73,7 +89,7 @@ async def start_yookassa_checkout(
             currency=package.currency,
             description=description,
             idempotence_key=str(payment.idempotency_key),
-            return_url=settings.yookassa_return_url,
+            return_url=return_url,
             metadata={
                 "payment_id": str(payment_internal_id),
                 "user_id": str(user_id),
@@ -121,11 +137,52 @@ async def apply_webhook_event(
         return
 
     fresh = await yookassa.get_payment(event.payment_id)
-
     payment = await _get_payment_by_provider_id(
         session, provider_payment_id=fresh.payment_id
     )
+    await _apply_provider_status(
+        session,
+        payment=payment,
+        fresh=fresh,
+        webhook_event_id=event_id,
+    )
 
+
+async def refresh_payment_status(
+    session: AsyncSession,
+    *,
+    yookassa: YooKassaService,
+    user_id: UUID,
+    payment_id: UUID,
+) -> PaymentStatusView:
+    payment = await _get_payment(session, payment_id=payment_id)
+    if payment.user_id != user_id:
+        raise ApiError(
+            status_code=404,
+            code="PAYMENT_NOT_FOUND",
+            message="Payment record was not found.",
+        )
+
+    if payment.provider_payment_id and yookassa.is_configured:
+        fresh = await yookassa.get_payment(payment.provider_payment_id)
+        await _apply_provider_status(session, payment=payment, fresh=fresh)
+
+    package = await _get_package(session, package_id=payment.coin_package_id)
+    return PaymentStatusView(
+        payment_id=payment.id,
+        status=payment.status,
+        coin_amount=package.coin_amount,
+        credited=payment.status == PAYMENT_STATUS_SUCCEEDED,
+    )
+
+
+async def _apply_provider_status(
+    session: AsyncSession,
+    *,
+    payment: Payment,
+    fresh: YooKassaPaymentResult,
+    webhook_event_id: str | None = None,
+) -> None:
     if not _amounts_match(payment.amount, fresh.amount):
         raise ApiError(
             status_code=409,
@@ -141,17 +198,16 @@ async def apply_webhook_event(
 
     new_status = YOOKASSA_TO_INTERNAL_STATUS.get(fresh.status, payment.status)
 
-    if (
-        payment.status == PAYMENT_STATUS_SUCCEEDED
-        and new_status != PAYMENT_STATUS_SUCCEEDED
-    ):
-        payment.webhook_event_id = event_id
-        await session.flush()
-        await session.commit()
+    if payment.status == PAYMENT_STATUS_SUCCEEDED:
+        if webhook_event_id and payment.webhook_event_id is None:
+            payment.webhook_event_id = webhook_event_id
+            await session.flush()
+            await session.commit()
         return
 
     payment.status = new_status
-    payment.webhook_event_id = event_id
+    if webhook_event_id and payment.webhook_event_id is None:
+        payment.webhook_event_id = webhook_event_id
 
     try:
         await session.flush()
@@ -204,6 +260,18 @@ async def _get_package(session: AsyncSession, *, package_id: UUID) -> CoinPackag
     return package
 
 
+async def _get_payment(session: AsyncSession, *, payment_id: UUID) -> Payment:
+    result = await session.execute(select(Payment).where(Payment.id == payment_id))
+    payment = result.scalar_one_or_none()
+    if payment is None:
+        raise ApiError(
+            status_code=404,
+            code="PAYMENT_NOT_FOUND",
+            message="Payment record was not found.",
+        )
+    return payment
+
+
 async def _get_payment_by_provider_id(
     session: AsyncSession, *, provider_payment_id: str
 ) -> Payment:
@@ -227,3 +295,10 @@ def _amounts_match(left: Decimal, right: Decimal) -> bool:
     return Decimal(left).quantize(Decimal("0.01")) == Decimal(right).quantize(
         Decimal("0.01")
     )
+
+
+def _augment_return_url(base_url: str, *, payment_id: UUID) -> str:
+    parsed = urlparse(base_url)
+    extra = urlencode({"payment_id": str(payment_id)})
+    query = f"{parsed.query}&{extra}" if parsed.query else extra
+    return urlunparse(parsed._replace(query=query))

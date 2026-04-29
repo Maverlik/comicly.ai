@@ -27,6 +27,12 @@ def is_sensitive_path(path: str, method: str) -> bool:
         return True
     if path == "/api/v1/payments" and method == "POST":
         return True
+    if (
+        path.startswith("/api/v1/payments/")
+        and path.endswith("/refresh")
+        and method == "POST"
+    ):
+        return True
     return False
 
 

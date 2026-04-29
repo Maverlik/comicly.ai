@@ -413,7 +413,7 @@ function updateStoryCounter() {
 }
 
 function updateCreditBalance() {
-  if (creditBalance) creditBalance.textContent = `${credits} кредитов`;
+  if (creditBalance) creditBalance.textContent = `${credits} монет`;
 }
 
 function updateCostNote() {

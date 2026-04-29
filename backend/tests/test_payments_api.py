@@ -365,6 +365,133 @@ async def test_webhook_is_idempotent_for_replays(
     assert call_count["value"] == 1
 
 
+async def test_refresh_credits_coins_when_provider_succeeded(
+    app_client_factory,
+    session_maker: async_sessionmaker[AsyncSession],
+) -> None:
+    user, package = await _seed_user_and_package(session_maker)
+
+    async with session_maker() as session:
+        payment = Payment(
+            user_id=user.id,
+            coin_package_id=package.id,
+            status="pending",
+            amount=package.amount,
+            currency=package.currency,
+            provider="yookassa",
+            provider_payment_id="yk_pay_refresh",
+            idempotency_key="local-refresh",
+        )
+        session.add(payment)
+        await session.commit()
+        await session.refresh(payment)
+        payment_id = payment.id
+
+    call_count = {"value": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        call_count["value"] += 1
+        return httpx.Response(
+            200,
+            json={
+                "id": "yk_pay_refresh",
+                "status": "succeeded",
+                "paid": True,
+                "amount": {"value": "199.00", "currency": "RUB"},
+            },
+        )
+
+    settings = _build_settings()
+    yookassa = _yookassa_with_mock(settings, handler)
+    client = await app_client_factory(settings=settings, yookassa=yookassa)
+
+    first = await client.post(
+        f"/api/v1/payments/{payment_id}/refresh",
+        cookies={"comicly_session": "valid-token"},
+    )
+    second = await client.post(
+        f"/api/v1/payments/{payment_id}/refresh",
+        cookies={"comicly_session": "valid-token"},
+    )
+
+    assert first.status_code == 200
+    assert first.json()["credited"] is True
+    assert first.json()["coin_amount"] == package.coin_amount
+    assert second.status_code == 200
+    assert second.json()["credited"] is True
+
+    async with session_maker() as session:
+        wallet = (
+            await session.execute(select(Wallet).where(Wallet.user_id == user.id))
+        ).scalar_one()
+        assert wallet.balance == package.coin_amount
+
+        txn_count = len(
+            (
+                await session.execute(
+                    select(WalletTransaction).where(
+                        WalletTransaction.user_id == user.id
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+        assert txn_count == 1
+
+
+async def test_refresh_rejects_other_users_payment(
+    app_client_factory,
+    session_maker: async_sessionmaker[AsyncSession],
+) -> None:
+    owner, package = await _seed_user_and_package(session_maker)
+
+    async with session_maker() as session:
+        intruder = User(email="intruder@example.com", display_name="Intruder")
+        session.add(intruder)
+        await session.flush()
+        session.add(Wallet(user_id=intruder.id, balance=0))
+        session.add(
+            UserSession(
+                user_id=intruder.id,
+                session_token_hash=hash_session_token("intruder-token"),
+                expires_at=datetime.now(UTC) + timedelta(days=1),
+            )
+        )
+        session.add(
+            Payment(
+                user_id=owner.id,
+                coin_package_id=package.id,
+                status="pending",
+                amount=package.amount,
+                currency=package.currency,
+                provider="yookassa",
+                provider_payment_id="yk_pay_owner",
+                idempotency_key="owner-key",
+            )
+        )
+        await session.commit()
+        owner_payment = (
+            await session.execute(
+                select(Payment).where(Payment.provider_payment_id == "yk_pay_owner")
+            )
+        ).scalar_one()
+        owner_payment_id = owner_payment.id
+
+    settings = _build_settings()
+    yookassa = _yookassa_with_mock(
+        settings, lambda request: httpx.Response(500, json={})
+    )
+    client = await app_client_factory(settings=settings, yookassa=yookassa)
+
+    response = await client.post(
+        f"/api/v1/payments/{owner_payment_id}/refresh",
+        cookies={"comicly_session": "intruder-token"},
+    )
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "PAYMENT_NOT_FOUND"
+
+
 async def test_webhook_rejects_amount_mismatch(
     app_client_factory,
     session_maker: async_sessionmaker[AsyncSession],

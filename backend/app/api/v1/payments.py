@@ -12,7 +12,11 @@ from app.core.config import Settings, get_settings
 from app.core.errors import ApiError
 from app.db.session import get_async_session
 from app.services.current_user import CurrentUserContext, get_current_user
-from app.services.payments import apply_webhook_event, start_yookassa_checkout
+from app.services.payments import (
+    apply_webhook_event,
+    refresh_payment_status,
+    start_yookassa_checkout,
+)
 from app.services.yookassa import YooKassaService, is_ip_allowed
 
 router = APIRouter(prefix="/payments", tags=["payments"])
@@ -43,6 +47,13 @@ class WebhookAck(BaseModel):
     ok: bool
 
 
+class PaymentStatusResponse(BaseModel):
+    payment_id: UUID
+    status: str
+    coin_amount: int
+    credited: bool
+
+
 @router.post("", response_model=CreatePaymentResponse)
 async def create_payment(
     payload: CreatePaymentRequest,
@@ -69,6 +80,27 @@ async def create_payment(
         payment_id=checkout.payment_id,
         confirmation_url=checkout.confirmation_url,
         status=checkout.status,
+    )
+
+
+@router.post("/{payment_id}/refresh", response_model=PaymentStatusResponse)
+async def refresh_payment(
+    payment_id: UUID,
+    current_user: CurrentUserDep,
+    session: SessionDep,
+    yookassa: YooKassaDep,
+) -> PaymentStatusResponse:
+    view = await refresh_payment_status(
+        session,
+        yookassa=yookassa,
+        user_id=current_user.user.id,
+        payment_id=payment_id,
+    )
+    return PaymentStatusResponse(
+        payment_id=view.payment_id,
+        status=view.status,
+        coin_amount=view.coin_amount,
+        credited=view.credited,
     )
 
 
