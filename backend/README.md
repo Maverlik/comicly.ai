@@ -96,6 +96,8 @@ The backend project is a standalone FastAPI service. Vercel Python runtime suppo
 
 Synchronous generation is acceptable for the MVP while OpenRouter requests fit within Vercel Hobby function duration. If generation regularly times out or approaches platform limits, use the existing `generation_jobs` structure as the migration path to a future async polling/queue/worker phase instead of adding deployment-specific business logic.
 
+See `docs/deployment.md` for the full local and production operations runbook.
+
 ## Environment
 
 Copy `backend/.env.example` to `backend/.env` for local overrides.

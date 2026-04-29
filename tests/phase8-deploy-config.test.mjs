@@ -109,3 +109,27 @@ test("backend env example names production deployment variables", async () => {
     assert.match(env, new RegExp(`^#?\\s*${name}=`, "m"), `${name} documented`);
   }
 });
+
+test("deployment runbook documents production domains and manual live checks", async () => {
+  const runbook = await readText("backend/docs/deployment.md");
+
+  assert.match(runbook, /comicly\.ai/);
+  assert.match(runbook, /api\.comicly\.ai/);
+  assert.match(runbook, /DATABASE_URL/);
+  assert.match(runbook, /MIGRATION_DATABASE_URL/);
+  assert.match(runbook, /BLOB_READ_WRITE_TOKEN/);
+  assert.match(runbook, /api\/v1\/auth\/google\/callback/);
+  assert.match(runbook, /api\/v1\/auth\/yandex\/callback/);
+  assert.match(runbook, /Manual production checks/);
+});
+
+test("smoke helper separates automated checks from manual provider checks", async () => {
+  const smoke = await readText("backend/scripts/smoke_production.py");
+
+  assert.match(smoke, /--api-base-url/);
+  assert.match(smoke, /--frontend-url/);
+  assert.match(smoke, /\/health/);
+  assert.match(smoke, /\/ready/);
+  assert.match(smoke, /Live OAuth callbacks require provider credentials/);
+  assert.match(smoke, /Live generation requires auth/);
+});
