@@ -63,7 +63,9 @@ class Settings(BaseSettings):
     yookassa_api_key: str | None = None
     yookassa_api_url: str = "https://api.yookassa.ru/v3"
     yookassa_request_timeout_seconds: float = 20.0
-    yookassa_return_url: str = "https://comicly.ai/pricing.html?payment=return"
+    yookassa_return_url: str = (
+        "https://comicly-ai.vercel.app/pricing.html?payment=return"
+    )
     yookassa_webhook_ip_allowlist: str = (
         "185.71.76.0/27,"
         "185.71.77.0/27,"

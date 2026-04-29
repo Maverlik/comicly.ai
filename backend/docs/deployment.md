@@ -74,7 +74,7 @@ Backend production variables:
 - `BLOB_READ_WRITE_TOKEN`
 - `YOOKASSA_SHOP_ID`
 - `YOOKASSA_API_KEY`
-- `YOOKASSA_RETURN_URL=https://comicly.ai/pricing.html?payment=return`
+- `YOOKASSA_RETURN_URL=https://comicly-ai.vercel.app/pricing.html?payment=return`
 - `SECURITY_HEADERS_ENABLED=true`
 - `RATE_LIMIT_ENABLED=true`
 
@@ -126,6 +126,11 @@ https://api.comicly.ai/api/v1/payments/webhook
 ```
 
 The backend verifies webhook source IP ranges in production by default and then fetches the payment from YooKassa before granting coins. Keep `YOOKASSA_WEBHOOK_IP_CHECK_ENABLED=true` in production unless an upstream trusted proxy enforces the same allow-list.
+
+Until `comicly.ai` and `api.comicly.ai` are attached and healthy, use the working Vercel aliases in YooKassa settings:
+
+- Return URL: `https://comicly-ai.vercel.app/pricing.html?payment=return`
+- Webhook URL: `https://comicly-backend.vercel.app/api/v1/payments/webhook`
 
 ## Vercel Projects
 
