@@ -25,6 +25,7 @@ Users can reliably create AI-generated comic pages under their own account, with
 - [x] Phase 3 OAuth/session foundation exists: Google/Yandex OAuth route surfaces, DB-backed opaque sessions, `/api/v1/me`, display-name update, logout, and mocked provider tests.
 - [x] Phase 4 wallet ledger foundation exists: authenticated `/api/v1/wallet`, centralized wallet service, auditable grant/debit/refund transactions, idempotency, insufficient-funds handling, and concurrent debit protection.
 - [x] Phase 5 private comic persistence exists: authenticated `/api/v1/comics` APIs can create, list, open, update, archive, and replace scenes/pages for owner-scoped private comics.
+- [x] Phase 8 deployment operations are implementation-complete: Vercel configs, static deploy build, backend preview deploy, env docs, smoke tooling, security headers, rate limiting, and final verification exist.
 
 ### Active
 
@@ -33,10 +34,10 @@ Users can reliably create AI-generated comic pages under their own account, with
 - [x] Store users, provider identities, profiles, wallets, coin transactions, comics, and comic pages in a database schema.
 - [x] Move coin balance and all debit/credit decisions to backend APIs, including transaction logs and insufficient-balance errors.
 - [x] Persist generated comics and pages so users can list, reopen, and continue their own work.
-- [ ] Replace demo profile and hardcoded frontend credits with authenticated backend data.
+- [x] Replace demo profile and hardcoded frontend credits with authenticated backend data.
 - [x] Prepare payment product and payment tables for future coin purchases, including seeded packages for 100, 500, and 1000 coins.
-- [ ] Add deployment configuration, environment documentation, and local/production run instructions.
-- [ ] Add safety gates: validation, auth protection, rate limiting, request idempotency, secure cookies, and tests around critical API behavior.
+- [x] Add deployment configuration, environment documentation, and local/production run instructions.
+- [x] Add safety gates: validation, auth protection, rate limiting, request idempotency, secure cookies, and tests around critical API behavior.
 
 ### Out of Scope
 
@@ -72,9 +73,9 @@ The backend task spec in `backend/BACKEND_TZ.md` defines the intended production
 |----------|-----------|---------|
 | Treat the current app as brownfield, not greenfield | The creator UI and OpenRouter proxy already exist and should be preserved while production backend capabilities are added | Validated through Phase 7 creator integration |
 | Make backend wallet state authoritative | Frontend credits are bypassable and cannot support paid or private generation | Validated in Phase 4 |
-| Use Google and Yandex OAuth for v1 auth | The backend spec explicitly requires both providers and no separate password flow | Pending |
-| Prepare payments without real provider integration | The data model must support future purchases, but actual acquiring/webhook work is out of current scope | Pending |
-| Add tests before expanding risky backend behavior | Auth, static serving, coin debits, idempotency, and OpenRouter error handling have high regression risk | Pending |
+| Use Google and Yandex OAuth for v1 auth | The backend spec explicitly requires both providers and no separate password flow | Validated in Phase 3; live production callbacks still need provider/domain env |
+| Prepare payments without real provider integration | The data model must support future purchases, but actual acquiring/webhook work is out of current scope | Validated in Phase 2 |
+| Add tests before expanding risky backend behavior | Auth, static serving, coin debits, idempotency, and OpenRouter error handling have high regression risk | Validated across Phases 1-8 |
 | Use Neon pooled runtime URL and direct migration URL separation | Vercel/serverless runtime should use pooled connections while Alembic can use direct migration connectivity | Validated in Phase 2 |
 | Use opaque DB-backed session cookies instead of JWTs | Sessions need server-side revocation, 30-day lifetime, and simple MVP portability across Vercel/Render/Railway | Validated in Phase 3 |
 
@@ -96,4 +97,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state.
 
 ---
-*Last updated: 2026-04-28 after Phase 7 verification*
+*Last updated: 2026-04-29 after Phase 8 verification*

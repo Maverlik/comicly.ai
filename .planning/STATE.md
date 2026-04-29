@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 8 planned; ready to execute
-last_updated: "2026-04-29T04:13:10.875Z"
+status: complete-with-external-blockers
+stopped_at: Phase 8 implementation complete; production launch awaits Vercel domains/secrets/project config
+last_updated: "2026-04-29T04:32:07.489Z"
 last_activity: 2026-04-29
 progress:
   total_phases: 8
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 30
-  completed_plans: 28
-  percent: 93
+  completed_plans: 30
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-25)
 
 **Core value:** Users can reliably create AI-generated comic pages under their own account, with durable comic history and trustworthy server-side coin accounting.
-**Current focus:** Phase 8 — Deployment And Operations
+**Current focus:** Phase 8 — Deployment And Operations complete with external deployment blockers
 
 ## Current Position
 
-Phase: 8 (Deployment And Operations) — EXECUTING
-Plan: 3 of 4
-Status: Ready to execute
+Phase: 8 (Deployment And Operations) — COMPLETE WITH EXTERNAL BLOCKERS
+Plan: 4 of 4
+Status: Application implementation, docs, local gates, and backend preview deploy are complete
 Last activity: 2026-04-29
 
-Progress: [#########-] 87%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
@@ -89,6 +89,7 @@ Recent decisions affecting current work:
 - [Phase 7 Verification]: Creator now uses backend profile/balance/current-comic/generation/logout truth, landing remains public, static/browser/backend gates pass, and live provider/generation success remain production-secret-dependent checks.
 - [Phase 8 Discussion]: Deployment is Vercel-first with two projects from the same repo, root frontend on `comicly.ai`/`www`, backend project rooted at `backend/` on `api.comicly.ai`, no committed secrets, Vercel env/marketplace values, Neon pooled runtime DB URL plus direct migration URL, production smoke with provider-secret-dependent manual gaps, and portable backend security headers plus in-process rate limiting.
 - [Phase 8 Planning]: Phase 8 is split into four sequential plans: Vercel deployment config/static safety, backend security headers and rate limiting, env/docs/smoke tooling, and deploy attempt plus final verification.
+- [Phase 8 Verification]: Local static/backend/Docker gates passed, backend Vercel preview deployed and responded through `vercel curl`, and root frontend production launch is blocked by Vercel Services-mode project configuration plus missing production domains/secrets.
 
 ### Pending Todos
 
@@ -97,7 +98,8 @@ None yet.
 ### Blockers/Concerns
 
 - Object storage provider is Vercel Blob for the MVP generation pipeline.
-- Production deployment target is Vercel-first, but backend portability should be preserved for Render/Railway/Fly fallback if Vercel limitations become critical.
+- Production deployment target is Vercel-first, but root frontend project currently needs Vercel dashboard reconfiguration from Services mode to a standard static project before public deploy.
+- Backend preview deploy works on Vercel; production `/ready`, OAuth, and generation require Neon, Blob, OAuth provider, OpenRouter, cookie, and domain env setup.
 - Starter coin amount should remain configurable until product value is confirmed.
 
 ## Deferred Items

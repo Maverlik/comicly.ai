@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Private Comic Persistence** - Persist user-owned comic drafts, scenes, pages, and owner-scoped history.
 - [x] **Phase 6: Production AI Generation Pipeline** - Connect protected OpenRouter generation to jobs, durable storage, page persistence, and updated balance responses.
 - [x] **Phase 7: Creator Frontend Backend Integration** - Replace demo creator state with authenticated backend profile, balance, comic, and generation data.
-- [ ] **Phase 8: Deployment And Operations** - Document and verify local and production operation, deployment configuration, and operational safety gates.
+- [x] **Phase 8: Deployment And Operations** - Document and verify local and production operation, deployment configuration, and operational safety gates. Application work is complete; public production launch remains blocked by external Vercel project/domain/secret setup recorded in verification.
 
 ## Phase Details
 
@@ -152,10 +152,10 @@ Plans:
   5. Auth, generation, profile writes, and other sensitive endpoints have basic rate limiting and security headers in the production deployment.
 **Plans**: 4 plans
 Plans:
-- [ ] 08-01-PLAN.md - Vercel deployment config and static safety.
-- [ ] 08-02-PLAN.md - Backend security headers and rate limiting.
-- [ ] 08-03-PLAN.md - Environment docs, operations runbook, and smoke tooling.
-- [ ] 08-04-PLAN.md - Deployment attempt, smoke checks, review, and verification.
+- [x] 08-01-PLAN.md - Vercel deployment config and static safety.
+- [x] 08-02-PLAN.md - Backend security headers and rate limiting.
+- [x] 08-03-PLAN.md - Environment docs, operations runbook, and smoke tooling.
+- [x] 08-04-PLAN.md - Deployment attempt, smoke checks, review, and verification.
 
 ## Progress
 
@@ -171,4 +171,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 5. Private Comic Persistence | 4/4 | Complete | 2026-04-27 |
 | 6. Production AI Generation Pipeline | 5/5 | Complete | 2026-04-28 |
 | 7. Creator Frontend Backend Integration | 4/4 | Complete | 2026-04-28 |
-| 8. Deployment And Operations | 0/4 | Planned | - |
+| 8. Deployment And Operations | 4/4 | Complete with external blockers | 2026-04-29 |

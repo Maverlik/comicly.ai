@@ -13,10 +13,14 @@ const readJson = async (path) => JSON.parse(await readText(path));
 test("root Vercel config builds an explicit static output", async () => {
   const config = await readJson("vercel.json");
   const packageJson = await readJson("package.json");
+  const ignore = await readText(".vercelignore");
 
   assert.equal(config.buildCommand, "npm run build:frontend");
   assert.equal(config.outputDirectory, "dist");
   assert.equal(packageJson.scripts["build:frontend"], "node scripts/build-frontend.mjs");
+  assert.match(ignore, /^\.planning\//m);
+  assert.match(ignore, /^backend\//m);
+  assert.match(ignore, /^\.env$/m);
 });
 
 test("frontend build copies only public static files", async () => {
@@ -70,11 +74,19 @@ test("frontend build copies only public static files", async () => {
 test("backend Vercel config targets FastAPI app without Docker Compose", async () => {
   const backendConfig = await readJson("backend/vercel.json");
   const pythonVersion = (await readText("backend/.python-version")).trim();
+  const ignore = await readText("backend/.vercelignore");
+  const entrypoint = await readText("backend/index.py");
 
   assert.equal(pythonVersion, "3.12");
-  assert.equal(backendConfig.functions["app/main.py"].maxDuration, 300);
-  assert.deepEqual(backendConfig.routes, [{ src: "/(.*)", dest: "app/main.py" }]);
+  assert.equal(
+    backendConfig.installCommand,
+    "python -m pip install -r requirements-runtime.txt",
+  );
   assert.doesNotMatch(JSON.stringify(backendConfig), /docker|compose/i);
+  assert.match(entrypoint, /from app\.main import app/);
+  assert.match(ignore, /^BACKEND_TZ\.md$/m);
+  assert.match(ignore, /^tests\//m);
+  assert.match(ignore, /^\.env$/m);
 });
 
 test("committed env examples do not contain real secret values", async () => {

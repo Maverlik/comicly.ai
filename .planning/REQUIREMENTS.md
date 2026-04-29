@@ -77,11 +77,11 @@ Requirements for the initial production backend milestone. Each maps to one road
 
 ### Deployment And Operations
 
-- [ ] **OPS-01**: Project includes `.env.example` documenting required local and production environment variables.
-- [ ] **OPS-02**: Project includes local setup instructions for install, migrations, tests, and server startup.
-- [ ] **OPS-03**: Project includes production deployment instructions with database, storage, OAuth callback, cookie, and environment configuration.
-- [ ] **OPS-04**: Production deployment serves the app, connects to production database/storage, and supports Google/Yandex OAuth on the production domain.
-- [ ] **OPS-05**: Auth, generation, profile writes, and other sensitive endpoints have basic rate limiting and security headers.
+- [x] **OPS-01**: Project includes `.env.example` documenting required local and production environment variables.
+- [x] **OPS-02**: Project includes local setup instructions for install, migrations, tests, and server startup.
+- [x] **OPS-03**: Project includes production deployment instructions with database, storage, OAuth callback, cookie, and environment configuration.
+- [ ] **OPS-04**: Production deployment serves the app, connects to production database/storage, and supports Google/Yandex OAuth on the production domain. Backend preview deploys on Vercel; public production launch remains externally blocked by Vercel frontend project mode, domains, and production secrets.
+- [x] **OPS-05**: Auth, generation, profile writes, and other sensitive endpoints have basic rate limiting and security headers.
 - [x] **OPS-06**: Public health/readiness behavior is production-safe and does not expose secret/config details.
 
 ### Verification
@@ -182,11 +182,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PAY-01 | Phase 2 | Complete in 02-03 |
 | PAY-02 | Phase 2 | Complete in 02-02 |
 | PAY-03 | Phase 2 | Complete in 02-02 |
-| OPS-01 | Phase 8 | Pending |
-| OPS-02 | Phase 8 | Pending |
-| OPS-03 | Phase 8 | Pending |
-| OPS-04 | Phase 8 | Pending |
-| OPS-05 | Phase 8 | Pending |
+| OPS-01 | Phase 8 | Complete in 08-03 |
+| OPS-02 | Phase 8 | Complete in 08-03/08-04 |
+| OPS-03 | Phase 8 | Complete in 08-03 |
+| OPS-04 | Phase 8 | Partial in 08-04; production public launch externally blocked |
+| OPS-05 | Phase 8 | Complete in 08-02/08-04 |
 | OPS-06 | Phase 1 | Complete in 01-02 |
 | TEST-01 | Phase 1 | Complete in 01-03 |
 | TEST-02 | Phase 3 | Complete in 03-04 |
@@ -203,4 +203,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-25*
-*Last updated: 2026-04-28 after Phase 7 verification*
+*Last updated: 2026-04-29 after Phase 8 verification*

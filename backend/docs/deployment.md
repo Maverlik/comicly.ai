@@ -126,11 +126,19 @@ Backend project:
 
 - Root directory: `backend`
 - Runtime: Python 3.12
-- Entry point: `app/main.py`
+- Entry point: `index.py`, which imports the FastAPI app from `app/main.py`
 - Domain: `api.comicly.ai`
-- Functions max duration: 300 seconds where supported
+- Functions max duration: set to 300 seconds in the Vercel project settings/dashboard where supported
 
 Vercel Python runtime is Beta. Keep the backend portable so it can move to Render, Railway, Fly.io, or a container service without rewriting business logic.
+
+Preview deployments may be protected by Vercel Authentication. If a direct browser or smoke helper request returns the Vercel "Authentication Required" HTML page, use the authenticated CLI path instead:
+
+```powershell
+npx vercel curl /health --deployment <backend-preview-url> --cwd backend
+```
+
+The root frontend project must be a normal static Vercel project using `vercel.json` with `buildCommand` and `outputDirectory`. If the dashboard-linked project is in Vercel Services mode, `vercel deploy` can fail with `No services configured. Add experimentalServices to vercel.json.` Fix this in the Vercel dashboard by recreating or reconfiguring the frontend project as a standard static project, then redeploy from the repository root.
 
 ## Smoke Checks
 

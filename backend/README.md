@@ -94,6 +94,8 @@ The root frontend project builds an explicit static output directory from an all
 
 The backend project is a standalone FastAPI service. Vercel Python runtime support is currently Beta, so keep business logic portable and isolated from Vercel-only features. Docker Compose remains local-only and must not be used as the production deployment mechanism on Vercel.
 
+The Vercel entrypoint is `backend/index.py`, which imports the FastAPI app from `backend/app/main.py`. Configure the Vercel function max duration to 300 seconds in project settings where supported.
+
 Synchronous generation is acceptable for the MVP while OpenRouter requests fit within Vercel Hobby function duration. If generation regularly times out or approaches platform limits, use the existing `generation_jobs` structure as the migration path to a future async polling/queue/worker phase instead of adding deployment-specific business logic.
 
 See `docs/deployment.md` for the full local and production operations runbook.

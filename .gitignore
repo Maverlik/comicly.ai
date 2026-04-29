@@ -1,4 +1,6 @@
 .env
+.vercel/
+backend/.vercel/
 node_modules/
 dist/
 npm-debug.log*
