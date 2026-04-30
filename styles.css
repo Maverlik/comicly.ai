@@ -822,33 +822,48 @@ svg {
 
 .feature-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
 }
 
 .section-heading {
   grid-column: 1 / -1;
-  max-width: 650px;
+  max-width: 760px;
 }
 
 .feature-grid article {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  min-height: 125px;
+  min-height: 360px;
+  overflow: hidden;
   border: 1px solid rgba(75, 104, 165, 0.22);
   border-radius: 20px;
-  padding: 22px 24px;
-  background: rgba(8, 15, 28, 0.7);
+  padding: 0 24px 24px;
+  background:
+    linear-gradient(180deg, rgba(13, 25, 46, 0.82), rgba(8, 15, 28, 0.74)),
+    rgba(8, 15, 28, 0.7);
+  box-shadow: 0 22px 64px rgba(0, 0, 0, 0.18);
+}
+
+.feature-card-image {
+  display: block;
+  width: calc(100% + 48px);
+  height: 210px;
+  margin: 0 -24px 24px;
+  border-bottom: 1px solid rgba(75, 104, 165, 0.2);
+  object-fit: cover;
+  object-position: center;
 }
 
 .feature-grid h3 {
   margin: 0 0 8px;
+  font-size: 22px;
 }
 
 .feature-grid p {
-  font-size: 14px;
-  line-height: 1.45;
+  font-size: 16px;
+  line-height: 1.55;
 }
 
 .prompt-section {
@@ -1537,8 +1552,7 @@ svg {
     transform: translate(calc(-50% + clamp(220px, 26vw, 280px)), calc(-50% + 18px)) rotate(2deg) scale(0.97);
   }
 
-  .workflow-strip,
-  .feature-grid {
+  .workflow-strip {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -1679,6 +1693,14 @@ svg {
   .workflow-strip,
   .feature-grid {
     grid-template-columns: 1fr;
+  }
+
+  .feature-grid article {
+    min-height: 0;
+  }
+
+  .feature-card-image {
+    height: 190px;
   }
 
   .section-heading h2 {
