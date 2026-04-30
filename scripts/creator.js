@@ -68,6 +68,7 @@ const DEFAULT_MODEL_ID = "bytedance-seed/seedream-4.5";
 const PRICE_PER_PAGE = 20;
 const MAX_PAGE_COUNT = 10;
 const API_BASE_URL = resolveApiBaseUrl();
+const SESSION_CACHE_KEY = `comicly.session.v1:${API_BASE_URL}`;
 
 const MODEL_LABELS = {
   "bytedance-seed/seedream-4.5": "Seedream",
@@ -176,6 +177,38 @@ async function apiFetch(path, options = {}) {
   return data;
 }
 
+function readSessionCache() {
+  try {
+    const raw = window.sessionStorage?.getItem(SESSION_CACHE_KEY);
+    if (!raw) return null;
+    const cached = JSON.parse(raw);
+    if (!cached || typeof cached !== "object" || !cached.data) return null;
+    if (Date.now() - Number(cached.savedAt || 0) > 5 * 60 * 1000) return null;
+    return cached.data;
+  } catch (_) {
+    return null;
+  }
+}
+
+function writeSessionCache(data) {
+  try {
+    window.sessionStorage?.setItem(
+      SESSION_CACHE_KEY,
+      JSON.stringify({ savedAt: Date.now(), data }),
+    );
+  } catch (_) {
+    // Storage can be unavailable in private browsing; live /me still works.
+  }
+}
+
+function clearSessionCache() {
+  try {
+    window.sessionStorage?.removeItem(SESSION_CACHE_KEY);
+  } catch (_) {
+    // Ignore storage failures.
+  }
+}
+
 function isPlaceholderImage(src) {
   return typeof src === "string" && src.startsWith("data:image/svg+xml");
 }
@@ -250,12 +283,17 @@ function setSaveStatus(state, text) {
   saveStatus.classList.toggle("is-error", state === "error");
 }
 
-function updateSessionState(data) {
-  currentAccount = data?.account || null;
+function renderSessionSummary(data) {
   credits = Number(data?.wallet?.balance ?? 0);
   updateCreditBalance();
-  updateProfileDisplay(currentAccount);
+  updateProfileDisplay(data?.account || null);
   setAuthOverlayVisible(false);
+}
+
+function updateSessionState(data) {
+  currentAccount = data?.account || null;
+  renderSessionSummary(data);
+  writeSessionCache(data);
 }
 
 async function bootstrapSession() {
@@ -267,11 +305,18 @@ async function bootstrapSession() {
     link.href = buildApiUrl(`/api/v1/auth/${provider}/login`);
   });
 
+  const cachedSession = readSessionCache();
+  if (cachedSession) {
+    renderSessionSummary(cachedSession);
+    setSaveStatus("saved", "Готово");
+  }
+
   try {
     const data = await apiFetch("/api/v1/me");
     updateSessionState(data);
     setSaveStatus("saved", "Готово");
   } catch (error) {
+    clearSessionCache();
     resetTrustedState();
     if (error instanceof ApiClientError && error.status === 401) {
       setAuthOverlayVisible(true);
@@ -1818,6 +1863,7 @@ async function logout() {
   } catch {
     // Even if the request fails, local trusted state is cleared.
   }
+  clearSessionCache();
   resetTrustedState();
   setAuthOverlayVisible(true);
   setSaveStatus("error", "Войдите");

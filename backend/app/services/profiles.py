@@ -10,19 +10,20 @@ from app.models.wallet import Wallet
 
 
 async def get_account_summary(session: AsyncSession, user: User) -> dict[str, Any]:
-    profile = (
-        await session.execute(select(UserProfile).where(UserProfile.user_id == user.id))
-    ).scalar_one_or_none()
-    wallet = (
-        await session.execute(select(Wallet).where(Wallet.user_id == user.id))
-    ).scalar_one_or_none()
+    result = await session.execute(
+        select(User, UserProfile, Wallet)
+        .outerjoin(UserProfile, UserProfile.user_id == User.id)
+        .outerjoin(Wallet, Wallet.user_id == User.id)
+        .where(User.id == user.id)
+    )
+    db_user, profile, wallet = result.one()
 
     return {
         "account": {
-            "id": user.id,
-            "email": user.email,
-            "display_name": user.display_name,
-            "avatar_url": user.avatar_url,
+            "id": db_user.id,
+            "email": db_user.email,
+            "display_name": db_user.display_name,
+            "avatar_url": db_user.avatar_url,
         },
         "profile": {
             "username": profile.username if profile else None,

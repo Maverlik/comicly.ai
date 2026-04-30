@@ -29,6 +29,7 @@
   }
 
   const API_BASE_URL = resolveApiBaseUrl();
+  const SESSION_CACHE_KEY = `comicly.session.v1:${API_BASE_URL}`;
 
   async function apiFetch(path, options) {
     const init = Object.assign({ credentials: "include" }, options || {});
@@ -46,6 +47,38 @@
       throw error;
     }
     return data;
+  }
+
+  function readSessionCache() {
+    try {
+      const raw = window.sessionStorage?.getItem(SESSION_CACHE_KEY);
+      if (!raw) return null;
+      const cached = JSON.parse(raw);
+      if (!cached || typeof cached !== "object" || !cached.data) return null;
+      if (Date.now() - Number(cached.savedAt || 0) > 5 * 60 * 1000) return null;
+      return cached.data;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function writeSessionCache(data) {
+    try {
+      window.sessionStorage?.setItem(
+        SESSION_CACHE_KEY,
+        JSON.stringify({ savedAt: Date.now(), data }),
+      );
+    } catch (_) {
+      // Storage is only a display cache; the backend remains authoritative.
+    }
+  }
+
+  function clearSessionCache() {
+    try {
+      window.sessionStorage?.removeItem(SESSION_CACHE_KEY);
+    } catch (_) {
+      // Ignore storage failures.
+    }
   }
 
   function showLoggedOut() {
@@ -94,14 +127,20 @@
     } catch (_) {
       // proceed regardless — local UI returns to logged-out state
     }
+    clearSessionCache();
     showLoggedOut();
   });
 
   (async function bootstrap() {
+    const cachedSession = readSessionCache();
+    if (cachedSession) showLoggedIn(cachedSession);
+
     try {
       const data = await apiFetch("/api/v1/me");
+      writeSessionCache(data);
       showLoggedIn(data);
     } catch (_) {
+      clearSessionCache();
       showLoggedOut();
     }
   })();
