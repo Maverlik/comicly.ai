@@ -141,7 +141,7 @@ function resolveApiBaseUrl() {
   if (hostname.endsWith(".vercel.app")) {
     return "https://comicly-backend.vercel.app";
   }
-  return "https://api.comicly.ai";
+  return window.location.origin;
 }
 
 function buildApiUrl(path) {

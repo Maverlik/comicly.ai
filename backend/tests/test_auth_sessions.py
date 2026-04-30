@@ -28,7 +28,7 @@ def test_product_session_cookie_uses_configured_flags() -> None:
     settings = Settings(
         _env_file=None,
         session_cookie_name="comicly_session",
-        session_cookie_domain=".comicly.ai",
+        session_cookie_domain=".comicly-ai.ru",
         session_cookie_secure=True,
         session_cookie_samesite="lax",
         session_lifetime_days=30,
@@ -39,7 +39,7 @@ def test_product_session_cookie_uses_configured_flags() -> None:
 
     cookie = response.headers["set-cookie"]
     assert "comicly_session=raw-token" in cookie
-    assert "Domain=.comicly.ai" in cookie
+    assert "Domain=.comicly-ai.ru" in cookie
     assert "HttpOnly" in cookie
     assert "Max-Age=2592000" in cookie
     assert "Path=/" in cookie
@@ -51,7 +51,7 @@ def test_clear_product_session_cookie_matches_cookie_scope() -> None:
     settings = Settings(
         _env_file=None,
         session_cookie_name="comicly_session",
-        session_cookie_domain=".comicly.ai",
+        session_cookie_domain=".comicly-ai.ru",
         session_cookie_secure=True,
         session_cookie_samesite="lax",
     )
@@ -61,7 +61,7 @@ def test_clear_product_session_cookie_matches_cookie_scope() -> None:
 
     cookie = response.headers["set-cookie"]
     assert "comicly_session=" in cookie
-    assert "Domain=.comicly.ai" in cookie
+    assert "Domain=.comicly-ai.ru" in cookie
     assert "Max-Age=0" in cookie
     assert "HttpOnly" in cookie
     assert "SameSite=lax" in cookie

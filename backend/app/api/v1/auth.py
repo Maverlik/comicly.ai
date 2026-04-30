@@ -42,10 +42,16 @@ BootstrapDep = Annotated[AuthBootstrapService, Depends(get_auth_bootstrap_servic
 async def oauth_login(
     provider: str,
     request: Request,
+    settings: SettingsDep,
     oauth_service: ProviderDep,
 ):
     _validate_provider(provider)
-    redirect_uri = str(request.url_for("oauth_callback", provider=provider))
+    callback_url = request.url_for("oauth_callback", provider=provider)
+    redirect_uri = str(callback_url)
+    if settings.oauth_callback_base_url:
+        redirect_uri = (
+            settings.oauth_callback_base_url.rstrip("/") + callback_url.path
+        )
     try:
         return await oauth_service.authorize_redirect(
             provider=provider,

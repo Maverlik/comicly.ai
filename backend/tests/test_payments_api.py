@@ -42,7 +42,7 @@ def _build_settings(**overrides) -> Settings:
     base = {
         "yookassa_shop_id": "shop_test",
         "yookassa_api_key": "secret_test",
-        "yookassa_return_url": "https://comicly.ai/pricing.html?payment=return",
+        "yookassa_return_url": "https://comicly-ai.ru/pricing.html?payment=return",
     }
     base.update(overrides)
     return Settings(_env_file=None, **base)

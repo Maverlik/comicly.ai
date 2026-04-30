@@ -26,7 +26,8 @@ class Settings(BaseSettings):
     scene_regeneration_cost: int = 4
     starter_coins: int = 100
     session_secret: str = "change-me-in-production"
-    frontend_creator_url: str = "https://comicly.ai/create.html"
+    frontend_creator_url: str = "https://comicly-ai.ru/create.html"
+    oauth_callback_base_url: str | None = None
     session_cookie_name: str = "comicly_session"
     session_cookie_domain: str | None = None
     session_cookie_secure: bool = False
@@ -43,8 +44,8 @@ class Settings(BaseSettings):
     yandex_access_token_url: str = "https://oauth.yandex.com/token"
     yandex_userinfo_endpoint: str = "https://login.yandex.ru/info"
     openrouter_api_key: str | None = None
-    openrouter_site_url: str = "https://comicly.ai"
-    openrouter_app_name: str = "comicly.ai"
+    openrouter_site_url: str = "https://comicly-ai.ru"
+    openrouter_app_name: str = "comicly-ai.ru"
     openrouter_default_image_model: str = "bytedance-seed/seedream-4.5"
     openrouter_default_text_model: str = "google/gemini-2.5-flash"
     openrouter_allowed_image_models: str = (
@@ -64,7 +65,7 @@ class Settings(BaseSettings):
     yookassa_api_url: str = "https://api.yookassa.ru/v3"
     yookassa_request_timeout_seconds: float = 20.0
     yookassa_return_url: str = (
-        "https://comicly-ai.vercel.app/pricing.html?payment=return"
+        "https://comicly-ai.ru/pricing.html?payment=return"
     )
     yookassa_webhook_ip_allowlist: str = (
         "185.71.76.0/27,"

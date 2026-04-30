@@ -172,6 +172,131 @@ svg {
   min-height: 50px;
 }
 
+.header-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-actions [hidden] {
+  display: none !important;
+}
+
+.header-account .credit-pill,
+.header-account .avatar-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgba(83, 144, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(12, 22, 42, 0.82);
+  color: #f2f3ff;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.header-account .credit-pill svg {
+  width: 16px;
+  height: 16px;
+  color: #63a6ff;
+}
+
+.header-account .avatar-button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-color: rgba(83, 144, 255, 0.34);
+  background:
+    linear-gradient(180deg, rgba(24, 116, 217, 0.3), rgba(11, 26, 50, 0.92)),
+    #121833;
+}
+
+.header-account .avatar {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: #ffe1c2;
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.header-account .credit-pill:hover,
+.header-account .avatar-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(87, 155, 255, 0.5);
+}
+
+.header-account .profile-wrap {
+  position: relative;
+}
+
+.header-account .popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 30;
+  display: grid;
+  min-width: 240px;
+  padding: 6px;
+  border: 1px solid rgba(75, 104, 165, 0.26);
+  border-radius: 16px;
+  background: rgba(8, 15, 28, 0.98);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.header-account .popover[hidden] {
+  display: none;
+}
+
+.header-account .popover-header {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px 12px;
+  border-bottom: 1px solid rgba(75, 104, 165, 0.16);
+  margin-bottom: 4px;
+}
+
+.header-account .popover-header strong {
+  font-size: 14px;
+  color: #f7fbff;
+}
+
+.header-account .popover-header span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.header-account .popover a,
+.header-account .popover button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  color: #e8eaff;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.header-account .popover a:hover,
+.header-account .popover button:hover {
+  background: rgba(20, 41, 74, 0.72);
+}
+
 .button:hover,
 .primary-cta:hover {
   transform: translateY(-1px);

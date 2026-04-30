@@ -25,7 +25,8 @@ def test_auth_settings_have_safe_defaults_without_provider_secrets(monkeypatch) 
 
     settings = Settings(_env_file=None)
 
-    assert settings.frontend_creator_url == "https://comicly.ai/create.html"
+    assert settings.frontend_creator_url == "https://comicly-ai.ru/create.html"
+    assert settings.oauth_callback_base_url is None
     assert settings.session_cookie_name == "comicly_session"
     assert settings.session_cookie_domain is None
     assert settings.session_cookie_secure is False
@@ -37,8 +38,9 @@ def test_auth_settings_have_safe_defaults_without_provider_secrets(monkeypatch) 
 
 def test_auth_settings_support_production_cookie_overrides(monkeypatch) -> None:
     monkeypatch.setenv("SESSION_SECRET", "prod-secret")
-    monkeypatch.setenv("FRONTEND_CREATOR_URL", "https://comicly.ai/create.html")
-    monkeypatch.setenv("SESSION_COOKIE_DOMAIN", ".comicly.ai")
+    monkeypatch.setenv("FRONTEND_CREATOR_URL", "https://comicly-ai.ru/create.html")
+    monkeypatch.setenv("OAUTH_CALLBACK_BASE_URL", "https://comicly-ai.ru")
+    monkeypatch.setenv("SESSION_COOKIE_DOMAIN", ".comicly-ai.ru")
     monkeypatch.setenv("SESSION_COOKIE_SECURE", "true")
     monkeypatch.setenv("SESSION_COOKIE_SAMESITE", "none")
     monkeypatch.setenv("SESSION_LIFETIME_DAYS", "30")
@@ -48,7 +50,8 @@ def test_auth_settings_support_production_cookie_overrides(monkeypatch) -> None:
     settings = Settings(_env_file=None)
 
     assert settings.session_secret == "prod-secret"
-    assert settings.session_cookie_domain == ".comicly.ai"
+    assert settings.oauth_callback_base_url == "https://comicly-ai.ru"
+    assert settings.session_cookie_domain == ".comicly-ai.ru"
     assert settings.session_cookie_secure is True
     assert settings.session_cookie_samesite == "none"
     assert settings.session_lifetime_days == 30
@@ -92,7 +95,7 @@ def test_create_app_configures_credentialed_cors_without_wildcard(monkeypatch) -
     monkeypatch.setenv("SESSION_SECRET", "test-secret")
     monkeypatch.setenv(
         "CORS_ORIGINS",
-        "https://comicly.ai,*,https://www.comicly.ai",
+        "https://comicly-ai.ru,*",
     )
 
     app = create_app()
@@ -104,7 +107,6 @@ def test_create_app_configures_credentialed_cors_without_wildcard(monkeypatch) -
     ]
     assert cors_middleware
     assert cors_middleware[0].kwargs["allow_origins"] == [
-        "https://comicly.ai",
-        "https://www.comicly.ai",
+        "https://comicly-ai.ru",
     ]
     assert cors_middleware[0].kwargs["allow_credentials"] is True

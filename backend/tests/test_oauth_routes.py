@@ -83,6 +83,30 @@ async def test_google_login_starts_backend_owned_redirect() -> None:
     )
 
 
+async def test_google_login_uses_public_callback_base_when_configured() -> None:
+    app = create_app()
+    fake_provider = FakeOAuthProviderService()
+    settings = Settings(
+        _env_file=None,
+        oauth_callback_base_url="https://comicly-ai.ru",
+    )
+    app.dependency_overrides[get_settings] = lambda: settings
+    app.dependency_overrides[get_oauth_provider_service] = lambda: fake_provider
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(
+        transport=transport,
+        base_url="https://comicly-backend.vercel.app",
+        follow_redirects=False,
+    ) as client:
+        response = await client.get("/api/v1/auth/google/login")
+
+    assert response.status_code == 302
+    assert fake_provider.redirect_uri == (
+        "https://comicly-ai.ru/api/v1/auth/google/callback"
+    )
+
+
 async def test_unknown_provider_returns_stable_error(async_client) -> None:
     response = await async_client.get("/api/v1/auth/github/login")
 
@@ -97,7 +121,7 @@ async def test_oauth_callback_bootstraps_user_and_sets_product_session_cookie(
     fake_provider = FakeOAuthProviderService()
     settings = Settings(
         _env_file=None,
-        frontend_creator_url="https://comicly.ai/create.html",
+        frontend_creator_url="https://comicly-ai.ru/create.html",
     )
 
     async def override_session() -> AsyncIterator[AsyncSession]:
@@ -117,7 +141,7 @@ async def test_oauth_callback_bootstraps_user_and_sets_product_session_cookie(
         response = await client.get("/api/v1/auth/google/callback")
 
     assert response.status_code == 303
-    assert response.headers["location"] == "https://comicly.ai/create.html"
+    assert response.headers["location"] == "https://comicly-ai.ru/create.html"
     cookie = response.headers["set-cookie"]
     assert "comicly_session=" in cookie
     assert "HttpOnly" in cookie
@@ -135,7 +159,7 @@ async def test_oauth_callback_redirects_stable_error_on_provider_failure(
     app = create_app()
     settings = Settings(
         _env_file=None,
-        frontend_creator_url="https://comicly.ai/create.html",
+        frontend_creator_url="https://comicly-ai.ru/create.html",
     )
 
     async def override_session() -> AsyncIterator[AsyncSession]:
@@ -158,7 +182,7 @@ async def test_oauth_callback_redirects_stable_error_on_provider_failure(
 
     assert response.status_code == 303
     assert response.headers["location"] == (
-        "https://comicly.ai/create.html?auth_error=oauth_failed"
+        "https://comicly-ai.ru/create.html?auth_error=oauth_failed"
     )
 
 

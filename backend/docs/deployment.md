@@ -4,8 +4,8 @@ This runbook covers the MVP Vercel-first deployment path for the static frontend
 
 ## Architecture
 
-- Frontend Vercel project: repository root, domain `comicly.ai` and `www.comicly.ai`.
-- Backend Vercel project: `backend/` root, domain `api.comicly.ai`.
+- Frontend Vercel project: repository root, domain `comicly-ai.ru`.
+- Backend Vercel project: `backend/` root, served through frontend rewrites under `comicly-ai.ru/api/v1/...`.
 - Production database: managed Postgres through Vercel Marketplace, preferably Neon.
 - Production object storage: Vercel Blob.
 - Local database: Docker Compose Postgres from `backend/docker-compose.yml`.
@@ -58,10 +58,11 @@ Backend production variables:
 - `APP_ENV=production`
 - `DATABASE_URL` - Neon pooled runtime URL converted to `postgresql+asyncpg://...`
 - `MIGRATION_DATABASE_URL` - Neon direct non-pooled URL for Alembic
-- `CORS_ORIGINS=https://comicly.ai,https://www.comicly.ai`
+- `CORS_ORIGINS=https://comicly-ai.ru`
 - `SESSION_SECRET` - long random secret, never the local placeholder
-- `FRONTEND_CREATOR_URL=https://comicly.ai/create.html`
-- `SESSION_COOKIE_DOMAIN=.comicly.ai`
+- `FRONTEND_CREATOR_URL=https://comicly-ai.ru/create.html`
+- `OAUTH_CALLBACK_BASE_URL=https://comicly-ai.ru`
+- `SESSION_COOKIE_DOMAIN=.comicly-ai.ru`
 - `SESSION_COOKIE_SECURE=true`
 - `SESSION_COOKIE_SAMESITE=lax`
 - `GOOGLE_CLIENT_ID`
@@ -69,12 +70,12 @@ Backend production variables:
 - `YANDEX_CLIENT_ID`
 - `YANDEX_CLIENT_SECRET`
 - `OPENROUTER_API_KEY`
-- `OPENROUTER_SITE_URL=https://comicly.ai`
-- `OPENROUTER_APP_NAME=comicly.ai`
+- `OPENROUTER_SITE_URL=https://comicly-ai.ru`
+- `OPENROUTER_APP_NAME=comicly-ai.ru`
 - `BLOB_READ_WRITE_TOKEN`
 - `YOOKASSA_SHOP_ID`
 - `YOOKASSA_API_KEY`
-- `YOOKASSA_RETURN_URL=https://comicly-ai.vercel.app/pricing.html?payment=return`
+- `YOOKASSA_RETURN_URL=https://comicly-ai.ru/pricing.html?payment=return`
 - `SECURITY_HEADERS_ENABLED=true`
 - `RATE_LIMIT_ENABLED=true`
 
@@ -107,27 +108,27 @@ Generated images should be delivered by their Blob URL. Do not proxy generated i
 
 Register these production callback URLs:
 
-- Google: `https://api.comicly.ai/api/v1/auth/google/callback`
-- Yandex: `https://api.comicly.ai/api/v1/auth/yandex/callback`
+- Google: `https://comicly-ai.ru/api/v1/auth/google/callback`
+- Yandex: `https://comicly-ai.ru/api/v1/auth/yandex/callback`
 
 Local callback URLs:
 
 - Google: `http://localhost:8000/api/v1/auth/google/callback`
 - Yandex: `http://localhost:8000/api/v1/auth/yandex/callback`
 
-After login, both providers should redirect back to `https://comicly.ai/create.html` through `FRONTEND_CREATOR_URL`.
+After login, both providers should redirect back to `https://comicly-ai.ru/create.html` through `FRONTEND_CREATOR_URL`.
 
 ## YooKassa
 
 In YooKassa, configure the payment notification URL:
 
 ```text
-https://api.comicly.ai/api/v1/payments/webhook
+https://comicly-ai.ru/api/v1/payments/webhook
 ```
 
 The backend verifies webhook source IP ranges in production by default and then fetches the payment from YooKassa before granting coins. Keep `YOOKASSA_WEBHOOK_IP_CHECK_ENABLED=true` in production unless an upstream trusted proxy enforces the same allow-list.
 
-Until `comicly.ai` and `api.comicly.ai` are attached and healthy, use the working Vercel aliases in YooKassa settings:
+Until `comicly-ai.ru` is attached and healthy, use the working Vercel aliases in YooKassa settings:
 
 - Return URL: `https://comicly-ai.vercel.app/pricing.html?payment=return`
 - Webhook URL: `https://comicly-backend.vercel.app/api/v1/payments/webhook`
@@ -140,7 +141,7 @@ Frontend project:
 - Root directory: repository root
 - Build command: `npm run build:frontend`
 - Output directory: `dist`
-- Domains: `comicly.ai`, `www.comicly.ai`
+- Domain: `comicly-ai.ru`
 
 Backend project:
 
@@ -148,7 +149,7 @@ Backend project:
 - Runtime: Python 3.12
 - Entry point: `api/index.py`, which imports the FastAPI app from `app/main.py`
 - `backend/vercel.json` rewrites all paths to `/api/index` so unprefixed routes like `/health` and `/ready` are handled by FastAPI.
-- Domain: `api.comicly.ai`
+- Public API route: `https://comicly-ai.ru/api/v1/...`
 - Functions max duration: set to 300 seconds in the Vercel project settings/dashboard where supported
 
 Vercel Python runtime is Beta. Keep the backend portable so it can move to Render, Railway, Fly.io, or a container service without rewriting business logic.
@@ -191,7 +192,7 @@ curl.exe -L -I https://comicly-frontend.vercel.app/create.html
 
 `/create.html` may redirect to `/create` with HTTP 308 because Vercel clean URLs are enabled for static output; the final response should be HTTP 200.
 
-To launch the real domain, attach `comicly.ai` and `www.comicly.ai` to the `comicly-frontend` project in the Vercel dashboard and remove those domains from the old Services-mode `comicly.ai` project if necessary.
+To launch the real domain, attach `comicly-ai.ru` to the `comicly-frontend` project in the Vercel dashboard and remove old domains from deprecated projects if necessary.
 
 ## Smoke Checks
 
@@ -204,7 +205,7 @@ python backend/scripts/smoke_production.py --api-base-url http://localhost:8000 
 Production example:
 
 ```powershell
-python backend/scripts/smoke_production.py --api-base-url https://api.comicly.ai --frontend-url https://comicly.ai
+python backend/scripts/smoke_production.py --api-base-url https://comicly-ai.ru --frontend-url https://comicly-ai.ru
 ```
 
 The smoke helper checks public reachability, `/health`, `/ready` unless skipped, and OAuth login route reachability. It does not claim that live OAuth callback or live generation succeeded.

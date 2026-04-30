@@ -24,9 +24,30 @@
           <a href="pricing.html">Цены</a>
         </nav>
 
-        <div class="header-actions">
-          <a class="ghost" href="#">Зарегистрироваться</a>
-          <a class="button compact" href="#">Войти</a>
+        <div class="header-actions" data-header-auth>
+          <a class="button compact" href="create.html" data-header-cta>Создать комикс</a>
+          <div class="account-bar header-account" data-header-account hidden>
+            <a class="credit-pill" href="pricing.html" aria-label="Баланс монет">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M13 2L4 14h7l-1 8 10-13h-7l1-7z" />
+              </svg>
+              <span data-credit-balance>0 монет</span>
+            </a>
+            <div class="profile-wrap">
+              <button class="avatar-button" type="button" data-profile-toggle aria-expanded="false" aria-label="Профиль">
+                <span class="avatar" data-profile-avatar>?</span>
+              </button>
+              <div class="popover profile-menu" data-profile-menu hidden>
+                <div class="popover-header">
+                  <strong data-profile-name>Профиль</strong>
+                  <span data-profile-email>Автор</span>
+                </div>
+                <a href="create.html">Создать комикс</a>
+                <a href="pricing.html">Купить монет</a>
+                <button type="button" data-profile-logout>Выйти</button>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -306,5 +327,6 @@
     </div>
 
     <script src="scripts/main.js"></script>
+    <script src="scripts/site-header.js"></script>
   </body>
 </html>

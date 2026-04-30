@@ -87,8 +87,8 @@ Docker Compose is local-only. Production deployment should use a managed Postgre
 
 Production MVP deployment uses two separate Vercel projects from the same repository:
 
-- frontend project rooted at the repository root, serving `comicly.ai` and `www.comicly.ai`;
-- backend project rooted at `backend/`, serving the API on `api.comicly.ai`.
+- frontend project rooted at the repository root, serving `comicly-ai.ru`;
+- backend project rooted at `backend/`, served publicly through frontend rewrites under `comicly-ai.ru/api/v1/...`.
 
 The root frontend project builds an explicit static output directory from an allow-list of public files. Do not deploy the repository root as a raw static directory, because root-level files such as `.env`, `.planning/`, `backend/`, and package metadata are not public assets.
 
@@ -117,7 +117,8 @@ Copy `backend/.env.example` to `backend/.env` for local overrides.
 | `SCENE_REGENERATION_COST` | Scene regeneration coin cost | `4` |
 | `STARTER_COINS` | Starter wallet coin amount | `100` |
 | `SESSION_SECRET` | Signing secret for temporary OAuth state cookie | local placeholder |
-| `FRONTEND_CREATOR_URL` | Post-login redirect target | `https://comicly.ai/create.html` |
+| `FRONTEND_CREATOR_URL` | Post-login redirect target | `https://comicly-ai.ru/create.html` |
+| `OAUTH_CALLBACK_BASE_URL` | Public origin used when generating OAuth callback URLs behind rewrites | `https://comicly-ai.ru` |
 | `SESSION_COOKIE_NAME` | DB-backed product session cookie name | `comicly_session` |
 | `SESSION_COOKIE_DOMAIN` | Optional cookie domain for shared parent domain deployment | unset |
 | `SESSION_COOKIE_SECURE` | Whether product/OAuth cookies require HTTPS | `false` locally |
@@ -128,8 +129,8 @@ Copy `backend/.env.example` to `backend/.env` for local overrides.
 | `YANDEX_CLIENT_ID` | Yandex OAuth client id | unset |
 | `YANDEX_CLIENT_SECRET` | Yandex OAuth client secret | unset |
 | `OPENROUTER_API_KEY` | Server-side OpenRouter API key for generation/text | unset |
-| `OPENROUTER_SITE_URL` | Referer sent to OpenRouter | `https://comicly.ai` |
-| `OPENROUTER_APP_NAME` | App title sent to OpenRouter | `comicly.ai` |
+| `OPENROUTER_SITE_URL` | Referer sent to OpenRouter | `https://comicly-ai.ru` |
+| `OPENROUTER_APP_NAME` | App title sent to OpenRouter | `comicly-ai.ru` |
 | `OPENROUTER_DEFAULT_IMAGE_MODEL` | Default image model when request omits `model_id` | `bytedance-seed/seedream-4.5` |
 | `OPENROUTER_DEFAULT_TEXT_MODEL` | Default AI text model | `google/gemini-2.5-flash` |
 | `OPENROUTER_ALLOWED_IMAGE_MODELS` | Comma-separated image model allow-list | configured list |
@@ -147,14 +148,14 @@ For Vercel/Neon production:
 - `MIGRATION_DATABASE_URL` should be the Neon direct non-pooled URL for Alembic when available.
 - `SESSION_SECRET`, OAuth secrets, `OPENROUTER_API_KEY`, and `BLOB_READ_WRITE_TOKEN` should be configured through environment variables, not committed files.
 - `SESSION_COOKIE_SECURE=true` should be used for production HTTPS.
-- `SESSION_COOKIE_DOMAIN=.comicly.ai` is suitable when frontend is `comicly.ai`/`www.comicly.ai` and the backend API is `api.comicly.ai`.
+- `SESSION_COOKIE_DOMAIN=.comicly-ai.ru` is suitable when frontend and API routes are served under `comicly-ai.ru`.
 
 OAuth provider secrets are intentionally optional at import/startup time so non-auth endpoints, tests, and health checks can run without live provider credentials. Live OAuth login routes require provider credentials when invoked.
 
 Register these provider callback URLs for production:
 
-- `https://api.comicly.ai/api/v1/auth/google/callback`
-- `https://api.comicly.ai/api/v1/auth/yandex/callback`
+- `https://comicly-ai.ru/api/v1/auth/google/callback`
+- `https://comicly-ai.ru/api/v1/auth/yandex/callback`
 
 Local callback URLs use the same paths on the local backend host, for example:
 

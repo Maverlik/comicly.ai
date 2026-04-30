@@ -47,7 +47,7 @@ def test_settings_support_phase2_env_overrides(monkeypatch) -> None:
         "DATABASE_DIRECT_URL",
         "postgresql+asyncpg://direct:secret@direct.example.com/comicly",
     )
-    monkeypatch.setenv("CORS_ORIGINS", "https://comicly.ai, https://www.comicly.ai")
+    monkeypatch.setenv("CORS_ORIGINS", "https://comicly-ai.ru")
     monkeypatch.setenv("FULL_PAGE_GENERATION_COST", "30")
     monkeypatch.setenv("SCENE_REGENERATION_COST", "6")
     monkeypatch.setenv("STARTER_COINS", "250")
@@ -61,8 +61,8 @@ def test_settings_support_phase2_env_overrides(monkeypatch) -> None:
         "postgresql+asyncpg://direct:secret@direct.example.com/comicly"
     )
     assert settings.alembic_database_url == settings.database_direct_url
-    assert settings.cors_origins == "https://comicly.ai, https://www.comicly.ai"
-    assert settings.cors_origin_list == ["https://comicly.ai", "https://www.comicly.ai"]
+    assert settings.cors_origins == "https://comicly-ai.ru"
+    assert settings.cors_origin_list == ["https://comicly-ai.ru"]
     assert settings.full_page_generation_cost == 30
     assert settings.scene_regeneration_cost == 6
     assert settings.starter_coins == 250
@@ -110,7 +110,7 @@ def test_runtime_engine_uses_runtime_database_url_not_direct_url(monkeypatch) ->
 
 def test_settings_support_phase6_generation_env_overrides(monkeypatch) -> None:
     monkeypatch.setenv("OPENROUTER_API_KEY", "phase-6-secret")
-    monkeypatch.setenv("OPENROUTER_SITE_URL", "https://comicly.ai")
+    monkeypatch.setenv("OPENROUTER_SITE_URL", "https://comicly-ai.ru")
     monkeypatch.setenv("OPENROUTER_APP_NAME", "Comicly")
     monkeypatch.setenv("OPENROUTER_DEFAULT_IMAGE_MODEL", "allowed/model-a")
     monkeypatch.setenv("OPENROUTER_DEFAULT_TEXT_MODEL", "text/model")
@@ -127,7 +127,7 @@ def test_settings_support_phase6_generation_env_overrides(monkeypatch) -> None:
     settings = Settings(_env_file=None)
 
     assert settings.openrouter_api_key == "phase-6-secret"
-    assert settings.openrouter_site_url == "https://comicly.ai"
+    assert settings.openrouter_site_url == "https://comicly-ai.ru"
     assert settings.openrouter_app_name == "Comicly"
     assert settings.openrouter_default_image_model == "allowed/model-a"
     assert settings.openrouter_default_text_model == "text/model"

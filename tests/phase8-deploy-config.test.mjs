@@ -17,6 +17,7 @@ test("root Vercel config builds an explicit static output", async () => {
 
   assert.equal(config.buildCommand, "npm run build:frontend");
   assert.equal(config.outputDirectory, "dist");
+  assert.match(JSON.stringify(config.rewrites), /comicly-backend\.vercel\.app\/api\/v1/);
   assert.equal(packageJson.scripts["build:frontend"], "node scripts/build-frontend.mjs");
   assert.match(ignore, /^\.planning\//m);
   assert.match(ignore, /^backend\//m);
@@ -40,6 +41,7 @@ test("frontend build copies only public static files", async () => {
     "creator.css",
     "scripts/main.js",
     "scripts/creator.js",
+    "scripts/site-header.js",
   ];
 
   for (const file of expectedPublicFiles) {
@@ -66,7 +68,7 @@ test("frontend build copies only public static files", async () => {
 
   assert.deepEqual(
     (await readdir(new URL("../dist/scripts/", import.meta.url))).sort(),
-    ["creator.js", "main.js"],
+    ["creator.js", "main.js", "site-header.js"],
   );
   assert.equal(existsSync(new URL("../dist/assets/", import.meta.url)), true);
 });
@@ -111,6 +113,7 @@ test("backend env example names production deployment variables", async () => {
     "SESSION_SECRET",
     "SESSION_COOKIE_DOMAIN",
     "SESSION_COOKIE_SECURE",
+    "OAUTH_CALLBACK_BASE_URL",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
     "YANDEX_CLIENT_ID",
@@ -131,8 +134,8 @@ test("backend env example names production deployment variables", async () => {
 test("deployment runbook documents production domains and manual live checks", async () => {
   const runbook = await readText("backend/docs/deployment.md");
 
-  assert.match(runbook, /comicly\.ai/);
-  assert.match(runbook, /api\.comicly\.ai/);
+  assert.match(runbook, /comicly-ai\.ru/);
+  assert.match(runbook, /comicly-ai\.ru\/api\/v1/);
   assert.match(runbook, /DATABASE_URL/);
   assert.match(runbook, /MIGRATION_DATABASE_URL/);
   assert.match(runbook, /BLOB_READ_WRITE_TOKEN/);

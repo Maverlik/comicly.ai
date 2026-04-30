@@ -22,7 +22,7 @@ test("creator API helper targets FastAPI v1 with cookies", async () => {
   const script = await read("scripts/creator.js");
 
   assert.match(script, /COMICLY_API_BASE_URL/);
-  assert.match(script, /https:\/\/api\.comicly\.ai/);
+  assert.match(script, /return window\.location\.origin/);
   assert.match(script, /credentials:\s*"include"/);
   assert.match(script, /\/api\/v1\/me/);
   assert.match(script, /\/api\/v1\/auth\/\$\{provider\}\/login/);
