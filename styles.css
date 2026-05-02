@@ -331,7 +331,11 @@ svg {
   bottom: 0;
   z-index: -2;
   width: 100%;
-  background-image: url("assets/comicly-hero-bg.png");
+  background-image: url("assets/comicly-hero-bg.webp");
+  background-image: image-set(
+    url("assets/comicly-hero-bg.webp") type("image/webp"),
+    url("assets/comicly-hero-bg.png") type("image/png")
+  );
   background-repeat: no-repeat;
   background-position: center top;
   background-size: min(100vw, 1900px) auto;
@@ -558,10 +562,14 @@ svg {
   transform: translate(calc(-50% + clamp(260px, 27vw, 330px)), calc(-50% + 22px)) rotate(2deg) scale(0.97);
 }
 
+.comic-sheet picture,
 .comic-page-image {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.comic-page-image {
   object-fit: cover;
 }
 
@@ -570,7 +578,11 @@ svg {
   min-width: 0;
   min-height: 0;
   border: 1px solid rgba(3, 5, 13, 0.95);
-  background-image: url("assets/comicly-reference.png");
+  background-image: url("assets/comicly-reference.webp");
+  background-image: image-set(
+    url("assets/comicly-reference.webp") type("image/webp"),
+    url("assets/comicly-reference.png") type("image/png")
+  );
   background-repeat: no-repeat;
   background-size: 1180px auto;
 }

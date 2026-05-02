@@ -14,20 +14,20 @@
     <div class="page-shell">
       <header class="site-header" aria-label="Основная навигация">
         <a class="brand" href="#top" aria-label="Главная comicly.ai">
-          <img class="brand-logo" src="assets/blue_transparent_logo.png?v=1" alt="" />
+          <img class="brand-logo" src="assets/blue_transparent_logo.webp?v=2" alt="" />
         </a>
 
         <nav class="nav-links" aria-label="Разделы">
           <a href="#examples">Примеры</a>
           <a href="#workflow">Как работает</a>
           <a href="#features">Возможности</a>
-          <a href="pricing.html">Цены</a>
+          <a href="/pricing">Цены</a>
         </nav>
 
         <div class="header-actions" data-header-auth>
-          <a class="button compact" href="create.html" data-header-cta>Создать комикс</a>
+          <a class="button compact" href="/create" data-header-cta>Создать комикс</a>
           <div class="account-bar header-account" data-header-account hidden>
-            <a class="credit-pill" href="pricing.html" aria-label="Баланс монет">
+            <a class="credit-pill" href="/pricing" aria-label="Баланс монет">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M13 2L4 14h7l-1 8 10-13h-7l1-7z" />
               </svg>
@@ -42,8 +42,8 @@
                   <strong data-profile-name>Профиль</strong>
                   <span data-profile-email>Автор</span>
                 </div>
-                <a href="create.html">Создать комикс</a>
-                <a href="pricing.html">Купить монет</a>
+                <a href="/create">Создать комикс</a>
+                <a href="/pricing">Купить монет</a>
                 <button type="button" data-profile-logout>Выйти</button>
               </div>
             </div>
@@ -59,7 +59,7 @@
           <div class="hero-content">
             <p class="hero-kicker"><span>AI</span> комиксы за несколько минут</p>
             <h1 id="hero-title">Превратите свою историю в <span>комикс</span></h1>
-            <a class="primary-cta" href="create.html">
+            <a class="primary-cta" href="/create">
               <span>Создать комикс</span>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 2.5l1.9 5.2 5.4 1.9-5.4 1.9L12 16.7l-1.9-5.2-5.4-1.9 5.4-1.9L12 2.5zm6.4 11.8l.9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9.9-2.4z" />
@@ -123,7 +123,9 @@
             <article class="comic-sheet" aria-label="Пример динамичного AI-комикса" data-carousel-card data-page="2" data-slot="left">
               <img
                 class="comic-page-image"
-                src="assets/comic-preview-action.png"
+                src="assets/comic-preview-action.webp"
+                loading="lazy"
+                decoding="async"
                 alt="Пример динамичного AI-комикса"
               />
             </article>
@@ -131,7 +133,9 @@
             <article class="comic-sheet" aria-label="Пример фэнтези AI-комикса" data-carousel-card data-page="0" data-slot="main">
               <img
                 class="comic-page-image"
-                src="assets/comic-preview-fantasy.png"
+                src="assets/comic-preview-fantasy.webp"
+                loading="lazy"
+                decoding="async"
                 alt="Пример фэнтези AI-комикса"
               />
             </article>
@@ -139,7 +143,9 @@
             <article class="comic-sheet" aria-label="Пример черно-белого AI-комикса" data-carousel-card data-page="1" data-slot="right">
               <img
                 class="comic-page-image"
-                src="assets/comic-preview-japan.png"
+                src="assets/comic-preview-japan.webp"
+                loading="lazy"
+                decoding="async"
                 alt="Пример черно-белого AI-комикса"
               />
             </article>
@@ -198,22 +204,22 @@
           </div>
 
           <article>
-            <img class="feature-card-image" src="assets/feature-storyboard-ai.png" alt="" loading="lazy" />
+            <img class="feature-card-image" src="assets/feature-storyboard-ai.webp" alt="" loading="lazy" decoding="async" />
             <h3>AI-раскадровка</h3>
             <p>Превращайте завязку в сцены с описанием, диалогами и подписями.</p>
           </article>
           <article>
-            <img class="feature-card-image" src="assets/feature-characters-story.png" alt="" loading="lazy" />
+            <img class="feature-card-image" src="assets/feature-characters-story.webp" alt="" loading="lazy" decoding="async" />
             <h3>Персонажи в сюжете</h3>
             <p>Опишите внешность и роли — они будут учитываться при генерации страницы.</p>
           </article>
           <article>
-            <img class="feature-card-image" src="assets/feature-style-tone.png" alt="" loading="lazy" />
+            <img class="feature-card-image" src="assets/feature-style-tone.webp" alt="" loading="lazy" decoding="async" />
             <h3>Выбор стиля и тона</h3>
             <p>Аниме, манга, реализм или кинематографичный — с нужной эмоцией.</p>
           </article>
           <article>
-            <img class="feature-card-image" src="assets/feature-model-choice.png" alt="" loading="lazy" />
+            <img class="feature-card-image" src="assets/feature-model-choice.webp" alt="" loading="lazy" decoding="async" />
             <h3>Выбор модели</h3>
             <p>Seedream, Nano Banana Pro или GPT Image — баланс скорости, качества и цены.</p>
           </article>
@@ -318,13 +324,13 @@
 
       <footer class="site-footer">
         <nav class="footer-links" aria-label="Информация о сервисе">
-          <a href="contacts.html">Реквизиты</a>
+          <a href="/contacts">Реквизиты</a>
           <span aria-hidden="true">•</span>
-          <a href="pricing.html">Цены</a>
+          <a href="/pricing">Цены</a>
           <span aria-hidden="true">•</span>
-          <a href="offer.html">Условия использования</a>
+          <a href="/offer">Условия использования</a>
           <span aria-hidden="true">•</span>
-          <a href="privacy.html">Политика конфиденциальности</a>
+          <a href="/privacy">Политика конфиденциальности</a>
         </nav>
         <p class="footer-copy">© 2026 Comicly</p>
       </footer>

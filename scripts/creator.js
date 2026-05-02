@@ -77,10 +77,10 @@ const MODEL_LABELS = {
 };
 
 const PLACEHOLDER_IMAGES = [
-  "assets/comic-preview-fantasy.png",
-  "assets/comic-preview-japan.png",
-  "assets/comic-preview-action.png",
-  "assets/comicly-reference.png",
+  "assets/comic-preview-fantasy.webp",
+  "assets/comic-preview-japan.webp",
+  "assets/comic-preview-action.webp",
+  "assets/comicly-reference.webp",
 ];
 
 function createDefaultPageContext(overrides = {}) {
@@ -99,7 +99,7 @@ function createDefaultPageContext(overrides = {}) {
 const initialStoryValue = (typeof storyInput?.value === "string" ? storyInput.value : "") || "";
 let pageContexts = [createDefaultPageContext({ story: initialStoryValue })];
 let pages = [createPlaceholderDataUrl(1)];
-let pageImages = ["assets/comic-preview-fantasy.png"];
+let pageImages = ["assets/comic-preview-fantasy.webp"];
 let scenes = pageContexts[0].scenes;
 let characters = pageContexts[0].characters;
 
@@ -1916,7 +1916,7 @@ continueButton?.addEventListener("click", continueStory);
 regenerateDialogueButton?.addEventListener("click", regenerateDialogue);
 generateCaptionButton?.addEventListener("click", generateCaption);
 creditInfoButton?.addEventListener("click", () => {
-  window.location.href = "pricing.html";
+  window.location.href = "/pricing";
 });
 addCreditsButton?.addEventListener("click", addCredits);
 notificationsButton?.addEventListener("click", () => showToast("Новых уведомлений нет."));
