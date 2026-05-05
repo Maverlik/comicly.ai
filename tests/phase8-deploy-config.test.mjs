@@ -42,6 +42,7 @@ test("frontend build copies only public static files", async () => {
     "scripts/main.js",
     "scripts/creator.js",
     "scripts/site-header.js",
+    "scripts/pricing.js",
   ];
 
   for (const file of expectedPublicFiles) {
@@ -68,7 +69,7 @@ test("frontend build copies only public static files", async () => {
 
   assert.deepEqual(
     (await readdir(new URL("../dist/scripts/", import.meta.url))).sort(),
-    ["creator.js", "main.js", "site-header.js"],
+    ["creator.js", "main.js", "pricing.js", "site-header.js"],
   );
   assert.equal(existsSync(new URL("../dist/assets/", import.meta.url)), true);
 });

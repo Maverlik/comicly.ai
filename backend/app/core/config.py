@@ -77,6 +77,14 @@ class Settings(BaseSettings):
         "2a02:5180::/32"
     )
     yookassa_webhook_ip_check_enabled: bool = True
+    feedback_recipient_email: str = "mushkwork@mail.ru"
+    feedback_from_email: str | None = None
+    smtp_host: str | None = None
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_use_tls: bool = True
+    smtp_use_ssl: bool = False
 
     @model_validator(mode="after")
     def validate_coin_settings(self) -> Self:
@@ -108,6 +116,8 @@ class Settings(BaseSettings):
             raise ValueError(
                 "YOOKASSA_REQUEST_TIMEOUT_SECONDS must be greater than zero"
             )
+        if self.smtp_port <= 0:
+            raise ValueError("SMTP_PORT must be greater than zero")
         if not self.openrouter_allowed_image_model_list:
             raise ValueError("OPENROUTER_ALLOWED_IMAGE_MODELS must not be empty")
         if (

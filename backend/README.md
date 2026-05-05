@@ -137,6 +137,14 @@ Copy `backend/.env.example` to `backend/.env` for local overrides.
 | `OPENROUTER_IMAGE_ASPECT_RATIO` | Image aspect ratio sent to OpenRouter | `1:1` |
 | `OPENROUTER_REQUEST_TIMEOUT_SECONDS` | OpenRouter request timeout | `60` |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob read-write token | unset |
+| `FEEDBACK_RECIPIENT_EMAIL` | Recipient for landing feedback form emails | `mushkwork@mail.ru` |
+| `FEEDBACK_FROM_EMAIL` | SMTP sender address for feedback emails | unset |
+| `SMTP_HOST` | SMTP host for automatic feedback delivery | unset |
+| `SMTP_PORT` | SMTP port for feedback delivery | `587` |
+| `SMTP_USERNAME` | SMTP username for feedback delivery | unset |
+| `SMTP_PASSWORD` | SMTP password or app password for feedback delivery | unset |
+| `SMTP_USE_TLS` | Use STARTTLS for feedback SMTP | `true` |
+| `SMTP_USE_SSL` | Use SMTP over SSL for feedback SMTP | `false` |
 | `SECURITY_HEADERS_ENABLED` | Enable baseline API security headers | `true` |
 | `RATE_LIMIT_ENABLED` | Enable in-process sensitive-route rate limiting | `true` |
 | `RATE_LIMIT_WINDOW_SECONDS` | Rate-limit window size in seconds | `60` |
@@ -146,7 +154,7 @@ For Vercel/Neon production:
 
 - `DATABASE_URL` should be the Neon pooled connection URL converted to the async SQLAlchemy driver form, for example `postgresql+asyncpg://...`.
 - `MIGRATION_DATABASE_URL` should be the Neon direct non-pooled URL for Alembic when available.
-- `SESSION_SECRET`, OAuth secrets, `OPENROUTER_API_KEY`, and `BLOB_READ_WRITE_TOKEN` should be configured through environment variables, not committed files.
+- `SESSION_SECRET`, OAuth secrets, `OPENROUTER_API_KEY`, `BLOB_READ_WRITE_TOKEN`, and SMTP credentials should be configured through environment variables, not committed files.
 - `SESSION_COOKIE_SECURE=true` should be used for production HTTPS.
 - `SESSION_COOKIE_DOMAIN=.comicly-ai.ru` is suitable when frontend and API routes are served under `comicly-ai.ru`.
 

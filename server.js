@@ -4,6 +4,13 @@ const path = require("node:path");
 
 const rootDir = __dirname;
 const port = Number(process.env.PORT) || 3000;
+const cleanHtmlRoutes = new Map([
+  ["/create", "/create.html"],
+  ["/pricing", "/pricing.html"],
+  ["/contacts", "/contacts.html"],
+  ["/offer", "/offer.html"],
+  ["/privacy", "/privacy.html"],
+]);
 
 function loadEnv() {
   const envPath = path.join(rootDir, ".env");
@@ -527,6 +534,7 @@ function serveStatic(request, response) {
   const url = new URL(request.url, `http://${request.headers.host}`);
   let pathname = decodeURIComponent(url.pathname);
   if (pathname === "/") pathname = "/index.html";
+  pathname = cleanHtmlRoutes.get(pathname) || pathname;
 
   const requestedPath = path.normalize(path.join(rootDir, pathname));
   if (!requestedPath.startsWith(rootDir)) {

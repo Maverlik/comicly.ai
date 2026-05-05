@@ -11,6 +11,8 @@
   const profileEmail = root.querySelector("[data-profile-email]");
   const profileAvatar = root.querySelector("[data-profile-avatar]");
   const logoutButton = root.querySelector("[data-profile-logout]");
+  const SESSION_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+  const AUTH_CHECK_TIMEOUT_MS = 1800;
 
   function resolveApiBaseUrl() {
     const configured = typeof window.COMICLY_API_BASE_URL === "string"
@@ -33,11 +35,24 @@
 
   async function apiFetch(path, options) {
     const init = Object.assign({ credentials: "include" }, options || {});
+    const timeoutMs = Number(init.timeoutMs || 0);
+    delete init.timeoutMs;
+    let timeoutId = null;
+    if (timeoutMs > 0 && typeof AbortController !== "undefined") {
+      const controller = new AbortController();
+      init.signal = controller.signal;
+      timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+    }
     init.headers = Object.assign({}, init.headers || {});
     if (init.body && !init.headers["Content-Type"]) {
       init.headers["Content-Type"] = "application/json";
     }
-    const response = await fetch(API_BASE_URL + path, init);
+    let response;
+    try {
+      response = await fetch(API_BASE_URL + path, init);
+    } finally {
+      if (timeoutId) window.clearTimeout(timeoutId);
+    }
     let data = null;
     try { data = await response.json(); } catch (_) { data = null; }
     if (!response.ok) {
@@ -55,7 +70,7 @@
       if (!raw) return null;
       const cached = JSON.parse(raw);
       if (!cached || typeof cached !== "object" || !cached.data) return null;
-      if (Date.now() - Number(cached.savedAt || 0) > 5 * 60 * 1000) return null;
+      if (Date.now() - Number(cached.savedAt || 0) > SESSION_CACHE_MAX_AGE_MS) return null;
       return cached.data;
     } catch (_) {
       return null;
@@ -134,14 +149,19 @@
   (async function bootstrap() {
     const cachedSession = readSessionCache();
     if (cachedSession) showLoggedIn(cachedSession);
+    else showLoggedOut();
 
     try {
-      const data = await apiFetch("/api/v1/me");
+      const data = await apiFetch("/api/v1/me", { timeoutMs: AUTH_CHECK_TIMEOUT_MS });
       writeSessionCache(data);
       showLoggedIn(data);
-    } catch (_) {
-      clearSessionCache();
-      showLoggedOut();
+    } catch (error) {
+      if (error && error.status === 401) {
+        clearSessionCache();
+        showLoggedOut();
+        return;
+      }
+      if (!cachedSession) showLoggedOut();
     }
   })();
 })();

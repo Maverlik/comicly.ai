@@ -36,6 +36,8 @@ def test_settings_have_safe_defaults_without_future_env_vars(
         settings.openrouter_allowed_image_model_set
     )
     assert settings.blob_read_write_token is None
+    assert settings.feedback_recipient_email == "mushkwork@mail.ru"
+    assert settings.smtp_host is None
 
 
 def test_settings_support_phase2_env_overrides(monkeypatch) -> None:
@@ -144,6 +146,28 @@ def test_settings_support_phase6_generation_env_overrides(monkeypatch) -> None:
     assert settings.blob_read_write_token == "blob-secret"
     assert settings.google_client_secret == "phase-3-secret"
     assert not hasattr(settings, "storage_secret_access_key")
+
+
+def test_settings_support_feedback_smtp_env_overrides(monkeypatch) -> None:
+    monkeypatch.setenv("FEEDBACK_RECIPIENT_EMAIL", "owner@example.com")
+    monkeypatch.setenv("FEEDBACK_FROM_EMAIL", "robot@example.com")
+    monkeypatch.setenv("SMTP_HOST", "smtp.example.com")
+    monkeypatch.setenv("SMTP_PORT", "465")
+    monkeypatch.setenv("SMTP_USERNAME", "robot@example.com")
+    monkeypatch.setenv("SMTP_PASSWORD", "smtp-secret")
+    monkeypatch.setenv("SMTP_USE_TLS", "false")
+    monkeypatch.setenv("SMTP_USE_SSL", "true")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.feedback_recipient_email == "owner@example.com"
+    assert settings.feedback_from_email == "robot@example.com"
+    assert settings.smtp_host == "smtp.example.com"
+    assert settings.smtp_port == 465
+    assert settings.smtp_username == "robot@example.com"
+    assert settings.smtp_password == "smtp-secret"
+    assert settings.smtp_use_tls is False
+    assert settings.smtp_use_ssl is True
 
 
 def test_default_image_model_must_be_allowed(monkeypatch) -> None:

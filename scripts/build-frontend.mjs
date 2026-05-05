@@ -17,6 +17,7 @@ const publicEntries = [
   "scripts/main.js",
   "scripts/creator.js",
   "scripts/site-header.js",
+  "scripts/pricing.js",
   "assets",
 ];
 

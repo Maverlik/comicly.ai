@@ -52,6 +52,7 @@ a {
 }
 
 button,
+input,
 textarea,
 select {
   font: inherit;
@@ -182,6 +183,7 @@ svg {
   display: none !important;
 }
 
+.header-account .create-comic-icon,
 .header-account .credit-pill,
 .header-account .avatar-button {
   display: inline-flex;
@@ -201,6 +203,19 @@ svg {
     transform 160ms ease,
     border-color 160ms ease,
     background 160ms ease;
+}
+
+.header-account .create-comic-icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+}
+
+.header-account .create-comic-icon img {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: cover;
 }
 
 .header-account .credit-pill svg {
@@ -229,6 +244,7 @@ svg {
   font-size: 14px;
 }
 
+.header-account .create-comic-icon:hover,
 .header-account .credit-pill:hover,
 .header-account .avatar-button:hover {
   transform: translateY(-1px);
@@ -814,6 +830,8 @@ svg {
 
 .feature-grid,
 .prompt-section,
+.landing-pricing-section,
+.feedback-section,
 .site-footer {
   width: min(100% - 48px, 1120px);
   margin: 78px auto 0;
@@ -1249,7 +1267,6 @@ svg {
 .pricing-header {
   position: relative;
   left: auto;
-  width: min(calc(100% - 48px), 1180px);
   margin: 14px auto 0;
   transform: none;
 }
@@ -1467,6 +1484,153 @@ svg {
   margin-top: 82px;
 }
 
+.landing-pricing-section .pricing-plans {
+  margin: 36px 0 0;
+}
+
+.landing-pricing-heading {
+  margin-bottom: 0;
+}
+
+.section-lead {
+  margin: 0;
+  max-width: 640px;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.feedback-section {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1fr);
+  gap: 30px;
+  align-items: start;
+}
+
+.feedback-copy {
+  max-width: 440px;
+}
+
+.feedback-copy .eyebrow {
+  margin-inline: 0;
+}
+
+.feedback-copy h2 {
+  margin: 20px 0 16px;
+  font-size: 38px;
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.feedback-copy p:last-child,
+.feedback-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.feedback-status[data-state="success"] {
+  color: #8fe7b2;
+}
+
+.feedback-status[data-state="error"] {
+  color: #ffb2b2;
+}
+
+.feedback-form {
+  display: grid;
+  gap: 14px;
+}
+
+.feedback-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.feedback-form label span {
+  color: #d9e6f8;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.feedback-form input,
+.feedback-form textarea {
+  width: 100%;
+  border: 1px solid rgba(93, 135, 210, 0.28);
+  border-radius: 8px;
+  padding: 14px 16px;
+  color: #f7fbff;
+  background: rgba(3, 10, 22, 0.72);
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.feedback-form textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.feedback-form input:focus,
+.feedback-form textarea:focus {
+  border-color: rgba(86, 167, 255, 0.68);
+  background: rgba(5, 14, 29, 0.9);
+  box-shadow: 0 0 0 3px rgba(86, 167, 255, 0.14);
+}
+
+.feedback-files input {
+  padding: 12px;
+}
+
+.feedback-files input::file-selector-button {
+  min-height: 34px;
+  margin-right: 12px;
+  border: 1px solid rgba(83, 144, 255, 0.22);
+  border-radius: 8px;
+  padding: 0 14px;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  background: rgba(16, 40, 78, 0.88);
+  cursor: pointer;
+}
+
+.feedback-files small {
+  color: var(--soft);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.feedback-form button {
+  min-height: 50px;
+  border: 1px solid rgba(83, 144, 255, 0.22);
+  border-radius: 8px;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  background: linear-gradient(180deg, #1776de 0%, #0e5dbe 100%);
+  box-shadow: 0 16px 36px rgba(19, 93, 194, 0.28);
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.feedback-form button:hover {
+  background: linear-gradient(180deg, #1d82ef 0%, #1168d3 100%);
+  transform: translateY(-1px);
+}
+
+.feedback-form button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+  transform: none;
+}
+
 .payment-placeholder {
   position: fixed;
   right: 24px;
@@ -1664,6 +1828,8 @@ svg {
   .preview-section,
   .feature-grid,
   .prompt-section,
+  .landing-pricing-section,
+  .feedback-section,
   .site-footer {
     width: min(100% - 28px, 640px);
   }
@@ -1765,11 +1931,6 @@ svg {
     justify-content: flex-start;
   }
 
-  .pricing-header {
-    width: min(calc(100% - 28px), 640px);
-    margin-top: 18px;
-  }
-
   .pricing-page {
     width: min(calc(100% - 28px), 640px);
     margin-top: 54px;
@@ -1786,6 +1947,19 @@ svg {
   .pricing-plans {
     grid-template-columns: 1fr;
     margin: 36px 0 54px;
+  }
+
+  .landing-pricing-section .pricing-plans {
+    margin-bottom: 0;
+  }
+
+  .feedback-section {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .feedback-copy h2 {
+    font-size: 31px;
   }
 
   .pricing-card {

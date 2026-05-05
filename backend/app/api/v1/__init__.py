@@ -5,6 +5,7 @@ from app.api.v1 import (
     auth,
     coin_packages,
     comics,
+    feedback,
     generations,
     me,
     payments,
@@ -16,6 +17,7 @@ router.include_router(auth.router)
 router.include_router(ai_text.router)
 router.include_router(coin_packages.router)
 router.include_router(comics.router)
+router.include_router(feedback.router)
 router.include_router(generations.router)
 router.include_router(me.router)
 router.include_router(payments.router)
