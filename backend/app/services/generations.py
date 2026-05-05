@@ -12,7 +12,6 @@ from app.core.config import Settings
 from app.core.errors import ApiError
 from app.models.comic import ComicPage
 from app.models.generation import GenerationJob
-from app.services.blob_storage import StoredBlob
 from app.services.comics import (
     PAGE_STATUS_FAILED,
     PAGE_STATUS_GENERATED,
@@ -33,6 +32,7 @@ from app.services.wallets import (
     get_wallet_summary,
     refund_generation_debit,
 )
+from app.services.image_storage_common import StoredImage
 
 JOB_STATUS_PROCESSING = "processing"
 JOB_STATUS_SUCCEEDED = "succeeded"
@@ -54,7 +54,7 @@ class ImageStorage(Protocol):
         comic_id: UUID,
         page_id: UUID,
         image_source: str,
-    ) -> StoredBlob: ...
+    ) -> StoredImage: ...
 
 
 @dataclass(frozen=True)
@@ -349,11 +349,11 @@ def _request_payload(data: GenerationRequest, model: str) -> dict[str, Any]:
 def _safe_response_payload(
     response_payload: dict[str, Any],
     *,
-    stored: StoredBlob,
+    stored: StoredImage,
 ) -> dict[str, Any]:
     return {
         "openrouter": response_payload,
-        "blob": {
+        "storage": {
             "url": stored.url,
             "storage_key": stored.storage_key,
             "content_type": stored.content_type,

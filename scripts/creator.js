@@ -139,9 +139,6 @@ function resolveApiBaseUrl() {
   if (hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1") {
     return "http://localhost:8000";
   }
-  if (hostname.endsWith(".vercel.app")) {
-    return "https://comicly-backend.vercel.app";
-  }
   return window.location.origin;
 }
 

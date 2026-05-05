@@ -13,7 +13,6 @@ from app.db.base import Base
 from app.models.generation import GenerationJob
 from app.models.user import User
 from app.models.wallet import Wallet, WalletTransaction
-from app.services.blob_storage import StoredBlob
 from app.services.comics import (
     ComicCreate,
     SceneInput,
@@ -26,6 +25,7 @@ from app.services.generations import (
     GenerationRequest,
     GenerationService,
 )
+from app.services.image_storage_common import StoredImage
 from app.services.openrouter import ComicImagePromptInput, OpenRouterImageResult
 
 
@@ -81,8 +81,8 @@ class FakeImageStorage:
         )
         if self.error is not None:
             raise self.error
-        return StoredBlob(
-            url="https://blob.example/page.png",
+        return StoredImage(
+            url="https://storage.example/page.png",
             storage_key=f"generated/comics/{comic_id}/pages/{page_id}.png",
             content_type="image/png",
             size=5,
@@ -181,7 +181,7 @@ async def test_generation_success_updates_job_page_and_wallet(
 
     assert result.status == JOB_STATUS_SUCCEEDED
     assert result.balance == 80
-    assert result.image_url == "https://blob.example/page.png"
+    assert result.image_url == "https://storage.example/page.png"
     assert result.page.status == "generated"
     assert result.page.model == "bytedance-seed/seedream-4.5"
     assert result.page.coin_cost == 20
@@ -312,7 +312,7 @@ async def test_storage_failure_after_debit_marks_failed_and_refunds_once(
     user, comic, scene = await create_user_wallet_and_comic(session_maker)
     provider = FakeImageProvider()
     storage = FakeImageStorage(
-        ApiError(502, "BLOB_STORAGE_ERROR", "Generated image could not be stored.")
+        ApiError(502, "STORAGE_ERROR", "Generated image could not be stored.")
     )
     service = generation_service(provider=provider, storage=storage)
 
@@ -326,7 +326,7 @@ async def test_storage_failure_after_debit_marks_failed_and_refunds_once(
 
         assert result.status == JOB_STATUS_FAILED
         assert result.balance == 100
-        assert result.job.error_code == "BLOB_STORAGE_ERROR"
+        assert result.job.error_code == "STORAGE_ERROR"
         assert result.page.status == "failed"
         assert len(provider.calls) == 1
         assert len(storage.calls) == 1

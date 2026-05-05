@@ -96,7 +96,7 @@ async def test_google_login_uses_public_callback_base_when_configured() -> None:
     transport = ASGITransport(app=app)
     async with AsyncClient(
         transport=transport,
-        base_url="https://comicly-backend.vercel.app",
+        base_url="https://comicly-ai.ru",
         follow_redirects=False,
     ) as client:
         response = await client.get("/api/v1/auth/google/login")

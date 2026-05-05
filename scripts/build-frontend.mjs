@@ -1,4 +1,4 @@
-import { cp, mkdir, rm, stat } from "node:fs/promises";
+import { cp, mkdir, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -15,6 +15,7 @@ const publicEntries = [
   "styles.css",
   "creator.css",
   "scripts/main.js",
+  "scripts/runtime-config.js",
   "scripts/creator.js",
   "scripts/site-header.js",
   "assets",
@@ -40,3 +41,9 @@ await mkdir(outDir, { recursive: true });
 for (const entry of publicEntries) {
   await copyEntry(entry);
 }
+
+const apiBaseUrl = process.env.COMICLY_API_BASE_URL || "";
+await writeFile(
+  join(outDir, "scripts/runtime-config.js"),
+  `window.COMICLY_API_BASE_URL = ${JSON.stringify(apiBaseUrl)};\n`,
+);

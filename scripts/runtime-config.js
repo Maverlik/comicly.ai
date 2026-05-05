@@ -1,0 +1,2 @@
+window.COMICLY_API_BASE_URL = window.COMICLY_API_BASE_URL || "";
+

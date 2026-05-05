@@ -1,0 +1,32 @@
+services:
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    depends_on:
+      - backend-api
+    environment:
+      COMICLY_SITE_ADDRESS: ${COMICLY_SITE_ADDRESS:-comicly-ai.ru}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@comicly-ai.ru}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./dist:/srv/comicly/frontend:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+  backend-api:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file:
+      - path: ./backend/.env
+        required: false
+    expose:
+      - "8000"
+
+volumes:
+  caddy_data:
+  caddy_config:

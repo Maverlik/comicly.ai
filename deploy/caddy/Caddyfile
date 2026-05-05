@@ -1,0 +1,32 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$COMICLY_SITE_ADDRESS:comicly-ai.ru} {
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+	}
+
+	handle /api/v1/* {
+		reverse_proxy backend-api:8000
+	}
+
+	handle /health {
+		reverse_proxy backend-api:8000
+	}
+
+	handle /ready {
+		reverse_proxy backend-api:8000
+	}
+
+	handle {
+		root * /srv/comicly/frontend
+		try_files {path} {path}.html /index.html
+		file_server
+	}
+}
+

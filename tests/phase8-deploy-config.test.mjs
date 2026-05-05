@@ -8,21 +8,6 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const rootPath = fileURLToPath(new URL("../", import.meta.url));
 
 const readText = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
-const readJson = async (path) => JSON.parse(await readText(path));
-
-test("root Vercel config builds an explicit static output", async () => {
-  const config = await readJson("vercel.json");
-  const packageJson = await readJson("package.json");
-  const ignore = await readText(".vercelignore");
-
-  assert.equal(config.buildCommand, "npm run build:frontend");
-  assert.equal(config.outputDirectory, "dist");
-  assert.match(JSON.stringify(config.rewrites), /comicly-backend\.vercel\.app\/api\/v1/);
-  assert.equal(packageJson.scripts["build:frontend"], "node scripts/build-frontend.mjs");
-  assert.match(ignore, /^\.planning\//m);
-  assert.match(ignore, /^backend\//m);
-  assert.match(ignore, /^\.env$/m);
-});
 
 test("frontend build copies only public static files", async () => {
   const distPath = new URL("../dist/", import.meta.url);
@@ -40,6 +25,7 @@ test("frontend build copies only public static files", async () => {
     "styles.css",
     "creator.css",
     "scripts/main.js",
+    "scripts/runtime-config.js",
     "scripts/creator.js",
     "scripts/site-header.js",
   ];
@@ -54,7 +40,7 @@ test("frontend build copies only public static files", async () => {
     "backend",
     "package.json",
     "server.js",
-    "vercel.json",
+    "docker-compose.yml",
     ".git",
   ];
 
@@ -68,43 +54,27 @@ test("frontend build copies only public static files", async () => {
 
   assert.deepEqual(
     (await readdir(new URL("../dist/scripts/", import.meta.url))).sort(),
-    ["creator.js", "main.js", "site-header.js"],
+    ["creator.js", "main.js", "runtime-config.js", "site-header.js"],
   );
   assert.equal(existsSync(new URL("../dist/assets/", import.meta.url)), true);
 });
 
-test("backend Vercel config targets FastAPI app without Docker Compose", async () => {
-  const backendConfig = await readJson("backend/vercel.json");
-  const pythonVersion = (await readText("backend/.python-version")).trim();
-  const ignore = await readText("backend/.vercelignore");
-  const entrypoint = await readText("backend/index.py");
-
-  assert.equal(pythonVersion, "3.12");
-  assert.equal(backendConfig.buildCommand, null);
-  assert.equal(
-    backendConfig.installCommand,
-    "python -m pip install --break-system-packages -r requirements-runtime.txt",
-  );
-  assert.doesNotMatch(JSON.stringify(backendConfig), /docker|compose/i);
-  assert.match(entrypoint, /from app\.main import app/);
-  assert.match(ignore, /^BACKEND_TZ\.md$/m);
-  assert.match(ignore, /^tests\//m);
-  assert.match(ignore, /^\.env$/m);
-});
-
 test("committed env examples do not contain real secret values", async () => {
-  const envExamples = [await readText(".env.example"), await readText("backend/.env.example")];
+  const envExamples = [
+    await readText(".env.example"),
+    await readText("backend/.env.example"),
+  ];
 
   for (const content of envExamples) {
     assert.doesNotMatch(content, /sk-or-v1-[A-Za-z0-9_-]{20,}/);
-    assert.doesNotMatch(content, /BLOB_READ_WRITE_TOKEN=.*[A-Za-z0-9_-]{20,}/);
+    assert.doesNotMatch(content, /S3_SECRET_ACCESS_KEY=.*[A-Za-z0-9_-]{20,}/);
     assert.doesNotMatch(content, /GOOGLE_CLIENT_SECRET=.*[A-Za-z0-9_-]{20,}/);
     assert.doesNotMatch(content, /YANDEX_CLIENT_SECRET=.*[A-Za-z0-9_-]{20,}/);
     assert.doesNotMatch(content, /YOOKASSA_API_KEY=.*[A-Za-z0-9_-]{20,}/);
   }
 });
 
-test("backend env example names production deployment variables", async () => {
+test("backend env example names VPS production variables", async () => {
   const env = await readText("backend/.env.example");
   const requiredNames = [
     "DATABASE_URL",
@@ -119,7 +89,11 @@ test("backend env example names production deployment variables", async () => {
     "YANDEX_CLIENT_ID",
     "YANDEX_CLIENT_SECRET",
     "OPENROUTER_API_KEY",
-    "BLOB_READ_WRITE_TOKEN",
+    "S3_ENDPOINT_URL",
+    "S3_BUCKET",
+    "S3_ACCESS_KEY_ID",
+    "S3_SECRET_ACCESS_KEY",
+    "S3_PUBLIC_BASE_URL",
     "YOOKASSA_SHOP_ID",
     "YOOKASSA_API_KEY",
     "YOOKASSA_RETURN_URL",
@@ -131,19 +105,22 @@ test("backend env example names production deployment variables", async () => {
   }
 });
 
-test("deployment runbook documents production domains and manual live checks", async () => {
+test("VPS Caddy S3 profile is the primary deployment shape", async () => {
+  const compose = await readText("docker-compose.yml");
+  const caddyfile = await readText("deploy/caddy/Caddyfile");
   const runbook = await readText("backend/docs/deployment.md");
+  const backendReadme = await readText("backend/README.md");
+  const requirements = await readText("backend/requirements-runtime.txt");
 
-  assert.match(runbook, /comicly-ai\.ru/);
-  assert.match(runbook, /comicly-ai\.ru\/api\/v1/);
-  assert.match(runbook, /DATABASE_URL/);
-  assert.match(runbook, /MIGRATION_DATABASE_URL/);
-  assert.match(runbook, /BLOB_READ_WRITE_TOKEN/);
-  assert.match(runbook, /YOOKASSA_SHOP_ID/);
-  assert.match(runbook, /api\/v1\/payments\/webhook/);
-  assert.match(runbook, /api\/v1\/auth\/google\/callback/);
-  assert.match(runbook, /api\/v1\/auth\/yandex\/callback/);
-  assert.match(runbook, /Manual production checks/);
+  assert.match(compose, /caddy:2\.8-alpine/);
+  assert.match(compose, /backend-api/);
+  assert.match(compose, /\.\/backend\/\.env/);
+  assert.match(caddyfile, /reverse_proxy backend-api:8000/);
+  assert.match(caddyfile, /try_files \{path\} \{path\}\.html \/index\.html/);
+  assert.match(runbook, /docker compose up -d --build/);
+  assert.match(runbook, /Managed PostgreSQL/);
+  assert.match(runbook, /S3-compatible/);
+  assert.match(backendReadme, /S3-compatible object storage/);
 });
 
 test("smoke helper separates automated checks from manual provider checks", async () => {
@@ -154,5 +131,5 @@ test("smoke helper separates automated checks from manual provider checks", asyn
   assert.match(smoke, /\/health/);
   assert.match(smoke, /\/ready/);
   assert.match(smoke, /Live OAuth callbacks require provider credentials/);
-  assert.match(smoke, /Live generation requires auth/);
+  assert.match(smoke, /S3 storage/);
 });

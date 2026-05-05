@@ -35,7 +35,7 @@ def test_settings_have_safe_defaults_without_future_env_vars(
     assert settings.openrouter_default_image_model in (
         settings.openrouter_allowed_image_model_set
     )
-    assert settings.blob_read_write_token is None
+    assert settings.s3_bucket is None
 
 
 def test_settings_support_phase2_env_overrides(monkeypatch) -> None:
@@ -120,7 +120,6 @@ def test_settings_support_phase6_generation_env_overrides(monkeypatch) -> None:
     )
     monkeypatch.setenv("OPENROUTER_IMAGE_ASPECT_RATIO", "16:9")
     monkeypatch.setenv("OPENROUTER_REQUEST_TIMEOUT_SECONDS", "45")
-    monkeypatch.setenv("BLOB_READ_WRITE_TOKEN", "blob-secret")
     monkeypatch.setenv("GOOGLE_CLIENT_SECRET", "phase-3-secret")
     monkeypatch.setenv("STORAGE_SECRET_ACCESS_KEY", "not-used-in-phase-1")
 
@@ -141,9 +140,31 @@ def test_settings_support_phase6_generation_env_overrides(monkeypatch) -> None:
     }
     assert settings.openrouter_image_aspect_ratio == "16:9"
     assert settings.openrouter_request_timeout_seconds == 45
-    assert settings.blob_read_write_token == "blob-secret"
     assert settings.google_client_secret == "phase-3-secret"
     assert not hasattr(settings, "storage_secret_access_key")
+
+
+def test_settings_support_s3_storage_env_overrides(monkeypatch) -> None:
+    monkeypatch.setenv("S3_ENDPOINT_URL", "https://s3.example.com")
+    monkeypatch.setenv("S3_REGION", "ru-central1")
+    monkeypatch.setenv("S3_BUCKET", "comicly-generated")
+    monkeypatch.setenv("S3_ACCESS_KEY_ID", "access")
+    monkeypatch.setenv("S3_SECRET_ACCESS_KEY", "secret")
+    monkeypatch.setenv("S3_PUBLIC_BASE_URL", "https://cdn.example.com/comicly")
+    monkeypatch.setenv("S3_FORCE_PATH_STYLE", "false")
+    monkeypatch.setenv("S3_PUBLIC_READ_ACL", "false")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.s3_endpoint_url == "https://s3.example.com"
+    assert settings.s3_region == "ru-central1"
+    assert settings.s3_bucket == "comicly-generated"
+    assert settings.s3_access_key_id == "access"
+    assert settings.s3_secret_access_key == "secret"
+    assert settings.s3_public_base_url == "https://cdn.example.com/comicly"
+    assert settings.s3_force_path_style is False
+    assert settings.s3_public_read_acl is False
+
 
 
 def test_default_image_model_must_be_allowed(monkeypatch) -> None:

@@ -11,7 +11,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import Settings, get_settings
 from app.core.errors import ApiError
 from app.db.session import get_async_session
-from app.services.blob_storage import BlobStorageService
 from app.services.current_user import CurrentUserContext, get_current_user
 from app.services.generations import (
     JOB_STATUS_FAILED,
@@ -19,6 +18,7 @@ from app.services.generations import (
     GenerationResult,
     GenerationService,
 )
+from app.services.image_storage import build_image_storage
 from app.services.openrouter import OpenRouterService
 
 router = APIRouter(prefix="/generations", tags=["generations"])
@@ -112,7 +112,7 @@ def get_generation_service(
     return GenerationService(
         settings,
         image_provider=OpenRouterService(settings),
-        image_storage=BlobStorageService(settings),
+        image_storage=build_image_storage(settings),
     )
 
 

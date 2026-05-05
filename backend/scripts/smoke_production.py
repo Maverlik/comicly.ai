@@ -121,7 +121,7 @@ def main() -> int:
     print(
         "[MANUAL] Live OAuth callbacks require provider credentials and browser login."
     )
-    print("[MANUAL] Live generation requires auth, OpenRouter, Vercel Blob, and coins.")
+    print("[MANUAL] Live generation requires auth, OpenRouter, S3 storage, and coins.")
 
     return 0 if all(result.ok for result in results) else 1
 

@@ -55,7 +55,14 @@ class Settings(BaseSettings):
     )
     openrouter_image_aspect_ratio: str = "1:1"
     openrouter_request_timeout_seconds: float = 60.0
-    blob_read_write_token: str | None = None
+    s3_endpoint_url: str | None = None
+    s3_region: str = "ru-1"
+    s3_bucket: str | None = None
+    s3_access_key_id: str | None = None
+    s3_secret_access_key: str | None = None
+    s3_public_base_url: str | None = None
+    s3_force_path_style: bool = True
+    s3_public_read_acl: bool = True
     security_headers_enabled: bool = True
     rate_limit_enabled: bool = True
     rate_limit_window_seconds: int = 60

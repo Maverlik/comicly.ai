@@ -17,9 +17,9 @@ from app.models.generation import GenerationJob
 from app.models.user import User, UserSession
 from app.models.wallet import Wallet
 from app.services.auth_sessions import hash_session_token
-from app.services.blob_storage import StoredBlob
 from app.services.comics import ComicCreate, SceneInput, create_comic, replace_scenes
 from app.services.generations import GenerationService
+from app.services.image_storage_common import StoredImage
 from app.services.openrouter import ComicImagePromptInput, OpenRouterImageResult
 
 
@@ -62,8 +62,8 @@ class FakeStorage:
     async def upload_generated_image(self, *, comic_id, page_id, image_source):
         if self.error is not None:
             raise self.error
-        return StoredBlob(
-            url="https://blob.example/page.png",
+        return StoredImage(
+            url="https://storage.example/page.png",
             storage_key=f"generated/{page_id}.png",
             content_type="image/png",
             size=5,
@@ -187,7 +187,7 @@ async def test_generation_success_returns_small_response_without_base64(
     assert response.status_code == 200
     payload = response.json()
     assert payload["balance"] == 80
-    assert payload["image_url"] == "https://blob.example/page.png"
+    assert payload["image_url"] == "https://storage.example/page.png"
     assert payload["page"]["status"] == "generated"
     assert "base64" not in response.text
 
